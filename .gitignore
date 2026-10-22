@@ -1,0 +1,68 @@
+# ── macOS 시스템 파일 ──
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Icon?
+*.icloud
+
+# ── Xcode 사용자별 설정 (창 배치, 브레이크포인트 등) ──
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# ── 빌드 산출물 ──
+build/
+DerivedData/
+*.xcarchive
+*.dSYM
+*.dSYM.zip
+*.ipa
+*.hmap
+# 배포용 zip은 GitHub Releases에 올리고 저장소에는 넣지 않는다
+/release/
+*.app.zip
+# Xcode Organizer에서 내보낸 ad-hoc 빌드 폴더
+*-AdHoc/
+
+# ── 코드 커버리지 ──
+*.profraw
+*.profdata
+*.xccovreport
+*.xccovarchive
+
+# ── Playground ──
+timeline.xctimeline
+playground.xcworkspace
+
+# ── Swift Package Manager ──
+# Package.resolved는 앱의 의존성 버전을 고정하므로 커밋한다 (무시하지 않음)
+.build/
+.swiftpm/
+/Packages/
+
+# ── 비밀 값 ──
+# 실제 키는 Secrets.xcconfig에만, 저장소에는 Secrets.example.xcconfig만 올린다
+Secrets.xcconfig
+*.p12
+*.cer
+*.key
+*.mobileprovision
+*.provisionprofile
+.env
+.env.*
+!.env.example
+
+# ── 개인 메모 ──
+docs/private/
+
+# ── AI 도구 개인 설정 (CLAUDE.md는 공유하므로 커밋) ──
+.claude/settings.local.json
+.claude/worktrees/
+
+# ── 편집기 ──
+.vscode/
+.idea/
+*.swp
+*~
