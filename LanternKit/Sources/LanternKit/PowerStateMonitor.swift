@@ -1,18 +1,20 @@
 import CoreGraphics
 import Foundation
 import IOKit.ps
+import Observation
 
 /// 전원 어댑터와 모니터 연결 상태를 읽고, 바뀌는 순간 알려 준다.
 ///
 /// `start()` 뒤에는 어댑터를 꽂거나 뽑을 때, 모니터를 연결하거나 뺄 때 `onChange`가 불린다.
 /// 다 쓰면 `stop()`을 불러 시스템 알림 등록을 해제한다.
 @MainActor
+@Observable
 public final class PowerStateMonitor {
     public private(set) var snapshot: PowerSnapshot
-    public var onChange: ((PowerSnapshot) -> Void)?
+    @ObservationIgnored public var onChange: ((PowerSnapshot) -> Void)?
 
-    private var powerSource: CFRunLoopSource?
-    private var isObservingDisplays = false
+    @ObservationIgnored private var powerSource: CFRunLoopSource?
+    @ObservationIgnored private var isObservingDisplays = false
 
     public init() {
         snapshot = Self.readSnapshot()
