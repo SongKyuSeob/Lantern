@@ -18,11 +18,16 @@ struct LanternApp: App {
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let awake = AwakeController()
     private let power = PowerStateMonitor()
+    private let panelState = PanelState()
+    private var panel: FloatingPanelController?
     private var statusItem: StatusItemController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItem = StatusItemController(awake: awake, power: power)
+        let panel = FloatingPanelController(awake: awake, power: power, state: panelState)
+        self.panel = panel
+        statusItem = StatusItemController(awake: awake, panel: panel)
         power.start()
+        panel.show()
     }
 
     func applicationWillTerminate(_ notification: Notification) {
