@@ -8,12 +8,14 @@ import LanternKit
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let awake: AwakeController
     private let panel: FloatingPanelController
+    private let settings: SettingsWindowController
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let menu = NSMenu()
 
-    init(awake: AwakeController, panel: FloatingPanelController) {
+    init(awake: AwakeController, panel: FloatingPanelController, settings: SettingsWindowController) {
         self.awake = awake
         self.panel = panel
+        self.settings = settings
         super.init()
         menu.delegate = self
         statusItem.button?.target = self
@@ -77,6 +79,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
         menu.addItem(actionItem(panel.isVisible ? "창 숨기기" : "창 보이기", #selector(togglePanelVisibility)))
+        let settingsItem = actionItem("설정…", #selector(showSettings))
+        settingsItem.keyEquivalent = ","
+        menu.addItem(settingsItem)
 
         menu.addItem(.separator())
         menu.addItem(withTitle: "랜턴 종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -124,6 +129,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func stopAwake() { awake.stop() }
     @objc private func turnOffDisplay() { awake.turnOffDisplay() }
     @objc private func pickTime() { panel.showTimePicker() }
+    @objc private func showSettings() { settings.show() }
 
     @objc private func togglePanelVisibility() {
         if panel.isVisible { panel.hide() } else { panel.show() }

@@ -19,13 +19,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let awake = AwakeController()
     private let power = PowerStateMonitor()
     private let panelState = PanelState()
+    private let lidModeSetup = LidModeSetup()
+    private lazy var settings = SettingsWindowController(lidModeSetup: lidModeSetup)
     private var panel: FloatingPanelController?
     private var statusItem: StatusItemController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         let panel = FloatingPanelController(awake: awake, power: power, state: panelState)
         self.panel = panel
-        statusItem = StatusItemController(awake: awake, panel: panel)
+        statusItem = StatusItemController(awake: awake, panel: panel, settings: settings)
         power.start()
         panel.show()
     }
