@@ -59,11 +59,12 @@ final class FloatingPanelController {
         ) { [weak self] _ in
             MainActor.assumeIsolated { self?.placeAtTopRight() }
         }
-        // 내용에 따라 높이가 바뀌어도 오른쪽 위 모서리를 그 자리에 둔다
+        // 내용에 따라 높이가 바뀌어도 오른쪽 위 모서리를 그 자리에 둔다.
+        // 이 알림은 SwiftUI가 화면을 배치하는 도중에 오므로, 배치가 끝난 뒤에 옮긴다 (배치 중 재배치 경고 방지)
         resizeObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification, object: panel, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.placeAtTopRight() }
+            DispatchQueue.main.async { self?.placeAtTopRight() }
         }
 
         applyMode()
