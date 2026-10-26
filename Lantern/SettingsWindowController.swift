@@ -1,4 +1,5 @@
 import AppKit
+import Carbon.HIToolbox
 import LanternKit
 import SwiftUI
 
@@ -8,9 +9,17 @@ final class SettingsWindowController {
     private let safety: SafetyController
     private let agentHooks: AgentHookSetup
     private let agentMonitor: AgentMonitor
+    private let shortcuts: GlobalShortcutController
     private var window: NSWindow?
 
-    init(lidMode: LidModeController, safety: SafetyController, agentHooks: AgentHookSetup, agentMonitor: AgentMonitor) {
+    init(
+        lidMode: LidModeController,
+        safety: SafetyController,
+        agentHooks: AgentHookSetup,
+        agentMonitor: AgentMonitor,
+        shortcuts: GlobalShortcutController
+    ) {
+        self.shortcuts = shortcuts
         self.lidMode = lidMode
         self.safety = safety
         self.agentHooks = agentHooks
@@ -20,7 +29,7 @@ final class SettingsWindowController {
     func show() {
         if window == nil {
             let host = NSHostingController(rootView: SettingsView(
-                lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor
+                lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor, shortcuts: shortcuts
             ))
             let window = NSWindow(contentViewController: host)
             window.title = "랜턴 설정"
@@ -41,11 +50,13 @@ struct SettingsView: View {
     @Bindable var safety: SafetyController
     let agentHooks: AgentHookSetup
     let agentMonitor: AgentMonitor
+    let shortcuts: GlobalShortcutController
 
     private var lidModeSetup: LidModeSetup { lidMode.setup }
 
     var body: some View {
         Form {
+            ShortcutSection(shortcuts: shortcuts)
             AgentSection(agentHooks: agentHooks, agentMonitor: agentMonitor)
             Section {
                 Stepper(value: $safety.batteryThreshold, in: SafetyController.batteryThresholdRange, step: 5) {
@@ -173,5 +184,80 @@ private struct AgentSection: View {
                     .help("에이전트에게 지시를 한 번 보내면 신호가 와요")
             }
         }
+    }
+}
+
+/// "단축키" 칸. 버튼을 누른 뒤 원하는 조합을 누르면 바뀐다
+private struct ShortcutSection: View {
+    let shortcuts: GlobalShortcutController
+    @State private var isRecording = false
+    @State private var monitor: Any?
+    @State private var hint: String?
+
+    var body: some View {
+        Section {
+            LabeledContent("창 열기·닫기") {
+                HStack(spacing: 8) {
+                    Button(isRecording ? "키를 누르세요…" : shortcuts.shortcut?.displayString ?? "없음") {
+                        isRecording ? stopRecording() : startRecording()
+                    }
+                    .frame(minWidth: 100)
+                    if !isRecording {
+                        if shortcuts.shortcut != nil {
+                            Button("끄기") { shortcuts.update(nil) }
+                        }
+                        if shortcuts.shortcut != .default {
+                            Button("기본값") { shortcuts.update(.default) }
+                        }
+                    }
+                }
+            }
+            if let hint {
+                Text(hint)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            } else if shortcuts.registrationFailed {
+                Text("다른 앱이 이미 이 조합을 쓰고 있어서 등록하지 못했어요. 다른 조합으로 바꿔 주세요.")
+                    .font(.callout)
+                    .foregroundStyle(.red)
+            }
+        } header: {
+            Text("단축키")
+        } footer: {
+            Text("어느 앱에서든 누르면 메뉴바 아이콘을 누른 것처럼 창을 열고 닫아요. 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (⎋로 취소).")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+        .onDisappear { stopRecording() }
+    }
+
+    private func startRecording() {
+        hint = nil
+        isRecording = true
+        // 지금 조합을 다시 누를 수도 있으니, 입력받는 동안 등록을 잠시 내린다
+        shortcuts.suspend()
+        monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            let modifiers = event.modifierFlags.intersection(KeyShortcut.allowedModifiers)
+            if event.keyCode == UInt16(kVK_Escape), modifiers.isEmpty {
+                stopRecording()
+                return nil
+            }
+            let candidate = KeyShortcut(keyCode: event.keyCode, modifiers: modifiers)
+            if candidate.isValid {
+                shortcuts.update(candidate)
+                stopRecording()
+            } else {
+                hint = "⌘, ⌥, ⌃ 중 하나와 함께 눌러 주세요."
+            }
+            return nil
+        }
+    }
+
+    private func stopRecording() {
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+        guard isRecording else { return }
+        isRecording = false
+        shortcuts.resume()
     }
 }

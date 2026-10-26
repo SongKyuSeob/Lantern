@@ -23,10 +23,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let watchdog = WatchdogController()
     private let agentMonitor = AgentMonitor()
     private let agentHooks = AgentHookSetup()
+    private let shortcuts = GlobalShortcutController()
     private lazy var agentAwake = AgentAwakeController(awake: awake, monitor: agentMonitor)
     private lazy var safety = SafetyController(awake: awake, power: power, lidMode: lidMode)
     private lazy var settings = SettingsWindowController(
-        lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor
+        lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor, shortcuts: shortcuts
     )
     private var panel: FloatingPanelController?
     private var statusItem: StatusItemController?
@@ -60,6 +61,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             openSettings: { [weak self] in self?.settings.show() }
         )
         self.panel = panel
+        shortcuts.onPress = { [weak self] in self?.panel?.toggleActive() }
+        shortcuts.start()
         statusItem = StatusItemController(awake: awake, lidMode: lidMode, safety: safety, panel: panel, settings: settings)
         panel.show()
     }
