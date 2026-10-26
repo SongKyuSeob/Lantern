@@ -27,10 +27,9 @@ struct PanelView: View {
                 PassiveSummary(awake: awake, power: power, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase))
             }
         }
-        .frame(width: 280)
+        .frame(width: 300)
         .fixedSize(horizontal: false, vertical: true)
         .environment(\.colorScheme, .dark)
-        .animation(.easeOut(duration: 0.18), value: state.mode)
     }
 }
 
@@ -67,8 +66,9 @@ private struct ActivePanel: View {
             ) { state.tab = $0 }
             Spacer()
             Button {
+                // 접기는 평소 상태의 모습을 정하므로, 누르면 평소로 돌아가 바뀐 모습을 바로 보여 준다
                 state.isCollapsed.toggle()
-                if state.isCollapsed { state.mode = .passive }
+                state.mode = .passive
             } label: {
                 Image(systemName: state.isCollapsed ? "chevron.down" : "chevron.up")
                     .font(.system(size: 9, weight: .semibold))
@@ -319,13 +319,26 @@ private struct StatusCard: View {
 private struct TimePickerRow: View {
     let awake: AwakeController
     @Bindable var state: PanelState
-    @State private var time = TimePickerRow.initialTime()
+    /// 처음에는 지금부터 두 시간 뒤 정각
+    @State private var hour = (Calendar.current.component(.hour, from: Date()) + 2) % 24
+    @State private var minute = 0
+
+    /// 깨어 있기 끝 시각을 1분 단위로 정할 일은 드물어 5분 단위로 고른다
+    private static let minutes = Array(stride(from: 0, to: 60, by: 5))
 
     var body: some View {
-        HStack(spacing: 8) {
-            DatePicker("", selection: $time, displayedComponents: .hourAndMinute)
-                .labelsHidden()
-                .datePickerStyle(.stepperField)
+        HStack(spacing: 6) {
+            // macOS 기본 시각 칸은 글자에 비해 칸이 빠듯해서, 시·분을 각각 목록에서 고르는 칸으로 만든다
+            ChipMenu(title: AwakeText.hourLabel(hour)) {
+                ForEach(0..<24, id: \.self) { value in
+                    Button(AwakeText.hourLabel(value)) { hour = value }
+                }
+            }
+            ChipMenu(title: String(format: "%02d분", minute)) {
+                ForEach(Self.minutes, id: \.self) { value in
+                    Button(String(format: "%02d분", value)) { minute = value }
+                }
+            }
             Text(preview)
                 .font(.system(size: 11.5))
                 .foregroundStyle(.white.opacity(0.55))
@@ -343,22 +356,43 @@ private struct TimePickerRow: View {
     }
 
     private var option: AwakeOption {
-        let parts = Calendar.current.dateComponents([.hour, .minute], from: time)
-        return .timeOfDay(hour: parts.hour ?? 0, minute: parts.minute ?? 0)
+        .timeOfDay(hour: hour, minute: minute)
     }
 
-    /// 이미 지난 시각이면 "내일 …까지"
+    /// 이미 지난 시각이면 "내일까지"
     private var preview: String {
         let now = Date()
         guard let end = option.endDate(startingAt: now) else { return "" }
-        return AwakeText.until(end, from: now)
+        return Calendar.current.isDate(end, inSameDayAs: now) ? "까지" : "내일까지"
     }
+}
 
-    /// 지금부터 두 시간 뒤 정각
-    private static func initialTime() -> Date {
-        let calendar = Calendar.current
-        let later = Date().addingTimeInterval(2 * 3600)
-        return calendar.date(bySettingHour: calendar.component(.hour, from: later), minute: 0, second: 0, of: later) ?? later
+/// 누르면 목록이 펼쳐지는 작은 칸 ("오후 6시 ⌃⌄")
+private struct ChipMenu<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        Menu(content: content) {
+            HStack(spacing: 4) {
+                Text(title)
+                    .font(.system(size: 12.5, weight: .medium))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                    .fixedSize()
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.5))
+            }
+            .padding(.horizontal, 9)
+            .padding(.vertical, 5)
+            .background(RoundedRectangle(cornerRadius: 6).fill(Color.white.opacity(0.08)))
+            .contentShape(Rectangle())
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
     }
 }
 
@@ -414,6 +448,8 @@ private struct PassiveSummary: View {
         .padding(.horizontal, 12)
         .padding(.top, 10)
         .padding(.bottom, 12)
+        // "깨어 있기 꺼짐" 한 줄일 때도 글자 길이만큼 줄어들지 않고 창 폭을 가득 채운다
+        .frame(maxWidth: .infinity, alignment: .leading)
         .panelBackground(RoundedRectangle(cornerRadius: 14), passive: true)
     }
 
@@ -465,6 +501,8 @@ private struct CollapsedBar: View {
         .padding(.leading, 12)
         .padding(.trailing, 10)
         .padding(.vertical, 7)
+        // 글자 길이만큼 줄어들지 않고 창 폭을 가득 채운다 (Figma 접힘 시안)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .panelBackground(Capsule(), passive: true)
     }
 
@@ -493,6 +531,8 @@ private struct SegmentedPicker<Value: Hashable>: View {
                 Button { onSelect(value) } label: {
                     Text(title)
                         .font(.system(size: 11.5, weight: isSelected ? .semibold : .medium))
+                        .lineLimit(1)
+                        .fixedSize()
                         .foregroundStyle(foreground(isSelected))
                         .padding(.horizontal, style == .tab ? 9 : 6)
                         .padding(.vertical, 3)

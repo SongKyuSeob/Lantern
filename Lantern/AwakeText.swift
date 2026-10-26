@@ -25,6 +25,13 @@ enum AwakeText {
         return "\(tomorrow)\(time)까지"
     }
 
+    /// "오전 7시", "오후 12시"
+    static func hourLabel(_ hour: Int) -> String {
+        let period = hour < 12 ? "오전" : "오후"
+        let hour12 = hour % 12 == 0 ? 12 : hour % 12
+        return "\(period) \(hour12)시"
+    }
+
     /// "오전 7:00", "오후 12:30"
     static func clock(hour: Int, minute: Int) -> String {
         let period = hour < 12 ? "오전" : "오후"

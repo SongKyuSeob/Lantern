@@ -33,7 +33,7 @@ final class FloatingPanelController {
     ) {
         self.state = state
         panel = FloatingPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 280, height: 120),
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 120),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -46,6 +46,8 @@ final class FloatingPanelController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.acceptsMouseMovedEvents = true
+        // 키 입력을 돌려줄 때 창을 잠깐 내렸다 올리는데, 기본 페이드(0.3초)가 재생되면 창이 꺼졌다 뜨는 것처럼 보인다
+        panel.animationBehavior = .none
 
         let host = NSHostingController(rootView: PanelView(
             awake: awake, power: power, state: state,
@@ -72,7 +74,36 @@ final class FloatingPanelController {
 
         applyMode()
         observeMode()
+        #if DEBUG
+        observeDebugCommands()
+        #endif
     }
+
+    #if DEBUG
+    private var debugObserver: NSObjectProtocol?
+
+    /// 디버그 빌드에서만: 터미널에서 창 동작을 흉내 내 확인한다.
+    /// `com.songkyuseob.lantern.debug` 알림에 `toggle`(아이콘 클릭) · `chevron`(⌃/⌄) · `outside`(창 밖 클릭) · `pickTime`
+    private func observeDebugCommands() {
+        debugObserver = DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("com.songkyuseob.lantern.debug"), object: nil, queue: .main
+        ) { [weak self] notification in
+            let command = notification.object as? String
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                switch command {
+                case "toggle": self.toggleActive()
+                case "chevron":
+                    self.state.isCollapsed.toggle()
+                    self.state.mode = .passive
+                case "outside": self.state.mode = .passive
+                case "pickTime": self.state.isPickingTime.toggle()
+                default: break
+                }
+            }
+        }
+    }
+    #endif
 
     var isVisible: Bool { panel.isVisible }
 
@@ -138,6 +169,7 @@ final class FloatingPanelController {
     }
 
     /// 창이 키 입력을 받고 있었다면 원래 앱으로 돌려준다
+    /// 창을 잠깐 내렸다 다시 올려 키 입력을 놓는다 (페이드 없이, `animationBehavior = .none`)
     private func giveBackKeyFocus() {
         guard panel.isKeyWindow else { return }
         panel.orderOut(nil)
