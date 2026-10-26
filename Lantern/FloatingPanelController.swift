@@ -27,6 +27,8 @@ final class FloatingPanelController {
         state: PanelState,
         lidMode: LidModeController,
         safety: SafetyController,
+        agentMonitor: AgentMonitor,
+        agentAwake: AgentAwakeController,
         openSettings: @escaping () -> Void
     ) {
         self.state = state
@@ -47,7 +49,8 @@ final class FloatingPanelController {
 
         let host = NSHostingController(rootView: PanelView(
             awake: awake, power: power, state: state,
-            lidMode: lidMode, safety: safety, openSettings: openSettings
+            lidMode: lidMode, safety: safety,
+            agentMonitor: agentMonitor, agentAwake: agentAwake, openSettings: openSettings
         ))
         host.sizingOptions = .preferredContentSize
         host.view.wantsLayer = true

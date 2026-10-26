@@ -9,17 +9,22 @@ struct PanelView: View {
     @Bindable var state: PanelState
     let lidMode: LidModeController
     let safety: SafetyController
+    let agentMonitor: AgentMonitor
+    let agentAwake: AgentAwakeController
     let openSettings: () -> Void
 
     var body: some View {
         Group {
             // 활성 상태는 접어 두었어도 전체 창. 접기는 평소 상태의 모습만 정한다
             if state.mode == .active {
-                ActivePanel(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, openSettings: openSettings)
+                ActivePanel(
+                    awake: awake, power: power, state: state, lidMode: lidMode, safety: safety,
+                    agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase), openSettings: openSettings
+                )
             } else if state.isCollapsed {
-                CollapsedBar(awake: awake)
+                CollapsedBar(awake: awake, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase))
             } else {
-                PassiveSummary(awake: awake, power: power)
+                PassiveSummary(awake: awake, power: power, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase))
             }
         }
         .frame(width: 280)
@@ -37,13 +42,14 @@ private struct ActivePanel: View {
     @Bindable var state: PanelState
     let lidMode: LidModeController
     let safety: SafetyController
+    let agents: AgentStatusText
     let openSettings: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             header
             switch state.tab {
-            case .awake: AwakeTab(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, openSettings: openSettings)
+            case .awake: AwakeTab(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, agents: agents, openSettings: openSettings)
             case .todo: TodoTab()
             }
         }
@@ -82,11 +88,12 @@ private struct AwakeTab: View {
     @Bindable var state: PanelState
     let lidMode: LidModeController
     let safety: SafetyController
+    let agents: AgentStatusText
     let openSettings: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            StatusCard(awake: awake)
+            StatusCard(awake: awake, agents: agents)
             durationRow
             if state.isPickingTime {
                 TimePickerRow(awake: awake, state: state)
@@ -125,17 +132,18 @@ private struct AwakeTab: View {
             if case .timeOfDay = option { return .pickTime }
             return .option(option)
         }()
-        return HStack {
+        // 다섯 칸이 라벨과 한 줄에 들어가지 않아 라벨을 위로 올린다
+        return VStack(alignment: .leading, spacing: 6) {
             Text("언제까지")
                 .font(.system(size: 12))
                 .foregroundStyle(.white.opacity(0.5))
-            Spacer()
             SegmentedPicker(
                 items: [
                     (Choice.option(.indefinite), "계속"),
                     (.option(.hours(1)), "1시간"),
                     (.option(.hours(2)), "2시간"),
                     (.pickTime, "시각"),
+                    (.option(.untilAgentsFinish), "에이전트"),
                 ],
                 selection: selected,
                 style: .segment
@@ -240,10 +248,30 @@ private struct LidModeRow: View {
 /// 남은 시간 카드
 private struct StatusCard: View {
     let awake: AwakeController
+    let agents: AgentStatusText
 
     var body: some View {
         HStack {
-            if let session = awake.current {
+            if let session = awake.current, session.option == .untilAgentsFinish {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        FlameDot(size: 6)
+                        Text("깨어 있는 중 · 에이전트가 끝날 때까지")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(Theme.flameText)
+                    }
+                    Text(agents.headline)
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                    if let detail = agents.detail {
+                        Text(detail)
+                            .font(.system(size: 11))
+                            .foregroundStyle(.white.opacity(0.5))
+                    }
+                }
+                .help(AgentStatusText.rulesHelp)
+                Spacer()
+            } else if let session = awake.current {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         FlameDot(size: 6)
@@ -350,6 +378,7 @@ private struct TodoTab: View {
 private struct PassiveSummary: View {
     let awake: AwakeController
     let power: PowerStateMonitor
+    let agents: AgentStatusText
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -365,6 +394,10 @@ private struct PassiveSummary: View {
                     if let remaining = awake.remaining {
                         Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white))\(Text(" 남음").font(.system(size: 11, weight: .medium)).foregroundStyle(.white.opacity(0.6)))")
                             .monospacedDigit()
+                    } else if session.option == .untilAgentsFinish {
+                        Text(agents.short)
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.white)
                     }
                 }
                 detailLine(session)
@@ -407,6 +440,7 @@ private struct PassiveSummary: View {
 /// 한 줄로 접어 둔 평소 모습. 클릭은 뒤로 통과한다
 private struct CollapsedBar: View {
     let awake: AwakeController
+    let agents: AgentStatusText
 
     var body: some View {
         HStack {
@@ -436,6 +470,7 @@ private struct CollapsedBar: View {
 
     private var shortStatus: String {
         if let remaining = awake.remaining { return RemainingTimeFormat.string(from: remaining) }
+        if awake.current?.option == .untilAgentsFinish { return agents.short }
         return awake.current.map { AwakeText.label(for: $0.option) } ?? ""
     }
 }
@@ -459,8 +494,9 @@ private struct SegmentedPicker<Value: Hashable>: View {
                     Text(title)
                         .font(.system(size: 11.5, weight: isSelected ? .semibold : .medium))
                         .foregroundStyle(foreground(isSelected))
-                        .padding(.horizontal, style == .tab ? 9 : 8)
+                        .padding(.horizontal, style == .tab ? 9 : 6)
                         .padding(.vertical, 3)
+                        .frame(maxWidth: style == .segment ? .infinity : nil)
                         .background(RoundedRectangle(cornerRadius: 5).fill(background(isSelected)))
                         .contentShape(Rectangle())
                 }
@@ -548,4 +584,59 @@ private struct BehindWindowBlur: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
+}
+
+// MARK: - 에이전트 문구
+
+/// "에이전트가 끝날 때까지" 옵션에서 보여 줄 문구
+struct AgentStatusText {
+    let monitor: AgentMonitor
+    let phase: AgentAwakeController.Phase
+
+    /// 판단 기준. 상태 카드에 마우스를 올리면 보인다
+    static let rulesHelp = """
+    Claude Code·Codex가 보내는 신호로 판단해요.
+    · 일하는 에이전트가 모두 끝나면 1분 뒤 깨어 있기를 꺼요
+    · 명령이 실행 중이면 신호가 없어도 최대 3시간 기다려요
+    · 그 밖에 30분 동안 신호가 없으면 끝난 것으로 봐요 (Esc로 중단한 경우 등)
+    · 에이전트 프로그램을 닫으면 바로 끝난 것으로 봐요
+    """
+
+    /// "Claude Code 2개 작업 중"
+    var headline: String {
+        switch phase {
+        case .waitingForAgents: return "에이전트를 기다리는 중"
+        case .finishing: return "모두 끝남 · 곧 꺼져요"
+        case .working, .inactive:
+            let parts = AgentKind.allCases.compactMap { agent -> String? in
+                let count = monitor.count(of: agent)
+                return count > 0 ? "\(agent.displayName) \(count)개" : nil
+            }
+            return parts.isEmpty ? "에이전트를 기다리는 중" : parts.joined(separator: " · ") + " 작업 중"
+        }
+    }
+
+    /// "명령 실행 중", "허락을 기다리는 중"
+    var detail: String? {
+        switch phase {
+        case .waitingForAgents: return "일을 시작하면 끝날 때까지 깨어 있어요"
+        case .finishing: return "1분 안에 다시 일하면 이어져요"
+        case .working, .inactive:
+            let statuses = monitor.activeSessions.map(\.status)
+            if statuses.contains(.awaitingPermission) { return "허락을 기다리는 에이전트가 있어요" }
+            if statuses.contains(.runningCommand) { return "명령 실행 중" }
+            return nil
+        }
+    }
+
+    /// 한 줄 요약용: "작업 중 3", "기다리는 중", "곧 꺼짐"
+    var short: String {
+        switch phase {
+        case .waitingForAgents: return "기다리는 중"
+        case .finishing: return "곧 꺼짐"
+        case .working, .inactive:
+            let count = monitor.activeSessions.count
+            return count > 0 ? "작업 중 \(count)" : "기다리는 중"
+        }
+    }
 }

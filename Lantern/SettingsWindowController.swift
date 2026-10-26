@@ -6,16 +6,22 @@ import SwiftUI
 final class SettingsWindowController {
     private let lidMode: LidModeController
     private let safety: SafetyController
+    private let agentHooks: AgentHookSetup
+    private let agentMonitor: AgentMonitor
     private var window: NSWindow?
 
-    init(lidMode: LidModeController, safety: SafetyController) {
+    init(lidMode: LidModeController, safety: SafetyController, agentHooks: AgentHookSetup, agentMonitor: AgentMonitor) {
         self.lidMode = lidMode
         self.safety = safety
+        self.agentHooks = agentHooks
+        self.agentMonitor = agentMonitor
     }
 
     func show() {
         if window == nil {
-            let host = NSHostingController(rootView: SettingsView(lidMode: lidMode, safety: safety))
+            let host = NSHostingController(rootView: SettingsView(
+                lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor
+            ))
             let window = NSWindow(contentViewController: host)
             window.title = "랜턴 설정"
             window.styleMask = [.titled, .closable]
@@ -24,6 +30,7 @@ final class SettingsWindowController {
             self.window = window
         }
         lidMode.setup.refresh()
+        agentHooks.refresh()
         NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
     }
@@ -32,11 +39,14 @@ final class SettingsWindowController {
 struct SettingsView: View {
     let lidMode: LidModeController
     @Bindable var safety: SafetyController
+    let agentHooks: AgentHookSetup
+    let agentMonitor: AgentMonitor
 
     private var lidModeSetup: LidModeSetup { lidMode.setup }
 
     var body: some View {
         Form {
+            AgentSection(agentHooks: agentHooks, agentMonitor: agentMonitor)
             Section {
                 Stepper(value: $safety.batteryThreshold, in: SafetyController.batteryThresholdRange, step: 5) {
                     LabeledContent("배터리 기준", value: "\(safety.batteryThreshold)%")
@@ -103,5 +113,65 @@ struct SettingsView: View {
         SudoersRule.Command.allCases
             .map { "sudo " + ([SudoersRule.pmsetPath] + $0.arguments).joined(separator: " ") }
             .joined(separator: "\n")
+    }
+}
+
+/// "에이전트 연결" 칸. 에이전트별로 hook을 연결·해제하고, 신호가 실제로 오는지 보여 준다
+private struct AgentSection: View {
+    let agentHooks: AgentHookSetup
+    let agentMonitor: AgentMonitor
+
+    var body: some View {
+        Section {
+            ForEach(AgentKind.allCases, id: \.self) { agent in
+                LabeledContent(agent.displayName) {
+                    HStack(spacing: 8) {
+                        status(agent)
+                        switch agentHooks.status(of: agent) {
+                        case .connected:
+                            Button("해제") { agentHooks.disconnect(agent) }
+                        case .notConnected:
+                            Button("연결") { agentHooks.connect(agent) }
+                        case .programMissing:
+                            EmptyView()
+                        }
+                    }
+                }
+            }
+            if let error = agentHooks.lastError {
+                Text(error)
+                    .font(.callout)
+                    .foregroundStyle(.red)
+            }
+        } header: {
+            Text("에이전트 연결")
+        } footer: {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("연결하면 \"언제까지 · 에이전트\"를 골랐을 때 에이전트가 일하는 동안만 깨어 있어요. 에이전트 설정 파일에 랜턴 hook을 더하고, 다른 hook은 건드리지 않아요. 바꾸기 전 파일은 같은 폴더에 .lantern-backup으로 남겨요.")
+                Text("Codex는 연결한 뒤 Codex를 다시 켜서 /hooks에서 랜턴 hook을 한 번 승인해야 동작해요. Claude Code는 처음 여는 폴더를 신뢰해야 hook이 동작해요.")
+                Text(AgentStatusText.rulesHelp)
+            }
+            .font(.callout)
+            .foregroundStyle(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private func status(_ agent: AgentKind) -> some View {
+        switch agentHooks.status(of: agent) {
+        case .programMissing:
+            Text("설치 안 됨").foregroundStyle(.secondary)
+        case .notConnected:
+            Text("연결 안 됨").foregroundStyle(.secondary)
+        case .connected:
+            if let last = agentMonitor.lastSignalAt[agent] {
+                Label("연결됨 · 마지막 신호 \(last.formatted(.relative(presentation: .named)))", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            } else {
+                Label("연결됨 · 아직 신호 없음", systemImage: "clock")
+                    .foregroundStyle(.secondary)
+                    .help("에이전트에게 지시를 한 번 보내면 신호가 와요")
+            }
+        }
     }
 }

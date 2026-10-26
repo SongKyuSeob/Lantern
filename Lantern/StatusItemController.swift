@@ -184,5 +184,5 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     // MARK: - 문구
 
     /// 메뉴에서 바로 고를 수 있는 옵션. "시각…"은 플로팅 창에서 고른다
-    private static let menuOptions: [AwakeOption] = [.indefinite, .hours(1), .hours(2)]
+    private static let menuOptions: [AwakeOption] = [.indefinite, .hours(1), .hours(2), .untilAgentsFinish]
 }
