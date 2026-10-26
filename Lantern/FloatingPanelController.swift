@@ -21,7 +21,14 @@ final class FloatingPanelController {
     private static let margin = NSSize(width: 12, height: 10)
     private static let escapeKeyCode: UInt16 = 53
 
-    init(awake: AwakeController, power: PowerStateMonitor, state: PanelState) {
+    init(
+        awake: AwakeController,
+        power: PowerStateMonitor,
+        state: PanelState,
+        lidMode: LidModeController,
+        safety: SafetyController,
+        openSettings: @escaping () -> Void
+    ) {
         self.state = state
         panel = FloatingPanel(
             contentRect: NSRect(x: 0, y: 0, width: 280, height: 120),
@@ -38,7 +45,10 @@ final class FloatingPanelController {
         panel.backgroundColor = .clear
         panel.acceptsMouseMovedEvents = true
 
-        let host = NSHostingController(rootView: PanelView(awake: awake, power: power, state: state))
+        let host = NSHostingController(rootView: PanelView(
+            awake: awake, power: power, state: state,
+            lidMode: lidMode, safety: safety, openSettings: openSettings
+        ))
         host.sizingOptions = .preferredContentSize
         host.view.wantsLayer = true
         host.view.layer?.backgroundColor = .clear

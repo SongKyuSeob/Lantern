@@ -54,14 +54,20 @@ final class LidModeSetup {
         runWithAdministratorPrivileges(script)
     }
 
+    /// 규칙 없이 남아 있는 뚜껑 모드를 관리자 비밀번호로 끈다
+    func restoreSleepWithAdministratorPrivileges() {
+        let script = "\(SudoersRule.pmsetPath) \(SudoersRule.Command.enableSleep.arguments.joined(separator: " "))"
+        runWithAdministratorPrivileges(script, prompt: "랜턴이 켜져 있는 뚜껑 모드를 끄려고 합니다.")
+    }
+
     // MARK: - 내부
 
-    private func runWithAdministratorPrivileges(_ script: String) {
+    private func runWithAdministratorPrivileges(_ script: String, prompt: String = "랜턴이 뚜껑 모드 권한을 바꾸려고 합니다.") {
         lastError = nil
         let escaped = script
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "\"", with: "\\\"")
-        let source = "do shell script \"\(escaped)\" with prompt \"랜턴이 뚜껑 모드 권한을 바꾸려고 합니다.\" with administrator privileges"
+        let source = "do shell script \"\(escaped)\" with prompt \"\(prompt)\" with administrator privileges"
         var errorInfo: NSDictionary?
         NSAppleScript(source: source)?.executeAndReturnError(&errorInfo)
         if let errorInfo, errorInfo[NSAppleScript.errorNumber] as? Int != Self.userCanceledError {

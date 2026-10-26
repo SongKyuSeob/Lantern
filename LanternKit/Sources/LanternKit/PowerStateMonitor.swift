@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import IOKit
 import IOKit.ps
 import Observation
 
@@ -49,6 +50,13 @@ public final class PowerStateMonitor {
         }
     }
 
+    /// 뚜껑 모드가 켜지고 꺼질 때 앱이 알려 준다. 시스템 알림으로는 알 수 없다
+    public func setLidModeOn(_ isOn: Bool) {
+        guard snapshot.isLidModeOn != isOn else { return }
+        snapshot.isLidModeOn = isOn
+        onChange?(snapshot)
+    }
+
     /// 모니터 구성이 바뀌기 시작할 때와 끝났을 때 두 번 불린다. 끝났을 때만 다시 읽는다
     private nonisolated static let displayCallback: CGDisplayReconfigurationCallBack = { _, flags, context in
         guard !flags.contains(.beginConfigurationFlag) else { return }
@@ -77,14 +85,40 @@ public final class PowerStateMonitor {
         return PowerSnapshot(
             isOnACPower: isOnACPower(),
             hasBuiltInDisplay: displays.contains { CGDisplayIsBuiltin($0) != 0 },
-            hasExternalDisplay: displays.contains { CGDisplayIsBuiltin($0) == 0 }
+            hasExternalDisplay: displays.contains { CGDisplayIsBuiltin($0) == 0 },
+            batteryPercent: batteryPercent()
         )
+    }
+
+    /// 지금 뚜껑이 닫혀 있는지. 뚜껑이 없는 맥이면 `false`
+    public static func isLidClosed() -> Bool {
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("IOPMrootDomain"))
+        guard service != 0 else { return false }
+        defer { IOObjectRelease(service) }
+        let value = IORegistryEntryCreateCFProperty(service, "AppleClamshellState" as CFString, kCFAllocatorDefault, 0)?
+            .takeRetainedValue()
+        return value as? Bool ?? false
     }
 
     private static func isOnACPower() -> Bool {
         let info = IOPSCopyPowerSourcesInfo().takeRetainedValue()
         let type = IOPSGetProvidingPowerSourceType(info).takeUnretainedValue() as String
         return type == kIOPMACPowerKey
+    }
+
+    /// 내장 배터리 잔량(%). 잔량이 바뀔 때도 전원 알림이 오므로 `refresh()`에서 함께 읽는다
+    private static func batteryPercent() -> Int? {
+        let info = IOPSCopyPowerSourcesInfo().takeRetainedValue()
+        let sources = IOPSCopyPowerSourcesList(info).takeRetainedValue() as [CFTypeRef]
+        for source in sources {
+            guard let description = IOPSGetPowerSourceDescription(info, source)?.takeUnretainedValue() as? [String: Any],
+                  description[kIOPSTypeKey] as? String == kIOPSInternalBatteryType,
+                  let current = description[kIOPSCurrentCapacityKey] as? Int,
+                  let max = description[kIOPSMaxCapacityKey] as? Int, max > 0
+            else { continue }
+            return current * 100 / max
+        }
+        return nil
     }
 
     /// 연결된 모든 화면. 뚜껑이 닫혀 꺼진 내장 화면도 포함한다

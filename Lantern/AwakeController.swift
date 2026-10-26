@@ -11,6 +11,9 @@ final class AwakeController {
     /// 1초마다 바뀌어 남은 시간 표시를 갱신시킨다
     private(set) var now = Date()
 
+    /// 세션이 끝나기 직전에 불린다 (사용자가 끄거나 시간이 다 됐을 때). 뚜껑 모드를 먼저 끄는 데 쓴다
+    @ObservationIgnored var onWillEnd: (() -> Void)?
+
     private let blocker = IdleSleepBlocker()
     private let defaults: UserDefaults
     private var timer: Timer?
@@ -41,6 +44,8 @@ final class AwakeController {
     }
 
     func stop() {
+        guard machine.isAwake else { return }
+        onWillEnd?()
         machine.stop()
         applySystemState()
     }
@@ -84,7 +89,9 @@ final class AwakeController {
 
     private func tick() {
         now = Date()
-        if machine.tick(at: now) != nil {
+        if machine.current?.hasExpired(at: now) == true {
+            onWillEnd?()
+            _ = machine.tick(at: now)
             applySystemState()
         }
     }

@@ -7,13 +7,23 @@ import LanternKit
 /// 아이콘은 깨어 있기 상태에 따라 바뀌고, 메뉴는 열 때마다 지금 상태로 다시 그린다.
 final class StatusItemController: NSObject, NSMenuDelegate {
     private let awake: AwakeController
+    private let lidMode: LidModeController
+    private let safety: SafetyController
     private let panel: FloatingPanelController
     private let settings: SettingsWindowController
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let menu = NSMenu()
 
-    init(awake: AwakeController, panel: FloatingPanelController, settings: SettingsWindowController) {
+    init(
+        awake: AwakeController,
+        lidMode: LidModeController,
+        safety: SafetyController,
+        panel: FloatingPanelController,
+        settings: SettingsWindowController
+    ) {
         self.awake = awake
+        self.lidMode = lidMode
+        self.safety = safety
         self.panel = panel
         self.settings = settings
         super.init()
@@ -41,18 +51,19 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     // MARK: - 아이콘
 
     private func updateIcon() {
-        let name = awake.isAwake ? "MenuBarAwake" : "MenuBarOff"
+        let name = lidMode.isOn ? "MenuBarLid" : awake.isAwake ? "MenuBarAwake" : "MenuBarOff"
         let image = NSImage(named: name)
         image?.isTemplate = true
         image?.size = NSSize(width: 18, height: 18)
         statusItem.button?.image = image
-        statusItem.button?.toolTip = awake.isAwake ? "랜턴 · 깨어 있는 중" : "랜턴"
+        statusItem.button?.toolTip = lidMode.isOn ? "랜턴 · 뚜껑 닫아도 유지" : awake.isAwake ? "랜턴 · 깨어 있는 중" : "랜턴"
     }
 
-    /// 깨어 있기 상태가 바뀔 때마다 아이콘을 다시 그린다
+    /// 깨어 있기·뚜껑 모드 상태가 바뀔 때마다 아이콘을 다시 그린다
     private func observeAwakeState() {
         withObservationTracking {
             _ = awake.isAwake
+            _ = lidMode.isOn
         } onChange: { [weak self] in
             Task { @MainActor in
                 self?.updateIcon()
@@ -73,6 +84,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             menu.addItem(actionItem("깨어 있기 시작 · \(AwakeText.label(for: awake.lastOption))", #selector(startWithLastOption)))
         }
         menu.addItem(durationMenuItem())
+        if let lidItem = lidModeMenuItem() {
+            menu.addItem(lidItem)
+        }
         if awake.isAwake {
             menu.addItem(actionItem("화면 끄기", #selector(turnOffDisplay)))
         }
@@ -105,8 +119,31 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         return item
     }
 
+    /// "뚜껑 닫아도 유지" 항목. 뚜껑이 없는 맥이면 `nil`.
+    /// 권한이 없으면 설정 창으로 보내고, 켤 수 없는 상태면 흐리게 둔다
+    private func lidModeMenuItem() -> NSMenuItem? {
+        guard PowerStateMonitor.readSnapshot().hasBuiltInDisplay else { return nil }
+        if lidMode.setup.status == .notInstalled {
+            return actionItem("뚜껑 닫아도 유지 설정…", #selector(showSettings))
+        }
+        let canEnable = lidMode.setup.status == .installed && awake.isAwake && safety.lidModeBlock == nil
+        let item = NSMenuItem(title: "뚜껑 닫아도 유지", action: nil, keyEquivalent: "")
+        if lidMode.isOn || canEnable {
+            item.action = #selector(toggleLidMode)
+            item.target = self
+        }
+        item.state = lidMode.isOn ? .on : .off
+        return item
+    }
+
     private func statusText() -> String {
         guard let session = awake.current else { return "깨어 있기 꺼짐" }
+        if lidMode.isOn {
+            if let remaining = session.remaining(at: Date()) {
+                return "뚜껑 닫아도 유지 · \(RemainingTimeFormat.string(from: remaining)) 남음"
+            }
+            return "뚜껑 닫아도 유지 · \(AwakeText.label(for: session.option))"
+        }
         if let remaining = session.remaining(at: Date()) {
             return "깨어 있는 중 · \(RemainingTimeFormat.string(from: remaining)) 남음"
         }
@@ -130,6 +167,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func turnOffDisplay() { awake.turnOffDisplay() }
     @objc private func pickTime() { panel.showTimePicker() }
     @objc private func showSettings() { settings.show() }
+
+    @objc private func toggleLidMode() {
+        if lidMode.isOn { lidMode.disable() } else { lidMode.enable() }
+    }
 
     @objc private func togglePanelVisibility() {
         if panel.isVisible { panel.hide() } else { panel.show() }

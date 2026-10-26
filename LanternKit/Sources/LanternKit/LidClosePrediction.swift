@@ -6,14 +6,23 @@ public struct PowerSnapshot: Equatable, Sendable {
     public var hasBuiltInDisplay: Bool
     /// 외장 모니터가 연결돼 있는지
     public var hasExternalDisplay: Bool
-    /// 뚜껑 닫아도 유지 모드가 켜져 있는지 (M2)
+    /// 뚜껑 닫아도 유지 모드가 켜져 있는지
     public var isLidModeOn: Bool
+    /// 내장 배터리 잔량(%). 배터리가 없는 맥이면 `nil`
+    public var batteryPercent: Int?
 
-    public init(isOnACPower: Bool, hasBuiltInDisplay: Bool, hasExternalDisplay: Bool, isLidModeOn: Bool = false) {
+    public init(
+        isOnACPower: Bool,
+        hasBuiltInDisplay: Bool,
+        hasExternalDisplay: Bool,
+        isLidModeOn: Bool = false,
+        batteryPercent: Int? = nil
+    ) {
         self.isOnACPower = isOnACPower
         self.hasBuiltInDisplay = hasBuiltInDisplay
         self.hasExternalDisplay = hasExternalDisplay
         self.isLidModeOn = isLidModeOn
+        self.batteryPercent = batteryPercent
     }
 }
 

@@ -7,12 +7,15 @@ struct PanelView: View {
     let awake: AwakeController
     let power: PowerStateMonitor
     @Bindable var state: PanelState
+    let lidMode: LidModeController
+    let safety: SafetyController
+    let openSettings: () -> Void
 
     var body: some View {
         Group {
             // 활성 상태는 접어 두었어도 전체 창. 접기는 평소 상태의 모습만 정한다
             if state.mode == .active {
-                ActivePanel(awake: awake, power: power, state: state)
+                ActivePanel(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, openSettings: openSettings)
             } else if state.isCollapsed {
                 CollapsedBar(awake: awake)
             } else {
@@ -32,12 +35,15 @@ private struct ActivePanel: View {
     let awake: AwakeController
     let power: PowerStateMonitor
     @Bindable var state: PanelState
+    let lidMode: LidModeController
+    let safety: SafetyController
+    let openSettings: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             header
             switch state.tab {
-            case .awake: AwakeTab(awake: awake, power: power, state: state)
+            case .awake: AwakeTab(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, openSettings: openSettings)
             case .todo: TodoTab()
             }
         }
@@ -74,6 +80,9 @@ private struct AwakeTab: View {
     let awake: AwakeController
     let power: PowerStateMonitor
     @Bindable var state: PanelState
+    let lidMode: LidModeController
+    let safety: SafetyController
+    let openSettings: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -85,6 +94,7 @@ private struct AwakeTab: View {
             if let lid = AwakeText.lidClose(LidClosePrediction.outcome(for: power.snapshot)) {
                 Divider()
                 lidRows(lid)
+                LidModeRow(awake: awake, lidMode: lidMode, safety: safety, openSettings: openSettings)
             }
             if awake.isAwake {
                 Divider()
@@ -162,6 +172,68 @@ private struct AwakeTab: View {
                 .foregroundStyle(.white.opacity(0.4))
         }
         .padding(.horizontal, 2)
+    }
+}
+
+/// "뚜껑 닫아도 유지" 스위치. 권한이 없으면 자물쇠를 눌러 설정 창으로 간다
+private struct LidModeRow: View {
+    let awake: AwakeController
+    let lidMode: LidModeController
+    let safety: SafetyController
+    let openSettings: () -> Void
+
+    var body: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("뚜껑 닫아도 유지")
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(.white.opacity(canToggle ? 0.85 : 0.45))
+                if let note {
+                    Text(note.text)
+                        .font(.system(size: 11))
+                        .foregroundStyle(note.isError ? Theme.bad : .white.opacity(0.4))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            Spacer()
+            if lidMode.setup.status == .notInstalled {
+                Button(action: openSettings) {
+                    Label("설정", systemImage: "lock.fill")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(Theme.primaryLight)
+                }
+                .buttonStyle(.plain)
+                .help("권한 설치는 설정 창에서 해요")
+            } else {
+                Toggle("", isOn: Binding(
+                    get: { lidMode.isOn },
+                    set: { $0 ? lidMode.enable() : lidMode.disable() }
+                ))
+                .toggleStyle(.switch)
+                .controlSize(.mini)
+                .labelsHidden()
+                .tint(Theme.primary)
+                .disabled(!canToggle)
+            }
+        }
+        .padding(.horizontal, 2)
+    }
+
+    /// 켜져 있으면 언제든 끌 수 있고, 꺼져 있으면 조건이 맞을 때만 켤 수 있다
+    private var canToggle: Bool {
+        lidMode.isOn || (lidMode.setup.status == .installed && awake.isAwake && safety.lidModeBlock == nil)
+    }
+
+    private var note: (text: String, isError: Bool)? {
+        if let error = lidMode.lastError { return (error, true) }
+        if lidMode.isOn { return nil }
+        if lidMode.setup.status == .notInstalled { return ("처음 한 번 권한 설치가 필요해요", false) }
+        if !awake.isAwake { return ("깨어 있는 동안만 켤 수 있어요", false) }
+        switch safety.lidModeBlock {
+        case .lowBattery(let threshold): return ("배터리가 \(threshold)% 이하라 켤 수 없어요", false)
+        case .tooHot: return ("맥이 뜨거워서 지금은 켤 수 없어요", false)
+        case nil: return nil
+        }
     }
 }
 
