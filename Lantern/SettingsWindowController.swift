@@ -10,6 +10,7 @@ final class SettingsWindowController {
     private let agentHooks: AgentHookSetup
     private let agentMonitor: AgentMonitor
     private let shortcuts: GlobalShortcutController
+    private let loginItem: LoginItemController
     private var window: NSWindow?
 
     init(
@@ -17,9 +18,11 @@ final class SettingsWindowController {
         safety: SafetyController,
         agentHooks: AgentHookSetup,
         agentMonitor: AgentMonitor,
-        shortcuts: GlobalShortcutController
+        shortcuts: GlobalShortcutController,
+        loginItem: LoginItemController
     ) {
         self.shortcuts = shortcuts
+        self.loginItem = loginItem
         self.lidMode = lidMode
         self.safety = safety
         self.agentHooks = agentHooks
@@ -29,7 +32,8 @@ final class SettingsWindowController {
     func show() {
         if window == nil {
             let host = NSHostingController(rootView: SettingsView(
-                lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor, shortcuts: shortcuts
+                lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor,
+                shortcuts: shortcuts, loginItem: loginItem
             ))
             let window = NSWindow(contentViewController: host)
             window.title = "랜턴 설정"
@@ -40,6 +44,7 @@ final class SettingsWindowController {
         }
         lidMode.setup.refresh()
         agentHooks.refresh()
+        loginItem.refresh()
         NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
     }
@@ -51,11 +56,13 @@ struct SettingsView: View {
     let agentHooks: AgentHookSetup
     let agentMonitor: AgentMonitor
     let shortcuts: GlobalShortcutController
+    let loginItem: LoginItemController
 
     private var lidModeSetup: LidModeSetup { lidMode.setup }
 
     var body: some View {
         Form {
+            GeneralSection(loginItem: loginItem)
             ShortcutSection(shortcuts: shortcuts)
             AgentSection(agentHooks: agentHooks, agentMonitor: agentMonitor)
             Section {
@@ -259,5 +266,35 @@ private struct ShortcutSection: View {
         guard isRecording else { return }
         isRecording = false
         shortcuts.resume()
+    }
+}
+
+/// "일반" 칸: 로그인할 때 열기
+private struct GeneralSection: View {
+    let loginItem: LoginItemController
+
+    var body: some View {
+        Section {
+            Toggle("로그인할 때 열기", isOn: Binding(
+                get: { loginItem.status != .disabled },
+                set: { loginItem.setEnabled($0) }
+            ))
+            if loginItem.status == .requiresApproval {
+                HStack {
+                    Text("시스템 설정에서 랜턴을 허용해야 켜져요.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("시스템 설정 열기") { loginItem.openSystemSettings() }
+                }
+            }
+            if let error = loginItem.lastError {
+                Text(error)
+                    .font(.callout)
+                    .foregroundStyle(.red)
+            }
+        } header: {
+            Text("일반")
+        }
     }
 }
