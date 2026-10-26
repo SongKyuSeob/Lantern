@@ -20,13 +20,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let power = PowerStateMonitor()
     private let panelState = PanelState()
     private let lidMode = LidModeController(setup: LidModeSetup())
+    private let watchdog = WatchdogController()
     private lazy var safety = SafetyController(awake: awake, power: power, lidMode: lidMode)
     private lazy var settings = SettingsWindowController(lidMode: lidMode, safety: safety)
     private var panel: FloatingPanelController?
     private var statusItem: StatusItemController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        lidMode.onChange = { [weak self] isOn in self?.power.setLidModeOn(isOn) }
+        lidMode.onChange = { [weak self] isOn in
+            self?.power.setLidModeOn(isOn)
+            self?.watchdog.update(lidModeOn: isOn)
+        }
         power.onChange = { [weak self] _ in self?.safety.evaluate() }
         // 깨어 있기가 끝나면 뚜껑 모드를 먼저 끈다. 뚜껑이 닫혀 있었으면 세션이 다 정리된 뒤 재운다
         awake.onWillEnd = { [weak self] in
@@ -37,6 +41,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lidMode.setup.refresh()
         power.start()
         safety.start()
+        // 지난번에 남은 감시 작업이 있으면 정리한다
+        if !lidMode.isOn { watchdog.unregister() }
 
         let panel = FloatingPanelController(
             awake: awake, power: power, state: panelState,
