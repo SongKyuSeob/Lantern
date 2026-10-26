@@ -37,7 +37,9 @@ final class SettingsWindowController {
             ))
             let window = NSWindow(contentViewController: host)
             window.title = "랜턴 설정"
-            window.styleMask = [.titled, .closable]
+            // 높이는 사용자가 조절할 수 있다. 폭은 내용에 맞춰 고정
+            window.styleMask = [.titled, .closable, .resizable]
+            window.setContentSize(NSSize(width: 480, height: 560))
             window.isReleasedWhenClosed = false
             window.center()
             self.window = window
@@ -45,10 +47,32 @@ final class SettingsWindowController {
         lidMode.setup.refresh()
         agentHooks.refresh()
         loginItem.refresh()
+        // 메뉴바 앱은 macOS 14부터 앞으로 나오라는 요청(activate)이 거절될 수 있어서,
+        // 창 자체도 맨 앞에 올린다 (거절되면 다른 앱 창 뒤에 열린다)
         NSApp.activate()
         window?.makeKeyAndOrderFront(nil)
+        window?.orderFrontRegardless()
+    }
+
+    #if DEBUG
+    /// 디버그 빌드에서만: 설정 창을 이미지로 저장한다 (화면 녹화 권한 없이 모양을 확인하려고)
+    func snapshot(to path: String) {
+        window?.contentView?.writeSnapshot(to: path)
+    }
+    #endif
+}
+
+#if DEBUG
+extension NSView {
+    /// 이 뷰를 PNG로 저장한다
+    func writeSnapshot(to path: String) {
+        layoutSubtreeIfNeeded()
+        guard let rep = bitmapImageRepForCachingDisplay(in: bounds) else { return }
+        cacheDisplay(in: bounds, to: rep)
+        try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
     }
 }
+#endif
 
 struct SettingsView: View {
     let lidMode: LidModeController
@@ -60,14 +84,63 @@ struct SettingsView: View {
 
     private var lidModeSetup: LidModeSetup { lidMode.setup }
 
+    enum Tab: String, CaseIterable {
+        case general, agents, power
+
+        var title: String {
+            switch self {
+            case .general: "일반"
+            case .agents: "에이전트"
+            case .power: "전원"
+            }
+        }
+    }
+
+    @AppStorage("settings.tab") private var tab: Tab = .general
+
+    /// 내용이 늘어나도 창이 화면 밖으로 넘치지 않게 탭으로 나누고, 탭 안은 스크롤된다.
+    /// 기본 TabView는 테두리가 창 가장자리와 어긋나게 그려져서, 위쪽 세그먼트 + 아래 Form으로 만든다
     var body: some View {
+        VStack(spacing: 0) {
+            Picker("", selection: $tab) {
+                ForEach(Tab.allCases, id: \.self) { Text($0.title).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .fixedSize()
+            .padding(.top, 12)
+            .padding(.bottom, 4)
+
+            switch tab {
+            case .general:
+                Form {
+                    GeneralSection(loginItem: loginItem)
+                    ShortcutSection(shortcuts: shortcuts)
+                }
+                .formStyle(.grouped)
+            case .agents:
+                Form {
+                    AgentSection(agentHooks: agentHooks, agentMonitor: agentMonitor)
+                }
+                .formStyle(.grouped)
+            case .power:
+                powerForm
+            }
+        }
+        .frame(minWidth: 480, idealWidth: 480, maxWidth: 480, minHeight: 360, idealHeight: 560, maxHeight: .infinity, alignment: .top)
+    }
+
+    private var powerForm: some View {
         Form {
-            GeneralSection(loginItem: loginItem)
-            ShortcutSection(shortcuts: shortcuts)
-            AgentSection(agentHooks: agentHooks, agentMonitor: agentMonitor)
             Section {
-                Stepper(value: $safety.batteryThreshold, in: SafetyController.batteryThresholdRange, step: 5) {
-                    LabeledContent("배터리 기준", value: "\(safety.batteryThreshold)%")
+                // 값은 오른쪽 끝, 다른 줄("권한 · 설치됨")과 같은 자리에 둔다
+                LabeledContent("배터리 기준") {
+                    HStack(spacing: 6) {
+                        Text("\(safety.batteryThreshold)%")
+                            .monospacedDigit()
+                        Stepper("", value: $safety.batteryThreshold, in: SafetyController.batteryThresholdRange, step: 5)
+                            .labelsHidden()
+                    }
                 }
             } header: {
                 Text("배터리")
@@ -114,8 +187,6 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 460)
-        .fixedSize()
     }
 
     @ViewBuilder
@@ -205,10 +276,13 @@ private struct ShortcutSection: View {
         Section {
             LabeledContent("창 열기·닫기") {
                 HStack(spacing: 8) {
-                    Button(isRecording ? "키를 누르세요…" : shortcuts.shortcut?.displayString ?? "없음") {
+                    Button {
                         isRecording ? stopRecording() : startRecording()
+                    } label: {
+                        // 버튼 바깥이 아니라 버튼 안쪽 폭을 넓혀, 옆 버튼과 사이가 벌어지지 않게 한다
+                        Text(isRecording ? "키를 누르세요…" : shortcuts.shortcut?.displayString ?? "없음")
+                            .frame(minWidth: 72)
                     }
-                    .frame(minWidth: 100)
                     if !isRecording {
                         if shortcuts.shortcut != nil {
                             Button("끄기") { shortcuts.update(nil) }

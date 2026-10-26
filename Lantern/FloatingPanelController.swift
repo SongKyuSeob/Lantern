@@ -84,6 +84,7 @@ final class FloatingPanelController {
 
     /// 디버그 빌드에서만: 터미널에서 창 동작을 흉내 내 확인한다.
     /// `com.songkyuseob.lantern.debug` 알림에 `toggle`(아이콘 클릭) · `chevron`(⌃/⌄) · `outside`(창 밖 클릭) · `pickTime`
+    /// · `snapshot:<경로>`(창을 PNG로 저장)
     private func observeDebugCommands() {
         debugObserver = DistributedNotificationCenter.default().addObserver(
             forName: Notification.Name("com.songkyuseob.lantern.debug"), object: nil, queue: .main
@@ -98,6 +99,8 @@ final class FloatingPanelController {
                     self.state.mode = .passive
                 case "outside": self.state.mode = .passive
                 case "pickTime": self.state.isPickingTime.toggle()
+                case let command? where command.hasPrefix("snapshot:"):
+                    self.panel.contentView?.writeSnapshot(to: String(command.dropFirst("snapshot:".count)))
                 default: break
                 }
             }

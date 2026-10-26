@@ -64,11 +64,35 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
         self.panel = panel
         shortcuts.onPress = { [weak self] in self?.panel?.toggleActive() }
+        #if DEBUG
+        observeDebugCommands()
+        #endif
         shortcuts.start()
         loginItem.enableOnFirstLaunch()
         statusItem = StatusItemController(awake: awake, lidMode: lidMode, safety: safety, panel: panel, settings: settings)
         panel.show()
     }
+
+    #if DEBUG
+    private var debugObserver: NSObjectProtocol?
+
+    /// 디버그 빌드에서만: `settings:<탭>`(설정 창 열기), `settingsSnapshot:<경로>`(설정 창을 PNG로 저장)
+    private func observeDebugCommands() {
+        debugObserver = DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("com.songkyuseob.lantern.debug"), object: nil, queue: .main
+        ) { [weak self] notification in
+            guard let command = notification.object as? String else { return }
+            MainActor.assumeIsolated {
+                if command.hasPrefix("settings:") {
+                    UserDefaults.standard.set(String(command.dropFirst("settings:".count)), forKey: "settings.tab")
+                    self?.settings.show()
+                } else if command.hasPrefix("settingsSnapshot:") {
+                    self?.settings.snapshot(to: String(command.dropFirst("settingsSnapshot:".count)))
+                }
+            }
+        }
+    }
+    #endif
 
     func applicationWillTerminate(_ notification: Notification) {
         safety.appWillTerminate()
