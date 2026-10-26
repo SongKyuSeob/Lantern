@@ -234,6 +234,12 @@ struct AgentHookConfigTests {
         #expect(!AgentHookConfig.isInstalled(.claude, in: roundTrip))
     }
 
+    @Test("랜턴 hook이 하나라도 있는지 안다 (백업을 덮어쓰지 않으려고)") func detectsAnyLanternHook() throws {
+        let root = try OrderedJSON.parse(original)
+        #expect(!AgentHookConfig.containsLanternHook(root))
+        #expect(AgentHookConfig.containsLanternHook(AgentHookConfig.installing(.codex, into: root)))
+    }
+
     @Test("랜턴 hook만 있던 설정은 해제하면 hooks 항목도 지운다") func removeDropsEmptyHooks() {
         let removed = AgentHookConfig.removing(from: AgentHookConfig.installing(.claude, into: .object([("model", .string("x"))])))
         #expect(removed == .object([("model", .string("x"))]))

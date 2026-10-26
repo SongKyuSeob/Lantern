@@ -68,7 +68,8 @@ final class AgentHookSetup {
             try installScript()
             let path = AgentHookConfig.configPath(for: agent, home: home)
             let root = try readConfig(agent)
-            if FileManager.default.fileExists(atPath: path) {
+            // 백업은 랜턴이 손대기 전 원본이어야 하므로, 랜턴 hook이 이미 들어 있는 파일로는 덮어쓰지 않는다
+            if FileManager.default.fileExists(atPath: path), !AgentHookConfig.containsLanternHook(root) {
                 let backup = path + ".lantern-backup"
                 try? FileManager.default.removeItem(atPath: backup)
                 try FileManager.default.copyItem(atPath: path, toPath: backup)

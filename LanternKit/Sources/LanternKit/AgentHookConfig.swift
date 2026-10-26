@@ -105,6 +105,15 @@ public enum AgentHookConfig {
         }
     }
 
+    /// 이벤트 하나에라도 랜턴 hook이 들어 있는지
+    public static func containsLanternHook(_ root: OrderedJSON) -> Bool {
+        guard case .object(let events)? = root["hooks"] else { return false }
+        return events.contains { _, value in
+            guard case .array(let groups) = value else { return false }
+            return groups.contains(where: isLanternGroup)
+        }
+    }
+
     private static func isLanternGroup(_ group: OrderedJSON) -> Bool {
         guard case .array(let handlers)? = group["hooks"] else { return false }
         return handlers.contains { handler in
