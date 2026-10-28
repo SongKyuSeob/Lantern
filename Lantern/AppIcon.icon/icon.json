@@ -1,0 +1,59 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "display-p3:0.14902,0.14902,0.16863,1.00000",
+      "display-p3:0.01961,0.01961,0.02353,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "flame.svg",
+          "name" : "불꽃"
+        }
+      ],
+      "name" : "불꽃",
+      "shadow" : {
+        "kind" : "layer-color",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.3
+      }
+    },
+    {
+      "layers" : [
+        {
+          "glass" : true,
+          "image-name" : "frame.svg",
+          "name" : "손잡이·뚜껑·받침"
+        }
+      ],
+      "name" : "등불 틀",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "translucency" : {
+        "enabled" : true,
+        "value" : 0.4
+      }
+    },
+    {
+      "layers" : [
+        {
+          "glass" : false,
+          "image-name" : "glow.svg",
+          "name" : "빛"
+        }
+      ],
+      "name" : "빛"
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : "shared"
+  }
+}
