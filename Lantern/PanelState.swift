@@ -18,6 +18,8 @@ final class PanelState {
     var mode: Mode = .passive
     /// 시각을 고르는 중. 이때는 10초 무조작으로 평소 상태로 돌아가지 않는다
     var isPickingTime = false
+    /// 할 일을 입력·수정하는 중. 이때도 10초 무조작·Esc로 닫지 않는다
+    var isEditingText = false
 
     var isCollapsed: Bool {
         didSet { defaults.set(isCollapsed, forKey: Self.collapsedKey) }
@@ -34,7 +36,7 @@ final class PanelState {
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         isCollapsed = defaults.bool(forKey: Self.collapsedKey)
-        // 할 일 탭은 M4에서 채우므로, 그 전까지는 깨어 있기 탭으로 시작한다
-        tab = defaults.string(forKey: Self.tabKey).flatMap(Tab.init) ?? .awake
+        // 처음에는 메인 기능인 할 일 탭, 그 뒤로는 마지막에 본 탭
+        tab = defaults.string(forKey: Self.tabKey).flatMap(Tab.init) ?? .todo
     }
 }

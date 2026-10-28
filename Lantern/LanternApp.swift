@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let agentHooks = AgentHookSetup()
     private let shortcuts = GlobalShortcutController()
     private let loginItem = LoginItemController()
+    private let todoStore = AppDelegate.makeTodoStore()
     private lazy var agentAwake = AgentAwakeController(awake: awake, monitor: agentMonitor)
     private lazy var safety = SafetyController(awake: awake, power: power, lidMode: lidMode)
     private lazy var settings = SettingsWindowController(
@@ -60,10 +61,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             awake: awake, power: power, state: panelState,
             lidMode: lidMode, safety: safety,
             agentMonitor: agentMonitor, agentAwake: agentAwake,
+            todoStore: todoStore,
             openSettings: { [weak self] in self?.settings.show() }
         )
         self.panel = panel
-        shortcuts.onPress = { [weak self] in self?.panel?.toggleActive() }
+        shortcuts.onPress = { [weak self] action in
+            switch action {
+            case .toggle: self?.panel?.toggleActive()
+            case .hide: self?.panel?.toggleHidden()
+            }
+        }
         #if DEBUG
         observeDebugCommands()
         #endif
@@ -76,7 +83,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     #if DEBUG
     private var debugObserver: NSObjectProtocol?
 
-    /// 디버그 빌드에서만: `settings:<탭>`(설정 창 열기), `settingsSnapshot:<경로>`(설정 창을 PNG로 저장)
+    /// 디버그 빌드에서만: `settings:<탭>`(설정 창 열기), `settingsSnapshot:<경로>`(설정 창을 PNG로 저장),
+    /// `todoAdd:<제목>` · `todoDoneFirst` · `todoDeleteAll`(할 일 시험용), `tab:<todo|awake>`
     private func observeDebugCommands() {
         debugObserver = DistributedNotificationCenter.default().addObserver(
             forName: Notification.Name("com.songkyuseob.lantern.debug"), object: nil, queue: .main
@@ -88,11 +96,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self?.settings.show()
                 } else if command.hasPrefix("settingsSnapshot:") {
                     self?.settings.snapshot(to: String(command.dropFirst("settingsSnapshot:".count)))
+                } else if command.hasPrefix("todoAdd:") {
+                    self?.todoStore.add(String(command.dropFirst("todoAdd:".count)))
+                } else if command == "todoDoneFirst" {
+                    if let first = self?.todoStore.openItems().first { self?.todoStore.setDone(first, true) }
+                } else if command == "todoDeleteAll" {
+                    guard let store = self?.todoStore else { return }
+                    for item in store.openItems() + store.doneItems() { store.delete(item) }
+                } else if command.hasPrefix("tab:") {
+                    self?.panelState.tab = command.hasSuffix("todo") ? .todo : .awake
                 }
             }
         }
     }
     #endif
+
+    /// 할 일은 ~/Library/Application Support/Lantern/todos.store에 저장한다.
+    /// 열지 못하면(파일 손상 등) 앱이 죽지 않도록 메모리에만 두고 시작한다
+    private static func makeTodoStore() -> TodoStore {
+        let directory = URL.applicationSupportDirectory.appending(path: "Lantern", directoryHint: .isDirectory)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let url = directory.appending(path: "todos.store")
+        if let container = try? TodoStore.makeContainer(url: url) {
+            return TodoStore(container: container)
+        }
+        return TodoStore(container: try! TodoStore.makeContainer(url: nil))
+    }
 
     func applicationWillTerminate(_ notification: Notification) {
         safety.appWillTerminate()

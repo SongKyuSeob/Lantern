@@ -265,56 +265,63 @@ private struct AgentSection: View {
     }
 }
 
-/// "단축키" 칸. 버튼을 누른 뒤 원하는 조합을 누르면 바뀐다
+/// "단축키" 칸. 동작마다 버튼을 누른 뒤 원하는 조합을 누르면 바뀐다
 private struct ShortcutSection: View {
     let shortcuts: GlobalShortcutController
-    @State private var isRecording = false
+    @State private var recording: ShortcutAction?
     @State private var monitor: Any?
     @State private var hint: String?
 
     var body: some View {
         Section {
-            LabeledContent("창 열기·닫기") {
-                HStack(spacing: 8) {
-                    Button {
-                        isRecording ? stopRecording() : startRecording()
-                    } label: {
-                        // 버튼 바깥이 아니라 버튼 안쪽 폭을 넓혀, 옆 버튼과 사이가 벌어지지 않게 한다
-                        Text(isRecording ? "키를 누르세요…" : shortcuts.shortcut?.displayString ?? "없음")
-                            .frame(minWidth: 72)
-                    }
-                    if !isRecording {
-                        if shortcuts.shortcut != nil {
-                            Button("끄기") { shortcuts.update(nil) }
-                        }
-                        if shortcuts.shortcut != .default {
-                            Button("기본값") { shortcuts.update(.default) }
-                        }
-                    }
-                }
+            ForEach(ShortcutAction.allCases, id: \.self) { action in
+                row(action)
             }
             if let hint {
                 Text(hint)
                     .font(.callout)
                     .foregroundStyle(.secondary)
-            } else if shortcuts.registrationFailed {
-                Text("다른 앱이 이미 이 조합을 쓰고 있어서 등록하지 못했어요. 다른 조합으로 바꿔 주세요.")
+            } else if let failed = ShortcutAction.allCases.first(where: shortcuts.failedActions.contains) {
+                Text("다른 앱이 이미 \(failed.title) 조합을 쓰고 있어서 등록하지 못했어요. 다른 조합으로 바꿔 주세요.")
                     .font(.callout)
                     .foregroundStyle(.red)
             }
         } header: {
             Text("단축키")
         } footer: {
-            Text("어느 앱에서든 누르면 메뉴바 아이콘을 누른 것처럼 창을 열고 닫아요. 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (⎋로 취소).")
+            Text("어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (⎋로 취소).")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
         .onDisappear { stopRecording() }
     }
 
-    private func startRecording() {
+    private func row(_ action: ShortcutAction) -> some View {
+        LabeledContent(action.title) {
+            HStack(spacing: 8) {
+                Button {
+                    recording == action ? stopRecording() : startRecording(action)
+                } label: {
+                    // 버튼 바깥이 아니라 버튼 안쪽 폭을 넓혀, 옆 버튼과 사이가 벌어지지 않게 한다
+                    Text(recording == action ? "키를 누르세요…" : shortcuts.shortcut(for: action)?.displayString ?? "없음")
+                        .frame(minWidth: 72)
+                }
+                if recording != action {
+                    if shortcuts.shortcut(for: action) != nil {
+                        Button("끄기") { shortcuts.update(action, to: nil) }
+                    }
+                    if shortcuts.shortcut(for: action) != action.defaultShortcut {
+                        Button("기본값") { apply(action.defaultShortcut, to: action) }
+                    }
+                }
+            }
+        }
+    }
+
+    private func startRecording(_ action: ShortcutAction) {
+        stopRecording()
         hint = nil
-        isRecording = true
+        recording = action
         // 지금 조합을 다시 누를 수도 있으니, 입력받는 동안 등록을 잠시 내린다
         shortcuts.suspend()
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
@@ -325,7 +332,7 @@ private struct ShortcutSection: View {
             }
             let candidate = KeyShortcut(keyCode: event.keyCode, modifiers: modifiers)
             if candidate.isValid {
-                shortcuts.update(candidate)
+                apply(candidate, to: action)
                 stopRecording()
             } else {
                 hint = "⌘, ⌥, ⌃ 중 하나와 함께 눌러 주세요."
@@ -334,11 +341,21 @@ private struct ShortcutSection: View {
         }
     }
 
+    /// 다른 동작이 쓰고 있는 조합이면 바꾸지 않고 알려 준다
+    private func apply(_ shortcut: KeyShortcut, to action: ShortcutAction) {
+        if let other = shortcuts.conflict(shortcut, for: action) {
+            hint = "\(shortcut.displayString)는 이미 \(other.title)에 쓰고 있어요."
+            return
+        }
+        hint = nil
+        shortcuts.update(action, to: shortcut)
+    }
+
     private func stopRecording() {
         if let monitor { NSEvent.removeMonitor(monitor) }
         monitor = nil
-        guard isRecording else { return }
-        isRecording = false
+        guard recording != nil else { return }
+        recording = nil
         shortcuts.resume()
     }
 }

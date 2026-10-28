@@ -11,6 +11,7 @@ struct PanelView: View {
     let safety: SafetyController
     let agentMonitor: AgentMonitor
     let agentAwake: AgentAwakeController
+    let todoStore: TodoStore
     let openSettings: () -> Void
 
     var body: some View {
@@ -19,7 +20,8 @@ struct PanelView: View {
             if state.mode == .active {
                 ActivePanel(
                     awake: awake, power: power, state: state, lidMode: lidMode, safety: safety,
-                    agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase), openSettings: openSettings
+                    agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase),
+                    todoStore: todoStore, openSettings: openSettings
                 )
             } else if state.isCollapsed {
                 CollapsedBar(awake: awake, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase))
@@ -30,6 +32,7 @@ struct PanelView: View {
         .frame(width: 300)
         .fixedSize(horizontal: false, vertical: true)
         .environment(\.colorScheme, .dark)
+        .modelContainer(todoStore.container)
     }
 }
 
@@ -42,6 +45,7 @@ private struct ActivePanel: View {
     let lidMode: LidModeController
     let safety: SafetyController
     let agents: AgentStatusText
+    let todoStore: TodoStore
     let openSettings: () -> Void
 
     var body: some View {
@@ -49,7 +53,7 @@ private struct ActivePanel: View {
             header
             switch state.tab {
             case .awake: AwakeTab(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, agents: agents, openSettings: openSettings)
-            case .todo: TodoTab()
+            case .todo: TodoTab(store: todoStore, state: state)
             }
         }
         .padding(.horizontal, 12)
@@ -396,16 +400,6 @@ private struct ChipMenu<Content: View>: View {
     }
 }
 
-private struct TodoTab: View {
-    var body: some View {
-        Text("할 일은 M4에서 만들어요")
-            .font(.system(size: 12))
-            .foregroundStyle(.white.opacity(0.5))
-            .padding(.horizontal, 2)
-            .padding(.vertical, 6)
-    }
-}
-
 // MARK: - 평소
 
 /// 평소 상태: 상태 한 줄 + 설명 한 줄. 클릭은 뒤로 통과한다
@@ -443,6 +437,7 @@ private struct PassiveSummary: View {
                         .foregroundStyle(.white.opacity(0.7))
                 }
             }
+            PassiveTodoList()
         }
         .shadow(color: .black.opacity(0.5), radius: 1.5, y: 1)
         .padding(.horizontal, 12)
@@ -496,10 +491,11 @@ private struct CollapsedBar: View {
                 }
             }
             Spacer()
+            CollapsedTodoCount()
         }
         .shadow(color: .black.opacity(0.5), radius: 1.5, y: 1)
         .padding(.leading, 12)
-        .padding(.trailing, 10)
+        .padding(.trailing, 12)
         .padding(.vertical, 7)
         // 글자 길이만큼 줄어들지 않고 창 폭을 가득 채운다 (Figma 접힘 시안)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -558,7 +554,7 @@ private struct SegmentedPicker<Value: Hashable>: View {
 
     private func background(_ isSelected: Bool) -> Color {
         guard isSelected else { return .clear }
-        return style == .tab ? Theme.primary.opacity(0.22) : Theme.primary
+        return style == .tab ? Theme.tabSelectedFill : Theme.segmentSelectedFill
     }
 }
 
@@ -569,7 +565,7 @@ private struct FlameDot: View {
         Circle()
             .fill(Theme.flame)
             .frame(width: size, height: size)
-            .shadow(color: Color(hex: 0xFFA633).opacity(0.9), radius: 3)
+            .shadow(color: Theme.flame.opacity(0.9), radius: 3)
     }
 }
 
@@ -589,21 +585,15 @@ private struct Divider: View {
     }
 }
 
-/// 평소: 반투명 바탕 + 뒤 흐림. 활성: 불투명 바탕
+/// 평소·활성 모두 Liquid Glass. 활성 창은 버튼·작은 글씨가 많아 어두운 색을 더 진하게 섞어 읽기 쉽게 한다
 private struct PanelBackground<S: InsettableShape>: ViewModifier {
     let shape: S
     let passive: Bool
 
     func body(content: Content) -> some View {
+        let tint = passive ? Theme.passiveTintOpacity : Theme.activeTintOpacity
         content
-            .background {
-                ZStack {
-                    if passive { BehindWindowBlur() }
-                    Theme.background.opacity(passive ? Theme.passiveBackgroundOpacity : 1)
-                }
-                .clipShape(shape)
-            }
-            .overlay(shape.strokeBorder(passive ? Theme.borderPassive : Theme.border, lineWidth: 1))
+            .glassEffect(.regular.tint(Theme.background.opacity(tint)), in: shape)
     }
 }
 
@@ -611,19 +601,6 @@ private extension View {
     func panelBackground<S: InsettableShape>(_ shape: S, passive: Bool) -> some View {
         modifier(PanelBackground(shape: shape, passive: passive))
     }
-}
-
-/// 창 뒤의 화면을 흐리게 비춘다
-private struct BehindWindowBlur: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSVisualEffectView {
-        let view = NSVisualEffectView()
-        view.material = .hudWindow
-        view.blendingMode = .behindWindow
-        view.state = .active
-        return view
-    }
-
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 
 // MARK: - 에이전트 문구

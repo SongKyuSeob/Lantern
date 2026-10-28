@@ -1,35 +1,33 @@
 import SwiftUI
 
-/// Figma 시안 v2.5의 색. 창은 항상 어두운 바탕이라 다크 모드 구분이 없다.
+/// 창의 색. 창은 항상 어두운 바탕이라 다크 모드 구분이 없다.
+///
+/// 순수 Liquid Glass + 시스템 강조색·시스템 색으로, 제어 센터 같은 macOS 기본 앱 느낌을 낸다
+/// (2026-10-29 확정. Figma 시안 v2.5의 남색 배경·인디고 강조색은 쓰지 않는다)
 enum Theme {
-    static let background = Color(hex: 0x16161C)
-    static let primary = Color(hex: 0x6E72FF)
-    static let primaryLight = Color(hex: 0xA3A6FF)
-    static let primaryTabText = Color(hex: 0xB8BAFF)
-    static let flame = Color(hex: 0xFFB247)
-    static let flameText = Color(hex: 0xFFC26B)
-    static let flameTextPassive = Color(hex: 0xFFC773)
-    static let good = Color(hex: 0x73E599)
-    static let goodDot = Color(hex: 0x66E08F)
-    static let goodPassive = Color(hex: 0x80F2A8)
-    static let bad = Color(hex: 0xFF8A7A)
+    /// Liquid Glass에 섞는 색
+    static let background = Color.black
+    static let primary = Color.accentColor
+    static let primaryLight = Color.accentColor
+    static let primaryTabText = Color.white
+    /// 선택된 탭(할 일 / 깨어 있기) 바탕
+    static let tabSelectedFill = Color.white.opacity(0.14)
+    /// 선택된 세그먼트(언제까지) 바탕
+    static let segmentSelectedFill = Color.white.opacity(0.22)
+    static let flame = Color.orange
+    static let flameText = Color.orange
+    static let flameTextPassive = Color.orange
+    static let good = Color.green
+    static let goodDot = Color.green
+    static let goodPassive = Color.green
+    static let bad = Color.red
 
-    static let border = Color.white.opacity(0.10)
-    static let borderPassive = Color.white.opacity(0.12)
     static let divider = Color.white.opacity(0.07)
     static let fillTrack = Color.white.opacity(0.06)
     static let fillCard = Color.white.opacity(0.043)
 
-    /// 평소 상태 바탕의 불투명도 (나중에 설정 슬라이더로 조절)
-    static let passiveBackgroundOpacity = 0.55
-}
-
-extension Color {
-    init(hex: UInt32) {
-        self.init(
-            red: Double((hex >> 16) & 0xFF) / 255,
-            green: Double((hex >> 8) & 0xFF) / 255,
-            blue: Double(hex & 0xFF) / 255
-        )
-    }
+    /// 평소 상태 Liquid Glass에 섞는 색의 진하기. 높을수록 덜 비친다
+    static let passiveTintOpacity = 0.0
+    /// 활성 창 Liquid Glass에 섞는 색의 진하기. 조작할 글자가 많아 평소보다 조금 진하게
+    static let activeTintOpacity = 0.12
 }

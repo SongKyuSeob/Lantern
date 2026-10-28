@@ -29,6 +29,7 @@ final class FloatingPanelController {
         safety: SafetyController,
         agentMonitor: AgentMonitor,
         agentAwake: AgentAwakeController,
+        todoStore: TodoStore,
         openSettings: @escaping () -> Void
     ) {
         self.state = state
@@ -52,7 +53,7 @@ final class FloatingPanelController {
         let host = NSHostingController(rootView: PanelView(
             awake: awake, power: power, state: state,
             lidMode: lidMode, safety: safety,
-            agentMonitor: agentMonitor, agentAwake: agentAwake, openSettings: openSettings
+            agentMonitor: agentMonitor, agentAwake: agentAwake, todoStore: todoStore, openSettings: openSettings
         ))
         host.sizingOptions = .preferredContentSize
         host.view.wantsLayer = true
@@ -113,11 +114,17 @@ final class FloatingPanelController {
     func show() {
         placeAtTopRight()
         panel.orderFrontRegardless()
+        if state.mode == .passive { updateHoverFade() }
     }
 
     func hide() {
         state.mode = .passive
         panel.orderOut(nil)
+    }
+
+    /// 숨기기 단축키: 숨기기 ↔ 보이기
+    func toggleHidden() {
+        if panel.isVisible { hide() } else { show() }
     }
 
     /// 메뉴바 아이콘 왼쪽 클릭: 평소 ↔ 활성
@@ -156,15 +163,19 @@ final class FloatingPanelController {
         switch state.mode {
         case .passive:
             stopWatchingActivity()
+            startHoverFade()
             state.isPickingTime = false
+            state.isEditingText = false
             panel.ignoresMouseEvents = true
             panel.allowsKey = false
             panel.hasShadow = false
             giveBackKeyFocus()
         case .active:
+            stopHoverFade()
             panel.ignoresMouseEvents = false
             panel.allowsKey = true
-            panel.hasShadow = true
+            // Liquid Glass는 둥근 모서리 밖까지 옅게 그려져 창 그림자가 네모나게 잡히므로 창 그림자는 쓰지 않는다
+            panel.hasShadow = false
             if panel.isVisible { panel.makeKey() }
             startWatchingActivity()
         }
@@ -210,7 +221,7 @@ final class FloatingPanelController {
 
     /// 창 안에서 무언가 하면 10초를 다시 센다. Esc는 평소 상태로 돌아가고 `true`(이벤트 삼킴)
     private func handleLocalActivity(isEscape: Bool) -> Bool {
-        if isEscape, !state.isPickingTime {
+        if isEscape, !state.isPickingTime, !state.isEditingText {
             state.mode = .passive
             return true
         }
@@ -229,10 +240,65 @@ final class FloatingPanelController {
 
     /// 시각을 고르는 중이거나 마우스가 창 위에 있으면 조금 더 기다린다
     private func idleTimerFired() {
-        if state.isPickingTime || panel.frame.contains(NSEvent.mouseLocation) {
+        if state.isPickingTime || state.isEditingText || panel.frame.contains(NSEvent.mouseLocation) {
             restartIdleTimer()
         } else {
             state.mode = .passive
+        }
+    }
+
+    // MARK: - 마우스를 올리면 흐려짐
+
+    /// 평소 창은 클릭이 뒤로 통과하니, 그 아래를 보거나 누르려고 커서를 올리면 거의 투명하게 비켜 준다
+    private static let hoverAlpha: CGFloat = 0.12
+    private var hoverMonitor: Any?
+    /// 흐려진 동안 커서가 벗어났는지 직접 확인한다. 커서가 순간 이동하면 마지막 이동 알림이 오지 않을 수 있다
+    private var hoverCheckTimer: Timer?
+
+    private func startHoverFade() {
+        if hoverMonitor == nil {
+            // 평소 창은 마우스 이벤트를 받지 않으므로, 다른 앱으로 가는 이동을 지켜본다
+            hoverMonitor = NSEvent.addGlobalMonitorForEvents(
+                matching: [.mouseMoved, .leftMouseDragged, .rightMouseDragged]
+            ) { [weak self] _ in
+                MainActor.assumeIsolated { self?.updateHoverFade() }
+            }
+        }
+        updateHoverFade()
+    }
+
+    private func stopHoverFade() {
+        if let hoverMonitor { NSEvent.removeMonitor(hoverMonitor) }
+        hoverMonitor = nil
+        stopHoverCheck()
+        setAlpha(1)
+    }
+
+    private func updateHoverFade() {
+        let isOver = panel.isVisible && panel.frame.contains(NSEvent.mouseLocation)
+        setAlpha(isOver ? Self.hoverAlpha : 1)
+        if isOver { startHoverCheck() } else { stopHoverCheck() }
+    }
+
+    private func startHoverCheck() {
+        guard hoverCheckTimer == nil else { return }
+        let timer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.updateHoverFade() }
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        hoverCheckTimer = timer
+    }
+
+    private func stopHoverCheck() {
+        hoverCheckTimer?.invalidate()
+        hoverCheckTimer = nil
+    }
+
+    private func setAlpha(_ alpha: CGFloat) {
+        guard panel.alphaValue != alpha else { return }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.15
+            panel.animator().alphaValue = alpha
         }
     }
 
