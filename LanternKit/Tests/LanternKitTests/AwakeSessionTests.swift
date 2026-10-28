@@ -94,3 +94,42 @@ struct RemainingTimeFormatTests {
         #expect(RemainingTimeFormat.string(from: remaining) == expected)
     }
 }
+
+@Suite("깨어 있기 연장")
+struct AwakeExtendTests {
+    private let start = Date(timeIntervalSince1970: 1_800_000_000)
+
+    @Test("남은 시간에 더한다 (지금부터 다시 세지 않는다)") func extendsEndDate() throws {
+        var machine = AwakeSessionMachine()
+        machine.start(.hours(2), at: start)
+        let extended = machine.extend(by: 3600)
+        #expect(extended)
+        let session = try #require(machine.current)
+        #expect(session.endsAt == start.addingTimeInterval(3 * 3600))
+        #expect(session.startedAt == start)
+        #expect(session.option == .hours(2))
+    }
+
+    @Test("이미 30분 지난 2시간 세션에 1시간 더하면 2시간 30분 남는다") func keepsRemaining() throws {
+        var machine = AwakeSessionMachine()
+        machine.start(.hours(2), at: start)
+        machine.extend(by: 3600)
+        let remaining = try #require(machine.current?.remaining(at: start.addingTimeInterval(30 * 60)))
+        #expect(remaining == 2.5 * 3600)
+    }
+
+    @Test("끝 시각이 없는 세션은 연장하지 않는다", arguments: [AwakeOption.indefinite, .untilAgentsFinish])
+    func cannotExtendOpenEnded(_ option: AwakeOption) {
+        var machine = AwakeSessionMachine()
+        machine.start(option, at: start)
+        let extended = machine.extend(by: 3600)
+        #expect(!extended)
+        #expect(machine.current?.endsAt == nil)
+    }
+
+    @Test("꺼져 있으면 연장하지 않는다") func cannotExtendWhenOff() {
+        var machine = AwakeSessionMachine()
+        let extended = machine.extend(by: 3600)
+        #expect(!extended)
+    }
+}

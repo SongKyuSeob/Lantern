@@ -294,6 +294,24 @@ private struct StatusCard: View {
                     }
                 }
                 Spacer()
+                if awake.remaining != nil {
+                    // 세션을 끊지 않고 끝 시각만 미룬다
+                    Menu {
+                        ForEach(AwakeText.extensions, id: \.label) { item in
+                            Button(item.label) { awake.extend(by: item.interval) }
+                        }
+                    } label: {
+                        Text("연장 ›")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Theme.primaryLight)
+                            .contentShape(Rectangle())
+                    }
+                    .menuStyle(.button)
+                    .buttonStyle(.plain)
+                    .menuIndicator(.hidden)
+                    .fixedSize()
+                    .help("지금 끝 시각에 시간을 더해요")
+                }
             } else {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {

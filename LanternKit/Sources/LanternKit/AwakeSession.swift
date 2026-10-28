@@ -13,6 +13,18 @@ public struct AwakeSession: Codable, Equatable, Sendable {
         self.endsAt = option.endDate(startingAt: startedAt, calendar: calendar)
     }
 
+    private init(option: AwakeOption, startedAt: Date, endsAt: Date?) {
+        self.option = option
+        self.startedAt = startedAt
+        self.endsAt = endsAt
+    }
+
+    /// 끝 시각을 `interval`만큼 미룬 세션. 시간으로 끝나지 않는 세션은 `nil`
+    public func extended(by interval: TimeInterval) -> AwakeSession? {
+        guard let endsAt else { return nil }
+        return AwakeSession(option: option, startedAt: startedAt, endsAt: endsAt.addingTimeInterval(interval))
+    }
+
     /// `now` 기준 남은 시간(초). 시간으로 끝나지 않는 세션은 `nil`, 이미 지났으면 0
     public func remaining(at now: Date) -> TimeInterval? {
         guard let endsAt else { return nil }

@@ -39,6 +39,12 @@ final class AwakeController {
         applySystemState()
     }
 
+    /// 지금 세션을 끊지 않고 끝 시각만 미룬다 (시간으로 끝나는 세션만)
+    func extend(by interval: TimeInterval) {
+        guard machine.extend(by: interval) else { return }
+        now = Date()
+    }
+
     func startWithLastOption() {
         start(machine.lastOption)
     }

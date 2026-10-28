@@ -84,6 +84,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             menu.addItem(actionItem("깨어 있기 시작 · \(AwakeText.label(for: awake.lastOption))", #selector(startWithLastOption)))
         }
         menu.addItem(durationMenuItem())
+        if awake.remaining != nil {
+            menu.addItem(extendMenuItem())
+        }
         if let lidItem = lidModeMenuItem() {
             menu.addItem(lidItem)
         }
@@ -136,6 +139,19 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         return item
     }
 
+    /// "연장 ›" 하위 메뉴. 끝 시각에 시간을 더한다
+    private func extendMenuItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "연장", action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+        for extensionItem in AwakeText.extensions {
+            let menuItem = actionItem(extensionItem.label, #selector(extend(_:)))
+            menuItem.representedObject = extensionItem.interval
+            submenu.addItem(menuItem)
+        }
+        item.submenu = submenu
+        return item
+    }
+
     private func statusText() -> String {
         guard let session = awake.current else { return "깨어 있기 꺼짐" }
         if lidMode.isOn {
@@ -174,6 +190,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     @objc private func togglePanelVisibility() {
         if panel.isVisible { panel.hide() } else { panel.show() }
+    }
+
+    @objc private func extend(_ sender: NSMenuItem) {
+        guard let interval = sender.representedObject as? TimeInterval else { return }
+        awake.extend(by: interval)
     }
 
     @objc private func startOption(_ sender: NSMenuItem) {

@@ -25,6 +25,11 @@ enum AwakeText {
         return "\(tomorrow)\(time)까지"
     }
 
+    /// 연장 버튼에서 고르는 시간
+    static let extensions: [(label: String, interval: TimeInterval)] = [
+        ("30분 더", 30 * 60), ("1시간 더", 3600), ("2시간 더", 2 * 3600),
+    ]
+
     /// "오전 7시", "오후 12시"
     static func hourLabel(_ hour: Int) -> String {
         let period = hour < 12 ? "오전" : "오후"

@@ -34,6 +34,14 @@ public struct AwakeSessionMachine: Sendable {
         return current
     }
 
+    /// 지금 세션을 끊지 않고 끝 시각만 `interval`만큼 미룬다. 시간으로 끝나는 세션이 아니면 `false`
+    @discardableResult
+    public mutating func extend(by interval: TimeInterval) -> Bool {
+        guard let extended = current?.extended(by: interval) else { return false }
+        current = extended
+        return true
+    }
+
     /// 주기적으로 불러서 시간이 다 됐으면 세션을 끝낸다. 끝냈으면 그 이유를 돌려준다
     public mutating func tick(at now: Date) -> AwakeEndReason? {
         guard let current, current.hasExpired(at: now) else { return nil }
