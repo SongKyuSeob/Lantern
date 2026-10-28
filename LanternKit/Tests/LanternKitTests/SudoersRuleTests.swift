@@ -4,9 +4,9 @@ import Testing
 @Suite("뚜껑 모드 sudoers 규칙")
 struct SudoersRuleTests {
     @Test("정확한 pmset 명령 세 개만 허용한다") func allowsExactlyThreeCommands() throws {
-        let contents = try #require(SudoersRule.contents(for: "song-gyuseob"))
+        let contents = try #require(SudoersRule.contents(for: "alice"))
         let rule = try #require(contents.split(separator: "\n").first { !$0.hasPrefix("#") })
-        #expect(rule == "song-gyuseob ALL=(root) NOPASSWD: /usr/bin/pmset -a disablesleep 1, /usr/bin/pmset -a disablesleep 0, /usr/bin/pmset sleepnow")
+        #expect(rule == "alice ALL=(root) NOPASSWD: /usr/bin/pmset -a disablesleep 1, /usr/bin/pmset -a disablesleep 0, /usr/bin/pmset sleepnow")
     }
 
     @Test("규칙 파일은 줄바꿈으로 끝난다") func endsWithNewline() throws {
@@ -19,7 +19,7 @@ struct SudoersRuleTests {
         #expect(SudoersRule.contents(for: name) == nil)
     }
 
-    @Test("평범한 사용자 이름은 받는다", arguments: ["song", "song-gyuseob", "john.doe", "_test1"])
+    @Test("평범한 사용자 이름은 받는다", arguments: ["alice", "alice-kim", "john.doe", "_test1"])
     func acceptsNormalUserNames(_ name: String) {
         #expect(SudoersRule.isSafeUserName(name))
     }
@@ -35,7 +35,7 @@ struct SudoersRuleTests {
 
 @Suite("sudo -l 출력 해석")
 struct SudoListingTests {
-    private let header = "User song may run the following commands on mac:\n"
+    private let header = "User alice may run the following commands on mac:\n"
 
     @Test("세 명령이 NOPASSWD로 있으면 설치됨") func detectsInstalledRule() {
         let output = header + "    (ALL) ALL\n    (root) NOPASSWD: /usr/bin/pmset -a disablesleep 1, /usr/bin/pmset -a disablesleep 0, /usr/bin/pmset sleepnow\n"
@@ -44,11 +44,11 @@ struct SudoListingTests {
 
     @Test("화면 폭에 맞춰 줄바꿈된 실제 출력도 읽는다") func readsWrappedOutput() {
         let output = """
-        Matching Defaults entries for song on mac:
+        Matching Defaults entries for alice on mac:
             env_reset, env_keep+=BLOCKSIZE, env_keep+="COLORFGBG COLORTERM",
             lecture_file=/etc/sudo_lecture, !log_allowed
 
-        User song may run the following commands on mac:
+        User alice may run the following commands on mac:
             (ALL) ALL
             (root) NOPASSWD: /usr/bin/pmset -a disablesleep 1, /usr/bin/pmset -a
                 disablesleep 0, /usr/bin/pmset sleepnow
