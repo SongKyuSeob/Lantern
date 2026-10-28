@@ -299,7 +299,7 @@ private struct ShortcutSection: View {
         } header: {
             Text("단축키")
         } footer: {
-            Text("어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (⎋로 취소).")
+            Text("어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (Esc로 취소).")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
