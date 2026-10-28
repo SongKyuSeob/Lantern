@@ -32,15 +32,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor,
         shortcuts: shortcuts, loginItem: loginItem
     )
+    private lazy var history = HistoryWindowController(todoStore: todoStore)
     private var panel: FloatingPanelController?
+    /// 지금 깨어 있기 세션에서 뚜껑 닫아도 유지를 한 번이라도 켰는지 (기록용)
+    private var lidModeUsedInSession = false
     private var statusItem: StatusItemController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         lidMode.onChange = { [weak self] isOn in
+            if isOn { self?.lidModeUsedInSession = true }
             self?.power.setLidModeOn(isOn)
             self?.watchdog.update(lidModeOn: isOn)
         }
         power.onChange = { [weak self] _ in self?.safety.evaluate() }
+        // 끝난 깨어 있기는 기록 창에 남긴다
+        awake.onDidEnd = { [weak self] session, reason in
+            guard let self else { return }
+            todoStore.recordAwake(
+                session, endedAt: Date(), optionLabel: AwakeText.label(for: session.option),
+                reason: reason, usedLidMode: lidModeUsedInSession
+            )
+            lidModeUsedInSession = lidMode.isOn
+        }
         // 깨어 있기가 끝나면 뚜껑 모드를 먼저 끈다. 뚜껑이 닫혀 있었으면 세션이 다 정리된 뒤 재운다
         awake.onWillEnd = { [weak self] in
             guard let self, lidMode.isOn else { return }
@@ -62,7 +75,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             lidMode: lidMode, safety: safety,
             agentMonitor: agentMonitor, agentAwake: agentAwake,
             todoStore: todoStore,
-            openSettings: { [weak self] in self?.settings.show() }
+            openSettings: { [weak self] in self?.settings.show() },
+            openHistory: { [weak self] in self?.history.show() }
         )
         self.panel = panel
         shortcuts.onPress = { [weak self] action in
@@ -76,7 +90,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         #endif
         shortcuts.start()
         loginItem.enableOnFirstLaunch()
-        statusItem = StatusItemController(awake: awake, lidMode: lidMode, safety: safety, panel: panel, settings: settings)
+        statusItem = StatusItemController(awake: awake, lidMode: lidMode, safety: safety, panel: panel, settings: settings, history: history)
         panel.show()
     }
 
@@ -103,6 +117,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 } else if command == "todoDeleteAll" {
                     guard let store = self?.todoStore else { return }
                     for item in store.openItems() + store.doneItems() { store.delete(item) }
+                } else if command == "history" {
+                    self?.history.show()
+                } else if command.hasPrefix("historySnapshot:") {
+                    self?.history.snapshot(to: String(command.dropFirst("historySnapshot:".count)))
                 } else if command.hasPrefix("tab:") {
                     self?.panelState.tab = command.hasSuffix("todo") ? .todo : .awake
                 }
@@ -127,6 +145,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         safety.appWillTerminate()
         agentMonitor.stop()
         power.stop()
-        awake.stop()
+        awake.stop(reason: .appQuit)
     }
 }

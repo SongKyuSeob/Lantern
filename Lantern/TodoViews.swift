@@ -8,13 +8,14 @@ import SwiftUI
 struct TodoTab: View {
     let store: TodoStore
     @Bindable var state: PanelState
+    let openHistory: () -> Void
 
     @Query(
-        filter: #Predicate<TodoItem> { !$0.isDone },
+        filter: TodoItem.openPredicate,
         sort: [SortDescriptor(\TodoItem.order), SortDescriptor(\TodoItem.createdAt)]
     ) private var openItems: [TodoItem]
     @Query(
-        filter: #Predicate<TodoItem> { $0.isDone },
+        filter: TodoItem.donePredicate,
         sort: [SortDescriptor(\TodoItem.completedAt, order: .reverse)]
     ) private var doneItems: [TodoItem]
 
@@ -38,6 +39,15 @@ struct TodoTab: View {
             } else {
                 list
             }
+            HStack {
+                Spacer()
+                Button("기록 ›", action: openHistory)
+                    .buttonStyle(.plain)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.5))
+                    .help("지금까지 끝낸 일 · 지운 일 · 깨어 있기를 날짜별로 봐요")
+            }
+            .padding(.horizontal, 2)
         }
         .onChange(of: isAdding) { syncEditingState() }
         .onChange(of: editingID) { syncEditingState() }
@@ -156,7 +166,7 @@ private struct TodoRow: View {
             Spacer(minLength: 4)
             if isHovering && editingID != item.id {
                 Button {
-                    store.delete(item)
+                    store.hide(item)
                 } label: {
                     Image(systemName: "xmark")
                         .font(.system(size: 9, weight: .semibold))
@@ -165,7 +175,7 @@ private struct TodoRow: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .help("지우기")
+                .help("지우기 (기록에는 남아요)")
             }
         }
         .padding(.horizontal, 2)
@@ -264,7 +274,7 @@ private enum TodoDrop {
 /// 평소 창에 보이는 할 일: 위에서 세 개, 더 있으면 "⋯ n more". 없으면 아무것도 그리지 않는다
 struct PassiveTodoList: View {
     @Query(
-        filter: #Predicate<TodoItem> { !$0.isDone },
+        filter: TodoItem.openPredicate,
         sort: [SortDescriptor(\TodoItem.order), SortDescriptor(\TodoItem.createdAt)]
     ) private var openItems: [TodoItem]
 
@@ -305,7 +315,7 @@ struct PassiveTodoList: View {
 
 /// 접힌 바 오른쪽의 "할 일 3"
 struct CollapsedTodoCount: View {
-    @Query(filter: #Predicate<TodoItem> { !$0.isDone }) private var openItems: [TodoItem]
+    @Query(filter: TodoItem.openPredicate) private var openItems: [TodoItem]
 
     var body: some View {
         if !openItems.isEmpty {

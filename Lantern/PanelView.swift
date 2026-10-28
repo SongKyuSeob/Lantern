@@ -13,6 +13,7 @@ struct PanelView: View {
     let agentAwake: AgentAwakeController
     let todoStore: TodoStore
     let openSettings: () -> Void
+    let openHistory: () -> Void
 
     var body: some View {
         Group {
@@ -21,7 +22,7 @@ struct PanelView: View {
                 ActivePanel(
                     awake: awake, power: power, state: state, lidMode: lidMode, safety: safety,
                     agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase),
-                    todoStore: todoStore, openSettings: openSettings
+                    todoStore: todoStore, openSettings: openSettings, openHistory: openHistory
                 )
             } else if state.isCollapsed {
                 CollapsedBar(awake: awake, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase))
@@ -47,13 +48,14 @@ private struct ActivePanel: View {
     let agents: AgentStatusText
     let todoStore: TodoStore
     let openSettings: () -> Void
+    let openHistory: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             header
             switch state.tab {
             case .awake: AwakeTab(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, agents: agents, openSettings: openSettings)
-            case .todo: TodoTab(store: todoStore, state: state)
+            case .todo: TodoTab(store: todoStore, state: state, openHistory: openHistory)
             }
         }
         .padding(.horizontal, 12)

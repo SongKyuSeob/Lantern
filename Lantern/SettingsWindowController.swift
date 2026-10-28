@@ -69,7 +69,17 @@ extension NSView {
         layoutSubtreeIfNeeded()
         guard let rep = bitmapImageRepForCachingDisplay(in: bounds) else { return }
         cacheDisplay(in: bounds, to: rep)
-        try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
+        // 창 배경은 이 뷰가 그리지 않으므로, 창 배경색을 먼저 깔고 그 위에 얹는다 (다크 모드의 흰 글자가 보이게)
+        let image = NSImage(size: bounds.size)
+        image.lockFocus()
+        effectiveAppearance.performAsCurrentDrawingAppearance {
+            (window?.backgroundColor ?? .windowBackgroundColor).setFill()
+            NSRect(origin: .zero, size: bounds.size).fill()
+        }
+        rep.draw(in: NSRect(origin: .zero, size: bounds.size))
+        image.unlockFocus()
+        guard let tiff = image.tiffRepresentation, let output = NSBitmapImageRep(data: tiff) else { return }
+        try? output.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: path))
     }
 }
 #endif

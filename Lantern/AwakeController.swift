@@ -13,6 +13,8 @@ final class AwakeController {
 
     /// 세션이 끝나기 직전에 불린다 (사용자가 끄거나 시간이 다 됐을 때). 뚜껑 모드를 먼저 끄는 데 쓴다
     @ObservationIgnored var onWillEnd: (() -> Void)?
+    /// 세션이 끝난 뒤 불린다. 기록을 남기는 데 쓴다 (다른 옵션으로 갈아 끼울 때도 앞 세션은 끝난 것으로 본다)
+    @ObservationIgnored var onDidEnd: ((AwakeSession, AwakeEndReason) -> Void)?
 
     private let blocker = IdleSleepBlocker()
     private let defaults: UserDefaults
@@ -34,7 +36,9 @@ final class AwakeController {
     var remaining: TimeInterval? { machine.current?.remaining(at: now) }
 
     func start(_ option: AwakeOption) {
+        let previous = machine.current
         machine.start(option, at: Date())
+        if let previous { onDidEnd?(previous, .userStopped) }
         saveLastOption()
         applySystemState()
     }
@@ -49,11 +53,12 @@ final class AwakeController {
         start(machine.lastOption)
     }
 
-    func stop() {
+    func stop(reason: AwakeEndReason = .userStopped) {
         guard machine.isAwake else { return }
         onWillEnd?()
-        machine.stop()
+        let ended = machine.stop()
         applySystemState()
+        if let ended { onDidEnd?(ended, reason) }
     }
 
     /// 깨어 있는 동안 화면만 바로 끈다 (맥은 계속 깨어 있다)
@@ -97,8 +102,10 @@ final class AwakeController {
         now = Date()
         if machine.current?.hasExpired(at: now) == true {
             onWillEnd?()
+            let ended = machine.current
             _ = machine.tick(at: now)
             applySystemState()
+            if let ended { onDidEnd?(ended, .timeElapsed) }
         }
     }
 

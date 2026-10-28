@@ -11,6 +11,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private let safety: SafetyController
     private let panel: FloatingPanelController
     private let settings: SettingsWindowController
+    private let history: HistoryWindowController
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let menu = NSMenu()
 
@@ -19,8 +20,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         lidMode: LidModeController,
         safety: SafetyController,
         panel: FloatingPanelController,
-        settings: SettingsWindowController
+        settings: SettingsWindowController,
+        history: HistoryWindowController
     ) {
+        self.history = history
         self.awake = awake
         self.lidMode = lidMode
         self.safety = safety
@@ -96,6 +99,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
         menu.addItem(actionItem(panel.isVisible ? "창 숨기기" : "창 보이기", #selector(togglePanelVisibility)))
+        menu.addItem(actionItem("기록 보기…", #selector(showHistory)))
         let settingsItem = actionItem("설정…", #selector(showSettings))
         settingsItem.keyEquivalent = ","
         menu.addItem(settingsItem)
@@ -183,6 +187,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func turnOffDisplay() { awake.turnOffDisplay() }
     @objc private func pickTime() { panel.showTimePicker() }
     @objc private func showSettings() { settings.show() }
+    @objc private func showHistory() { history.show() }
 
     @objc private func toggleLidMode() {
         if lidMode.isOn { lidMode.disable() } else { lidMode.enable() }

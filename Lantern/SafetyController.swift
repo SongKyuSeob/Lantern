@@ -96,7 +96,7 @@ final class SafetyController {
         case .endAwakeForLowBattery(let percent):
             notify("배터리가 \(percent)%라 깨어 있기를 껐어요.\(sleepNote)")
             // 재우는 일은 세션이 끝날 때(awake.onWillEnd) 함께 처리된다
-            awake.stop()
+            awake.stop(reason: .lowBattery)
         case .disableLidModeForHeat:
             notify("맥이 많이 뜨거워서 뚜껑 닫아도 유지를 껐어요.\(sleepNote)")
             lidMode.disable()

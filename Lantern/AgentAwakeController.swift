@@ -57,7 +57,7 @@ final class AgentAwakeController {
         watch = current
         if shouldEnd {
             watch = nil
-            awake.stop()
+            awake.stop(reason: .agentsFinished)
             setPhase(.inactive)
             return
         }

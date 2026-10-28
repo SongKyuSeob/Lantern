@@ -46,4 +46,8 @@ public enum AwakeEndReason: String, Codable, Sendable {
     case timeElapsed
     /// 에이전트 작업이 모두 끝남
     case agentsFinished
+    /// 충전기 없이 배터리가 기준 아래로 내려감
+    case lowBattery
+    /// 랜턴을 종료함
+    case appQuit
 }
