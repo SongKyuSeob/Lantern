@@ -139,7 +139,12 @@ private struct TodoRow: View {
             Button {
                 store.setDone(item, !item.isDone)
             } label: {
+                // 테두리만 있는 동그라미는 선 위만 눌리므로, 둘레까지 넉넉히 누를 수 있게 한다
                 checkmark
+                    .frame(width: 20, height: TodoTab.rowHeight)
+                    .contentShape(Rectangle())
+                    // 넓힌 만큼 양옆을 줄여 줄 배치는 그대로 둔다
+                    .padding(.horizontal, -3.5)
             }
             .buttonStyle(.plain)
             .help(item.isDone ? "되돌리기" : "끝내기")
