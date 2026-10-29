@@ -23,6 +23,14 @@ final class PanelState {
     /// 아직 Enter를 누르지 않은 새 할 일. 창이 평소 상태로 바뀌거나 탭을 옮겨도 남아 있게 여기에 둔다
     var todoDraft = ""
 
+    enum DragPhase {
+        case changed
+        case ended
+    }
+
+    /// 활성 창의 위쪽 탭 줄을 끌 때 창 컨트롤러에 알린다 (창 옮기기)
+    @ObservationIgnored var onHeaderDrag: ((DragPhase) -> Void)?
+
     var isCollapsed: Bool {
         didSet { defaults.set(isCollapsed, forKey: Self.collapsedKey) }
     }

@@ -85,6 +85,14 @@ private struct ActivePanel: View {
             .buttonStyle(.plain)
             .help(state.isCollapsed ? "펼쳐 두기" : "접어 두기")
         }
+        // 탭 줄을 끌면 창을 옮긴다. 놓으면 그 화면의 가장 가까운 모서리에 붙는다
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 3)
+                .onChanged { _ in state.onHeaderDrag?(.changed) }
+                .onEnded { _ in state.onHeaderDrag?(.ended) }
+        )
+        .help("끌어서 다른 모서리나 화면으로 옮길 수 있어요")
     }
 }
 

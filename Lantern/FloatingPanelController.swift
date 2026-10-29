@@ -34,6 +34,8 @@ final class FloatingPanelController {
         openHistory: @escaping () -> Void
     ) {
         self.state = state
+        corner = UserDefaults.standard.string(forKey: Self.cornerKey).flatMap(PanelCorner.init) ?? .topRight
+        screenID = (UserDefaults.standard.object(forKey: Self.screenKey) as? Int).map { CGDirectDisplayID($0) }
         panel = FloatingPanel(
             contentRect: NSRect(x: 0, y: 0, width: 300, height: 120),
             styleMask: [.borderless, .nonactivatingPanel],
@@ -66,16 +68,17 @@ final class FloatingPanelController {
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.placeAtTopRight() }
+            MainActor.assumeIsolated { self?.place() }
         }
-        // 내용에 따라 높이가 바뀌어도 오른쪽 위 모서리를 그 자리에 둔다.
+        // 내용에 따라 높이가 바뀌어도 붙인 모서리를 그 자리에 둔다.
         // 이 알림은 SwiftUI가 화면을 배치하는 도중에 오므로, 배치가 끝난 뒤에 옮긴다 (배치 중 재배치 경고 방지)
         resizeObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.didResizeNotification, object: panel, queue: .main
         ) { [weak self] _ in
-            DispatchQueue.main.async { self?.placeAtTopRight() }
+            DispatchQueue.main.async { self?.place() }
         }
 
+        state.onHeaderDrag = { [weak self] phase in self?.handleHeaderDrag(phase) }
         applyMode()
         observeMode()
         #if DEBUG
@@ -115,7 +118,7 @@ final class FloatingPanelController {
     var isVisible: Bool { panel.isVisible }
 
     func show() {
-        placeAtTopRight()
+        place()
         panel.orderFrontRegardless()
         if state.mode == .passive { updateHoverFade() }
     }
@@ -133,20 +136,17 @@ final class FloatingPanelController {
     /// 메뉴바 아이콘 왼쪽 클릭: 평소 ↔ 활성
     func toggleActive() {
         if !panel.isVisible {
-            moveToScreenUnderMouse()
             show()
             state.mode = .active
         } else if state.mode == .active {
             state.mode = .passive
         } else {
-            moveToScreenUnderMouse()
             state.mode = .active
         }
     }
 
     /// 메뉴의 "시각…": 창을 펼쳐 시각 고르기를 연다
     func showTimePicker() {
-        moveToScreenUnderMouse()
         show()
         state.isCollapsed = false
         state.tab = .awake
@@ -234,6 +234,8 @@ final class FloatingPanelController {
             return true
         }
         restartIdleTimer()
+        // 끌기 끝을 놓쳐 창이 모서리가 아닌 곳에 남았으면, 다음 움직임에 모서리로 붙인다
+        if dragStart == nil, panel.frame.origin != cornerOrigin() { place(animated: true) }
         return false
     }
 
@@ -315,27 +317,89 @@ final class FloatingPanelController {
 
     // MARK: - 위치
 
-    /// 창을 띄울 화면. 화면이 여러 개면 아이콘이나 단축키를 누른 순간 커서가 있던 화면을 쓴다
-    private var targetScreen: NSScreen?
+    /// 창을 붙인 모서리와 화면. 활성 창의 위쪽 탭 줄을 끌어 옮기고, 놓으면 가장 가까운 모서리에 붙는다
+    private var corner: PanelCorner
+    private var screenID: CGDirectDisplayID?
+    /// 끌기 시작할 때의 커서와 창 위치
+    private var dragStart: (mouse: NSPoint, origin: NSPoint)?
+    /// 끄는 동안 마우스 버튼이 실제로 눌려 있는지 짧은 간격으로 확인한다.
+    /// 창이 커서와 함께 움직이면 SwiftUI의 끌기 끝이나 mouseUp 이벤트가 오지 않을 때가 있어서, 버튼 상태를 직접 본다
+    private var dragReleaseTimer: Timer?
 
-    private func moveToScreenUnderMouse() {
-        let mouse = NSEvent.mouseLocation
-        targetScreen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) }
-        placeAtTopRight()
+    private static let cornerKey = "panel.corner"
+    private static let screenKey = "panel.screenID"
+
+    private static func displayID(of screen: NSScreen) -> CGDirectDisplayID? {
+        (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value
     }
 
-    /// 고른 화면(없거나 빠졌으면 메뉴바가 있는 첫 화면)의 오른쪽 위에 붙인다
-    private func placeAtTopRight() {
+    /// 위쪽 탭 줄을 끌 때 불린다
+    private func handleHeaderDrag(_ phase: PanelState.DragPhase) {
+        switch phase {
+        case .changed:
+            let mouse = NSEvent.mouseLocation
+            if dragStart == nil {
+                dragStart = (mouse, panel.frame.origin)
+                let timer = Timer(timeInterval: 0.03, repeats: true) { [weak self] _ in
+                    MainActor.assumeIsolated {
+                        guard let self else { return }
+                        if NSEvent.pressedMouseButtons & 1 == 0 {
+                            self.handleHeaderDrag(.ended)
+                        } else if let start = self.dragStart {
+                            // SwiftUI가 끄는 중 알림을 멈춰도 창이 커서를 따라가게 한다
+                            let now = NSEvent.mouseLocation
+                            self.panel.setFrameOrigin(NSPoint(x: start.origin.x + now.x - start.mouse.x, y: start.origin.y + now.y - start.mouse.y))
+                        }
+                    }
+                }
+                RunLoop.main.add(timer, forMode: .common)
+                dragReleaseTimer = timer
+            }
+            guard let start = dragStart else { return }
+            panel.setFrameOrigin(NSPoint(x: start.origin.x + mouse.x - start.mouse.x, y: start.origin.y + mouse.y - start.mouse.y))
+        case .ended:
+            dragReleaseTimer?.invalidate()
+            dragReleaseTimer = nil
+            guard dragStart != nil else { return }
+            dragStart = nil
+            snapToNearestCorner()
+        }
+    }
+
+    /// 창 가운데가 있는 화면(걸쳐 있거나 밖이면 가장 가까운 화면)의 가장 가까운 모서리에 붙이고 기억한다
+    private func snapToNearestCorner() {
+        let center = NSPoint(x: panel.frame.midX, y: panel.frame.midY)
         let screens = NSScreen.screens
-        let chosen = targetScreen.flatMap { target in screens.first { $0.frame == target.frame } }
-        guard let screen = chosen ?? screens.first else { return }
-        let visible = screen.visibleFrame
-        let size = panel.frame.size
-        let origin = NSPoint(
-            x: visible.maxX - size.width - Self.margin.width,
-            y: visible.maxY - size.height - Self.margin.height
-        )
-        if panel.frame.origin != origin { panel.setFrameOrigin(origin) }
+        let screen = screens.first { $0.frame.contains(center) }
+            ?? screens.min { distance(center, to: $0.frame) < distance(center, to: $1.frame) }
+        guard let screen else { return }
+        corner = PanelCorner.nearest(to: center, in: screen.visibleFrame)
+        screenID = Self.displayID(of: screen)
+        UserDefaults.standard.set(corner.rawValue, forKey: Self.cornerKey)
+        if let screenID { UserDefaults.standard.set(Int(screenID), forKey: Self.screenKey) }
+        place(animated: true)
+    }
+
+    private func distance(_ point: NSPoint, to rect: NSRect) -> CGFloat {
+        let dx = max(rect.minX - point.x, 0, point.x - rect.maxX)
+        let dy = max(rect.minY - point.y, 0, point.y - rect.maxY)
+        return hypot(dx, dy)
+    }
+
+    /// 기억한 화면(빠졌으면 메뉴바가 있는 첫 화면)의 기억한 모서리에 붙였을 때의 창 위치
+    private func cornerOrigin() -> NSPoint? {
+        let screens = NSScreen.screens
+        let chosen = screenID.flatMap { id in screens.first { Self.displayID(of: $0) == id } }
+        guard let screen = chosen ?? screens.first else { return nil }
+        return corner.origin(size: panel.frame.size, in: screen.visibleFrame, margin: Self.margin)
+    }
+
+    /// 기억한 화면(빠졌으면 메뉴바가 있는 첫 화면)의 기억한 모서리에 붙인다.
+    /// 위쪽 모서리면 아래로, 아래쪽 모서리면 위로 펼쳐진다
+    private func place(animated: Bool = false) {
+        guard dragStart == nil, let origin = cornerOrigin(), panel.frame.origin != origin else { return }
+        // 창 이동 애니메이션은 animator() 대신 창 전용 setFrame(animate:)을 쓴다 (animator로는 창이 옮겨지지 않았음)
+        panel.setFrame(NSRect(origin: origin, size: panel.frame.size), display: true, animate: animated)
     }
 }
 
