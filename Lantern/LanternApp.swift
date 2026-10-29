@@ -149,6 +149,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// 열지 못하면(파일 손상 등) 원래 파일을 옆에 보관하고 새로 만든다. 그것도 안 되면 메모리에만 두고 시작한다.
     /// 어느 경우든 사용자에게 알릴 문구를 함께 돌려준다
     private static func makeTodoStore() -> (store: TodoStore, warning: String?) {
+        #if DEBUG
+        if DemoData.isEnabled { return (DemoData.makeStore(), nil) }
+        #endif
         let manager = FileManager.default
         let directory = URL.applicationSupportDirectory.appending(path: "Lantern", directoryHint: .isDirectory)
         try? manager.createDirectory(at: directory, withIntermediateDirectories: true)

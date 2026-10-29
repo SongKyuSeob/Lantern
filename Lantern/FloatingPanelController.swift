@@ -203,6 +203,10 @@ final class FloatingPanelController {
             outsideClickMonitor = NSEvent.addGlobalMonitorForEvents(
                 matching: [.leftMouseDown, .rightMouseDown, .otherMouseDown]
             ) { [weak self] _ in
+                #if DEBUG
+                // 시연 모드(화면 캡처용)에서는 캡처 도구를 눌러도 창이 닫히지 않게 한다
+                if DemoData.isEnabled { return }
+                #endif
                 MainActor.assumeIsolated { self?.state.mode = .passive }
             }
         }
@@ -250,6 +254,9 @@ final class FloatingPanelController {
 
     /// 시각을 고르는 중이거나 마우스가 창 위에 있으면 조금 더 기다린다
     private func idleTimerFired() {
+        #if DEBUG
+        if DemoData.isEnabled { return }
+        #endif
         if state.isPickingTime || state.isEditingText || panel.frame.contains(NSEvent.mouseLocation) {
             restartIdleTimer()
         } else {
