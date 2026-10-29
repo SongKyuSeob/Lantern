@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import LanternKit
 import UserNotifications
@@ -49,6 +50,7 @@ final class SafetyController {
     }
 
     func start() {
+        observePowerOff()
         thermalObserver = NotificationCenter.default.addObserver(
             forName: ProcessInfo.thermalStateDidChangeNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -62,15 +64,30 @@ final class SafetyController {
         // 세션은 복원하지 않으므로, 지난번에 남은 뚜껑 모드는 원래대로 돌린다
         lidMode.refresh()
         if lidMode.isOn {
-            lidMode.disable()
+            // 앱을 막 켠 참이라 사람이 있으니, 끄지 못하면 비밀번호 창으로라도 끈다
+            lidMode.disable(interactive: true)
             notify("지난번에 켜져 있던 뚜껑 닫아도 유지를 껐어요.")
         }
         evaluate()
     }
 
-    /// 앱이 끝날 때 뚜껑 모드를 남기지 않는다
+    /// 앱이 끝날 때 뚜껑 모드를 남기지 않는다. 뚜껑이 닫혀 있었으면 재운다 (시스템을 끄는 중이면 그대로 둔다)
     func appWillTerminate() {
-        if lidMode.isOn { lidMode.disable() }
+        guard lidMode.isOn else { return }
+        lidMode.disable()
+        if !isPoweringOff { sleepIfLidClosed() }
+    }
+
+    /// 로그아웃·재시작·시스템 종료로 앱이 끝나는 중인지
+    @ObservationIgnored private var isPoweringOff = false
+    @ObservationIgnored private var powerOffObserver: NSObjectProtocol?
+
+    private func observePowerOff() {
+        powerOffObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.willPowerOffNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.isPoweringOff = true }
+        }
     }
 
     /// 뚜껑을 닫아 둔 채 뚜껑 모드가 풀렸으면 맥을 재운다.
@@ -98,10 +115,24 @@ final class SafetyController {
             // 재우는 일은 세션이 끝날 때(awake.onWillEnd) 함께 처리된다
             awake.stop(reason: .lowBattery)
         case .disableLidModeForHeat:
+            // 끄기에 실패했다면 잠시 다시 시도하지 않는다 (전원 알림마다 같은 실패·알림이 반복되지 않게)
+            if let lastFailure = lidModeOffFailedAt, Date().timeIntervalSince(lastFailure) < Self.retryCooldown { return }
+            guard lidMode.disable() else { return }
             notify("맥이 많이 뜨거워서 뚜껑 닫아도 유지를 껐어요.\(sleepNote)")
-            lidMode.disable()
             if willSleep { lidMode.sleepNow() }
         }
+    }
+
+    /// 자동으로 끄지 못한 마지막 시각
+    @ObservationIgnored private var lidModeOffFailedAt: Date?
+    private static let retryCooldown: TimeInterval = 10 * 60
+
+    /// 사람이 없을 때 뚜껑 모드를 끄지 못했다. 비밀번호 창 대신 알리고, 잠시 다시 시도하지 않는다
+    func lidModeOffFailed() {
+        let now = Date()
+        if let last = lidModeOffFailedAt, now.timeIntervalSince(last) < Self.retryCooldown { return }
+        lidModeOffFailedAt = now
+        notify("뚜껑 닫아도 유지를 끄지 못했어요. 맥이 잠들지 않을 수 있어요. 설정 → 전원에서 권한을 확인해 주세요.")
     }
 
     private func notify(_ body: String) {

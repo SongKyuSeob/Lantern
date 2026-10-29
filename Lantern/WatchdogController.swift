@@ -9,13 +9,11 @@ final class WatchdogController {
 
     private var domain: String { "gui/\(uid)" }
 
-    /// 뚜껑 모드가 켜지면 등록하고, 꺼지면 지운다
-    func update(lidModeOn: Bool) {
-        if lidModeOn { register() } else { unregister() }
-    }
-
-    func register() {
-        guard let executablePath = Bundle.main.executablePath else { return }
+    /// 등록하고 launchd에 실제로 올라갔는지 확인한다. 실패하면 `false`
+    /// (예: 시스템 설정에서 "랜턴 뚜껑 모드 감시"를 꺼 둔 경우)
+    @discardableResult
+    func register() -> Bool {
+        guard let executablePath = Bundle.main.executablePath else { return false }
         do {
             let script = LidModeWatchdog.script(
                 pid: ProcessInfo.processInfo.processIdentifier,
@@ -27,11 +25,17 @@ final class WatchdogController {
             try write(Data(script.utf8), to: scriptPath, permissions: 0o755)
             try write(LidModeWatchdog.plist(scriptPath: scriptPath), to: plistPath, permissions: 0o644)
         } catch {
-            return
+            return false
         }
         // 이전 것이 남아 있으면 지우고 새로 올린다
         _ = ShellCommand.run("/bin/launchctl", ["bootout", "\(domain)/\(LidModeWatchdog.label)"])
-        _ = ShellCommand.run("/bin/launchctl", ["bootstrap", domain, plistPath])
+        let bootstrap = ShellCommand.run("/bin/launchctl", ["bootstrap", domain, plistPath])
+        let loaded = ShellCommand.run("/bin/launchctl", ["print", "\(domain)/\(LidModeWatchdog.label)"])
+        guard bootstrap.status == 0, loaded.status == 0 else {
+            unregister()
+            return false
+        }
+        return true
     }
 
     /// 등록을 지운다. 등록돼 있지 않아도 괜찮다

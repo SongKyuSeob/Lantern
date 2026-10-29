@@ -66,13 +66,15 @@ final class AgentHookSetup {
         lastError = nil
         do {
             try installScript()
-            let path = AgentHookConfig.configPath(for: agent, home: home)
+            let linkPath = AgentHookConfig.configPath(for: agent, home: home)
+            // dotfiles 도구로 설정 파일을 심볼릭 링크해 둔 경우, 링크를 일반 파일로 덮지 않고 원본에 쓴다
+            let path = URL(fileURLWithPath: linkPath).resolvingSymlinksInPath().path
             let root = try readConfig(agent)
-            // 백업은 랜턴이 손대기 전 원본이어야 하므로, 랜턴 hook이 이미 들어 있는 파일로는 덮어쓰지 않는다
+            // 백업은 랜턴이 손대기 전 원본이어야 하므로, 랜턴 hook이 이미 들어 있는 파일로는 덮어쓰지 않는다.
+            // 링크를 복사하면 같은 파일을 가리키는 링크가 될 뿐이라, 내용을 읽어 새 파일로 쓴다
             if FileManager.default.fileExists(atPath: path), !AgentHookConfig.containsLanternHook(root) {
-                let backup = path + ".lantern-backup"
-                try? FileManager.default.removeItem(atPath: backup)
-                try FileManager.default.copyItem(atPath: path, toPath: backup)
+                let original = try Data(contentsOf: URL(fileURLWithPath: path))
+                try original.write(to: URL(fileURLWithPath: linkPath + ".lantern-backup"), options: .atomic)
             }
             // 키 순서와 모양을 지켜, 랜턴 hook 말고는 파일이 바뀌지 않게 쓴다
             try Data(change(root).formatted().utf8).write(to: URL(fileURLWithPath: path), options: .atomic)

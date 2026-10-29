@@ -83,6 +83,31 @@ struct AgentSessionTrackerTests {
         #expect(status(tracker, at: 6 + 30 * 60) == .done)
     }
 
+    @Test("허락 요청 뒤 시작해 10초 넘게 사는 자식 프로세스가 있으면 명령 실행 중으로 본다") func permissionApprovedByChild() {
+        var tracker = AgentSessionTracker()
+        tracker.apply(event(.promptSubmit, pid: 42))
+        tracker.apply(event(.toolStart(id: "build"), at: 5))
+        tracker.apply(event(.permissionRequest, at: 6))
+        let session = tracker.sessions.values.first!
+        let now = start.addingTimeInterval(6 + 40 * 60)
+        // 허락 뒤 8초에 시작한 빌드가 아직 돌고 있음
+        let running = tracker.status(of: session, now: now, isAlive: alive, childStartTimes: { _ in [start.addingTimeInterval(14)] })
+        #expect(running == .runningCommand)
+        // 허락 요청 전부터 있던 프로세스(MCP 서버 등)는 세지 않는다
+        let old = tracker.status(of: session, now: now, isAlive: alive, childStartTimes: { _ in [start.addingTimeInterval(-100)] })
+        #expect(old == .done)
+    }
+
+    @Test("방금 생긴 짧은 프로세스는 허락받은 명령으로 보지 않는다") func shortLivedChildIgnored() {
+        var tracker = AgentSessionTracker()
+        tracker.apply(event(.promptSubmit, pid: 42))
+        tracker.apply(event(.permissionRequest, at: 6))
+        let session = tracker.sessions.values.first!
+        let now = start.addingTimeInterval(6 + 31 * 60)
+        let status = tracker.status(of: session, now: now, isAlive: alive, childStartTimes: { _ in [now.addingTimeInterval(-3)] })
+        #expect(status == .done)
+    }
+
     @Test("허락하면 다시 도구 실행 중으로 돌아간다") func permissionGranted() {
         var tracker = AgentSessionTracker()
         tracker.apply(event(.promptSubmit))
@@ -92,11 +117,12 @@ struct AgentSessionTrackerTests {
         #expect(status(tracker, at: 60 + 40 * 60) == .runningCommand)
     }
 
-    @Test("백그라운드 작업이 남은 Stop은 계속 일하는 중") func backgroundWork() {
+    @Test("백그라운드 작업이 남은 Stop은 1시간까지 일하는 중") func backgroundWork() {
         var tracker = AgentSessionTracker()
         tracker.apply(event(.promptSubmit))
         tracker.apply(event(.stop(hasBackgroundWork: true), at: 10))
-        #expect(status(tracker, at: 10 + 60 * 60) == .runningCommand)
+        #expect(status(tracker, at: 10 + 50 * 60) == .runningCommand)
+        #expect(status(tracker, at: 10 + 60 * 60) == .done)
         tracker.apply(event(.promptSubmit, at: 4000))
         tracker.apply(event(.stop(hasBackgroundWork: false), at: 4010))
         #expect(status(tracker, at: 4011) == .done)
@@ -108,6 +134,16 @@ struct AgentSessionTrackerTests {
         tracker.apply(event(.toolEnd(id: "t1"), at: 5))
         tracker.apply(event(.toolStart(id: "t1"), at: 5))
         #expect(status(tracker, at: 5 + 40 * 60) == .done)
+    }
+
+    @Test("응답이 끝난 뒤 늦게 온 도구 끝·서브에이전트 신호는 다시 일하는 중으로 돌리지 않는다") func lateEventsAfterStop() {
+        var tracker = AgentSessionTracker()
+        tracker.apply(event(.promptSubmit))
+        tracker.apply(event(.toolStart(id: "t1"), at: 5))
+        tracker.apply(event(.stop(hasBackgroundWork: false), at: 10))
+        tracker.apply(event(.toolEnd(id: "t1"), at: 11))
+        tracker.apply(event(.subagentActivity, at: 12))
+        #expect(status(tracker, at: 13) == .done)
     }
 
     @Test("에이전트 프로그램이 꺼지면 끝난 것으로 본다") func processGone() {
@@ -267,7 +303,7 @@ struct AgentHookConfigTests {
         try AgentHookConfig.hookScript().write(toFile: scriptPath, atomically: true, encoding: .utf8)
         try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
 
-        let payload = "{\"session_id\":\"s9\",\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":\"hi\"}"
+        let payload = "{\"session_id\":\"s9\",\"hook_event_name\":\"UserPromptSubmit\",\"prompt\":\"비밀 \\\"hook_event_name\\\": \\\"Stop\\\"\"}"
         let result = try runShell(AgentHookConfig.command(for: .codex), home: home.path, input: payload)
         #expect(result.status == 0)
         #expect(result.output.isEmpty)
@@ -281,6 +317,47 @@ struct AgentHookConfigTests {
         #expect(parsed.agent == .codex)
         #expect(parsed.sessionID == "s9")
         #expect(parsed.kind == .promptSubmit)
+        // 질문 원문 같은 내용은 파일에 남기지 않는다
+        #expect(!contents.contains("비밀"))
+    }
+
+    @Test("도구 번호와 백그라운드 작업 여부도 남긴다") func scriptKeepsIdsOnly() throws {
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: home) }
+        let events = try installScript(home: home)
+        _ = try runShell(AgentHookConfig.command(for: .claude), home: home.path,
+                         input: "{\"session_id\":\"a\",\"hook_event_name\":\"PreToolUse\",\"tool_use_id\":\"t\\\"1\",\"tool_input\":{\"command\":\"cat secret.txt\"}}")
+        _ = try runShell(AgentHookConfig.command(for: .claude), home: home.path,
+                         input: "{\"session_id\":\"a\",\"hook_event_name\":\"Stop\",\"background_tasks\":[{\"id\":\"b\"}],\"last_assistant_message\":\"secret\"}")
+        let kinds = try FileManager.default.contentsOfDirectory(atPath: events).sorted().map { name -> AgentHookEvent.Kind? in
+            let text = try String(contentsOfFile: "\(events)/\(name)", encoding: .utf8)
+            #expect(!text.contains("secret"))
+            return AgentHookEvent.parse(fileContents: text, receivedAt: start)?.kind
+        }
+        #expect(kinds.contains(.toolStart(id: "t\"1")))
+        #expect(kinds.contains(.stop(hasBackgroundWork: true)))
+    }
+
+    @Test("신호가 너무 많이 쌓여 있으면 더 쓰지 않는다") func scriptStopsWhenFull() throws {
+        let home = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: home) }
+        let events = try installScript(home: home)
+        for index in 0..<AgentHookConfig.maxPendingEvents {
+            FileManager.default.createFile(atPath: "\(events)/old-\(index).event", contents: nil)
+        }
+        _ = try runShell(AgentHookConfig.command(for: .codex), home: home.path,
+                         input: "{\"session_id\":\"a\",\"hook_event_name\":\"Stop\"}")
+        #expect(try FileManager.default.contentsOfDirectory(atPath: events).count == AgentHookConfig.maxPendingEvents)
+    }
+
+    /// 임시 HOME에 hook 스크립트와 신호 폴더를 만든다. 신호 폴더 경로를 돌려준다
+    private func installScript(home: URL) throws -> String {
+        let scriptPath = AgentHookConfig.scriptPath(home: home.path)
+        let eventsPath = AgentHookConfig.eventsDirectory(home: home.path)
+        try FileManager.default.createDirectory(atPath: eventsPath, withIntermediateDirectories: true)
+        try AgentHookConfig.hookScript().write(toFile: scriptPath, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptPath)
+        return eventsPath
     }
 
     @Test("신호 폴더가 없으면 아무것도 남기지 않는다") func scriptSkipsWithoutEventsDirectory() throws {

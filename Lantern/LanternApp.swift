@@ -1,15 +1,22 @@
 import AppKit
 import LanternKit
 import SwiftUI
+import UserNotifications
 
 @main
 struct LanternApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
+        // 메뉴바 앱이라 창을 따로 띄우지 않는다. ⌘, 는 랜턴 설정 창을 연다
         Settings {
-            Text("설정")
-                .padding()
+            EmptyView()
+        }
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button("설정…") { appDelegate.showSettings() }
+                    .keyboardShortcut(",")
+            }
         }
     }
 }
@@ -25,7 +32,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let agentHooks = AgentHookSetup()
     private let shortcuts = GlobalShortcutController()
     private let loginItem = LoginItemController()
-    private let todoStore = AppDelegate.makeTodoStore()
+    private let todoStoreResult = AppDelegate.makeTodoStore()
+    private var todoStore: TodoStore { todoStoreResult.store }
     private lazy var agentAwake = AgentAwakeController(awake: awake, monitor: agentMonitor)
     private lazy var safety = SafetyController(awake: awake, power: power, lidMode: lidMode)
     private lazy var settings = SettingsWindowController(
@@ -40,11 +48,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         lidMode.onChange = { [weak self] isOn in
-            if isOn { self?.lidModeUsedInSession = true }
-            self?.power.setLidModeOn(isOn)
-            self?.watchdog.update(lidModeOn: isOn)
+            guard let self else { return }
+            if isOn { lidModeUsedInSession = true }
+            power.setLidModeOn(isOn)
+            // 감시 작업이 없으면 앱이 갑자기 꺼졌을 때 뚜껑 모드가 남으므로, 등록하지 못하면 되돌린다
+            if isOn, !watchdog.register() {
+                lidMode.revertBecauseWatchdogFailed()
+            } else if !isOn {
+                watchdog.unregister()
+            }
         }
         power.onChange = { [weak self] _ in self?.safety.evaluate() }
+        lidMode.onAutomaticDisableFailed = { [weak self] in self?.safety.lidModeOffFailed() }
         // 끝난 깨어 있기는 기록 창에 남긴다
         awake.onDidEnd = { [weak self] session, reason in
             guard let self else { return }
@@ -63,6 +78,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lidMode.setup.refresh()
         power.start()
         safety.start()
+        if let warning = todoStoreResult.warning { Self.notify(warning) }
         // 지난번에 남은 감시 작업이 있으면 정리한다
         if !lidMode.isOn { watchdog.unregister() }
         agentHooks.refreshScriptIfConnected()
@@ -130,15 +146,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     #endif
 
     /// 할 일은 ~/Library/Application Support/Lantern/todos.store에 저장한다.
-    /// 열지 못하면(파일 손상 등) 앱이 죽지 않도록 메모리에만 두고 시작한다
-    private static func makeTodoStore() -> TodoStore {
+    /// 열지 못하면(파일 손상 등) 원래 파일을 옆에 보관하고 새로 만든다. 그것도 안 되면 메모리에만 두고 시작한다.
+    /// 어느 경우든 사용자에게 알릴 문구를 함께 돌려준다
+    private static func makeTodoStore() -> (store: TodoStore, warning: String?) {
+        let manager = FileManager.default
         let directory = URL.applicationSupportDirectory.appending(path: "Lantern", directoryHint: .isDirectory)
-        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try? manager.createDirectory(at: directory, withIntermediateDirectories: true)
         let url = directory.appending(path: "todos.store")
         if let container = try? TodoStore.makeContainer(url: url) {
-            return TodoStore(container: container)
+            return (TodoStore(container: container), nil)
         }
-        return TodoStore(container: try! TodoStore.makeContainer(url: nil))
+        // 못 연 파일은 지우지 않고 이름을 바꿔 보관한다 (SwiftData는 -shm, -wal 파일도 함께 쓴다)
+        let stamp = Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: false))
+            .replacingOccurrences(of: ":", with: "")
+        let keptName = "todos-열지 못함-\(stamp).store"
+        for suffix in ["", "-shm", "-wal"] {
+            let source = directory.appending(path: "todos.store\(suffix)")
+            guard manager.fileExists(atPath: source.path) else { continue }
+            try? manager.moveItem(at: source, to: directory.appending(path: keptName + suffix))
+        }
+        if let container = try? TodoStore.makeContainer(url: url) {
+            return (TodoStore(container: container),
+                    "할 일 저장 파일을 열 수 없어서 새로 만들었어요. 원래 파일은 Application Support/Lantern 폴더에 \"\(keptName)\"로 보관했어요.")
+        }
+        let memory = TodoStore(container: try! TodoStore.makeContainer(url: nil))
+        return (memory, "할 일 저장 파일을 열 수 없어요. 이번에 적는 할 일은 랜턴을 끄면 사라져요.")
+    }
+
+    func showSettings() {
+        settings.show()
+    }
+
+    private static func notify(_ body: String) {
+        let content = UNMutableNotificationContent()
+        content.title = "랜턴"
+        content.body = body
+        UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }
 
     func applicationWillTerminate(_ notification: Notification) {

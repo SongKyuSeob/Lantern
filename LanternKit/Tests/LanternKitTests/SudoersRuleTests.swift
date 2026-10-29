@@ -14,7 +14,7 @@ struct SudoersRuleTests {
         #expect(contents.hasSuffix("\n"))
     }
 
-    @Test("위험한 사용자 이름은 거부한다", arguments: ["", "a b", "root'", "a;rm", "ALL\nALL", "$(id)", "-user", "사용자"])
+    @Test("위험한 사용자 이름은 거부한다", arguments: ["", "a b", "root'", "a;rm", "ALL\nALL", "$(id)", "-user", "사용자", "ALL", "all"])
     func rejectsUnsafeUserNames(_ name: String) {
         #expect(SudoersRule.contents(for: name) == nil)
     }

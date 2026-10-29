@@ -5,6 +5,8 @@ import SwiftUI
 
 /// 설정 창. 메뉴바 앱이라 창을 열 때 앱을 앞으로 가져온다.
 final class SettingsWindowController {
+    static let windowIdentifier = NSUserInterfaceItemIdentifier("LanternSettings")
+
     private let lidMode: LidModeController
     private let safety: SafetyController
     private let agentHooks: AgentHookSetup
@@ -37,6 +39,7 @@ final class SettingsWindowController {
             ))
             let window = NSWindow(contentViewController: host)
             window.title = "랜턴 설정"
+            window.identifier = SettingsWindowController.windowIdentifier
             // 높이는 사용자가 조절할 수 있다. 폭은 내용에 맞춰 고정
             window.styleMask = [.titled, .closable, .resizable]
             window.setContentSize(NSSize(width: 480, height: 560))
@@ -292,18 +295,22 @@ private struct ShortcutSection: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
             } else if let failed = ShortcutAction.allCases.first(where: shortcuts.failedActions.contains) {
-                Text("다른 앱이 이미 \(failed.title) 조합을 쓰고 있어서 등록하지 못했어요. 다른 조합으로 바꿔 주세요.")
+                Text("\(failed.title) 단축키를 등록하지 못했어요. 다른 조합으로 바꿔 주세요.")
                     .font(.callout)
                     .foregroundStyle(.red)
             }
         } header: {
             Text("단축키")
         } footer: {
-            Text("어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (Esc로 취소).")
+            Text("어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (Esc로 취소).\n⌃ 또는 ⌥가 들어간 조합만 쓸 수 있어요. ⌘ 조합은 대부분 앱이 이미 쓰고 있어서, 랜턴이 가져가면 모든 앱에서 그 기능이 막히기 때문이에요.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
         .onDisappear { stopRecording() }
+        // 녹화 중에 설정 창을 닫거나 다른 창으로 옮기면 녹화를 취소한다
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { notification in
+            if (notification.object as? NSWindow)?.identifier == SettingsWindowController.windowIdentifier { stopRecording() }
+        }
     }
 
     private func row(_ action: ShortcutAction) -> some View {
@@ -335,6 +342,8 @@ private struct ShortcutSection: View {
         // 지금 조합을 다시 누를 수도 있으니, 입력받는 동안 등록을 잠시 내린다
         shortcuts.suspend()
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            // 설정 창에서 누른 키만 받는다 (플로팅 창의 할 일 입력 등은 그대로 둔다)
+            guard event.window?.identifier == SettingsWindowController.windowIdentifier else { return event }
             let modifiers = event.modifierFlags.intersection(KeyShortcut.allowedModifiers)
             if event.keyCode == UInt16(kVK_Escape), modifiers.isEmpty {
                 stopRecording()
@@ -345,7 +354,7 @@ private struct ShortcutSection: View {
                 apply(candidate, to: action)
                 stopRecording()
             } else {
-                hint = "⌘, ⌥, ⌃ 중 하나와 함께 눌러 주세요."
+                hint = "⌃ 또는 ⌥와 함께 눌러 주세요."
             }
             return nil
         }

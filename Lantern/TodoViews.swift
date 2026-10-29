@@ -19,7 +19,6 @@ struct TodoTab: View {
         sort: [SortDescriptor(\TodoItem.completedAt, order: .reverse)]
     ) private var doneItems: [TodoItem]
 
-    @State private var newTitle = ""
     @FocusState private var isAdding: Bool
     @State private var editingID: UUID?
 
@@ -51,6 +50,8 @@ struct TodoTab: View {
         }
         .onChange(of: isAdding) { syncEditingState() }
         .onChange(of: editingID) { syncEditingState() }
+        // 창이 평소 상태로 바뀌거나 탭을 옮겨 이 화면이 사라지면 입력 중 표시를 푼다 (Esc·10초 무조작이 다시 동작하게)
+        .onDisappear { state.isEditingText = false }
     }
 
     private var addField: some View {
@@ -58,13 +59,13 @@ struct TodoTab: View {
             Image(systemName: "plus")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.45))
-            TextField("할 일 추가", text: $newTitle)
+            TextField("할 일 추가", text: $state.todoDraft)
                 .textFieldStyle(.plain)
                 .font(.system(size: 12.5))
                 .focused($isAdding)
                 .onSubmit {
-                    store.add(newTitle)
-                    newTitle = ""
+                    store.add(state.todoDraft)
+                    state.todoDraft = ""
                     isAdding = true
                 }
         }
@@ -154,6 +155,8 @@ private struct TodoRow: View {
                         isFocused = true
                     }
                     .onChange(of: isFocused) { if !isFocused { finishEditing() } }
+                    // 고치던 중에 창이 바뀌어 사라져도 고친 이름을 저장한다
+                    .onDisappear(perform: finishEditing)
             } else {
                 Text(item.title)
                     .font(.system(size: 12.5))

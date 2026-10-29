@@ -17,6 +17,8 @@ final class AwakeController {
     @ObservationIgnored var onDidEnd: ((AwakeSession, AwakeEndReason) -> Void)?
 
     private let blocker = IdleSleepBlocker()
+    /// 화면이 꺼진 동안 macOS가 앱 타이머를 늦추는 App Nap을 막는다 (끝 시각 처리가 늦어지지 않게)
+    private var activity: NSObjectProtocol?
     private let defaults: UserDefaults
     private var timer: Timer?
 
@@ -76,9 +78,16 @@ final class AwakeController {
         now = Date()
         if machine.isAwake {
             blocker.activate(reason: "랜턴: 깨어 있기")
+            if activity == nil {
+                activity = ProcessInfo.processInfo.beginActivity(
+                    options: .userInitiatedAllowingIdleSystemSleep, reason: "랜턴: 깨어 있기 끝 시각 확인"
+                )
+            }
             startTimer()
         } else {
             blocker.deactivate()
+            if let activity { ProcessInfo.processInfo.endActivity(activity) }
+            activity = nil
             stopTimer()
         }
     }

@@ -41,6 +41,8 @@ public enum SudoersRule {
     /// 규칙 파일과 셸 명령에 그대로 들어가므로 공백·따옴표·특수 문자가 끼면 거부한다
     public static func isSafeUserName(_ name: String) -> Bool {
         guard let first = name.unicodeScalars.first, name.count <= 64 else { return false }
+        // sudoers에서 ALL은 "모든 사용자"를 뜻하는 예약어라 규칙이 모두에게 열린다
+        guard name.uppercased() != "ALL" else { return false }
         let allowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.-")
         let firstAllowed = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_")
         return firstAllowed.contains(first) && name.unicodeScalars.allSatisfy(allowed.contains)

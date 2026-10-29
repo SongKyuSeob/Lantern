@@ -30,10 +30,19 @@ final class LoginItemController {
         #if DEBUG
         return
         #else
-        guard !defaults.bool(forKey: Self.didAutoEnableKey) else { return }
-        defaults.set(true, forKey: Self.didAutoEnableKey)
+        guard !defaults.bool(forKey: Self.didAutoEnableKey), Self.isInstalledLocation else { return }
         if status == .disabled { setEnabled(true) }
+        // 성공했을 때만 끝난 것으로 기록한다 (실패하면 다음 실행 때 다시 시도)
+        if status != .disabled { defaults.set(true, forKey: Self.didAutoEnableKey) }
         #endif
+    }
+
+    /// 응용 프로그램 폴더에서 실행 중인지. 다운로드 폴더에서 바로 열면 macOS가 임시 경로(App Translocation)에서
+    /// 실행해서, 그 경로가 로그인 항목에 들어가면 다음 로그인 때 열리지 않는다
+    private static var isInstalledLocation: Bool {
+        let path = Bundle.main.bundlePath
+        return !path.contains("/AppTranslocation/")
+            && (path.hasPrefix("/Applications/") || path.hasPrefix(NSHomeDirectory() + "/Applications/"))
     }
 
     func refresh() {

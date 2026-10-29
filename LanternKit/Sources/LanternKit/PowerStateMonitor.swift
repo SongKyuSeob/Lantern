@@ -84,7 +84,8 @@ public final class PowerStateMonitor {
         let displays = onlineDisplays()
         return PowerSnapshot(
             isOnACPower: isOnACPower(),
-            hasBuiltInDisplay: displays.contains { CGDisplayIsBuiltin($0) != 0 },
+            // 뚜껑을 닫고 외장 모니터만 쓰면 내장 화면이 목록에서 빠질 수 있어, 뚜껑이 닫혀 있으면 뚜껑 있는 맥으로 본다
+            hasBuiltInDisplay: displays.contains { CGDisplayIsBuiltin($0) != 0 } || isLidClosed(),
             hasExternalDisplay: displays.contains { CGDisplayIsBuiltin($0) == 0 },
             batteryPercent: batteryPercent()
         )

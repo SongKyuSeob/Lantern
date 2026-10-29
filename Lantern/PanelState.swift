@@ -20,6 +20,8 @@ final class PanelState {
     var isPickingTime = false
     /// 할 일을 입력·수정하는 중. 이때도 10초 무조작·Esc로 닫지 않는다
     var isEditingText = false
+    /// 아직 Enter를 누르지 않은 새 할 일. 창이 평소 상태로 바뀌거나 탭을 옮겨도 남아 있게 여기에 둔다
+    var todoDraft = ""
 
     var isCollapsed: Bool {
         didSet { defaults.set(isCollapsed, forKey: Self.collapsedKey) }

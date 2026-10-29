@@ -49,8 +49,14 @@ final class AgentMonitor {
         try? FileManager.default.createDirectory(atPath: eventsPath, withIntermediateDirectories: true)
         drain()
         watchDirectory()
+        // 폴더 알림을 놓치거나 폴더가 지워졌다 다시 생겨도 따라가도록, 주기적으로도 읽고 감시를 다시 붙인다
         let timer = Timer(timeInterval: Self.checkInterval, repeats: true) { [weak self] _ in
-            MainActor.assumeIsolated { self?.reevaluate() }
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                if self.directorySource == nil { self.watchDirectory() }
+                self.drain()
+                self.reevaluate()
+            }
         }
         timer.tolerance = 1
         RunLoop.main.add(timer, forMode: .common)
@@ -67,11 +73,23 @@ final class AgentMonitor {
     // MARK: - 신호 읽기
 
     private func watchDirectory() {
+        try? FileManager.default.createDirectory(atPath: eventsPath, withIntermediateDirectories: true)
         let descriptor = open(eventsPath, O_EVTONLY)
         guard descriptor >= 0 else { return }
-        let source = DispatchSource.makeFileSystemObjectSource(fileDescriptor: descriptor, eventMask: .write, queue: .main)
-        source.setEventHandler { [weak self] in
-            MainActor.assumeIsolated { self?.drain() }
+        let source = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: descriptor, eventMask: [.write, .delete, .rename], queue: .main
+        )
+        source.setEventHandler { [weak self, weak source] in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                // 폴더가 지워지거나 옮겨지면 지금 감시는 쓸모없으니 끊는다. 타이머가 새 폴더에 다시 붙인다
+                if let source, !source.data.isDisjoint(with: [.delete, .rename]) {
+                    source.cancel()
+                    self.directorySource = nil
+                    return
+                }
+                self.drain()
+            }
         }
         source.setCancelHandler { close(descriptor) }
         source.resume()
@@ -91,6 +109,7 @@ final class AgentMonitor {
                 return (path, date)
             }
             .sorted { $0.date < $1.date }
+        removeStaleTemporaryFiles(names, now: now)
         guard !files.isEmpty else { return }
 
         for file in files {
@@ -105,6 +124,17 @@ final class AgentMonitor {
         reevaluate()
     }
 
+    /// hook이 쓰다가 끊겨 남은 임시 파일(.tmp)을 지운다. 1분 넘게 남은 것만 지워 쓰는 중인 파일은 건드리지 않는다
+    private func removeStaleTemporaryFiles(_ names: [String], now: Date) {
+        let manager = FileManager.default
+        for name in names where name.hasSuffix(".tmp") {
+            let path = "\(eventsPath)/\(name)"
+            guard let date = (try? manager.attributesOfItem(atPath: path))?[.modificationDate] as? Date,
+                  now.timeIntervalSince(date) > 60 else { continue }
+            try? manager.removeItem(atPath: path)
+        }
+    }
+
     private func recordSignal(from agent: AgentKind, at date: Date) {
         guard (lastSignalAt[agent] ?? .distantPast) < date else { return }
         lastSignalAt[agent] = date
@@ -116,7 +146,9 @@ final class AgentMonitor {
     private func reevaluate() {
         let now = Date()
         tracker.prune(now: now, isAlive: ProcessIdentity.isAlive)
-        let sessions = tracker.activeSessions(now: now, isAlive: ProcessIdentity.isAlive).map {
+        let sessions = tracker.activeSessions(
+            now: now, isAlive: ProcessIdentity.isAlive, childStartTimes: ProcessIdentity.childStartTimes
+        ).map {
             ActiveSession(
                 id: "\($0.session.agent.rawValue):\($0.session.sessionID)",
                 agent: $0.session.agent,
@@ -139,6 +171,25 @@ enum ProcessIdentity {
         guard sysctl(&mib, u_int(mib.count), &info, &size, nil, 0) == 0, size > 0 else { return nil }
         let time = info.kp_proc.p_un.__p_starttime
         return Date(timeIntervalSince1970: TimeInterval(time.tv_sec) + TimeInterval(time.tv_usec) / 1_000_000)
+    }
+
+    /// `pid`의 자식 프로세스들이 시작한 시각. 허락받고 명령이 도는지 알아보는 데 쓴다
+    static func childStartTimes(of pid: Int32) -> [Date] {
+        var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0]
+        var size = 0
+        guard sysctl(&mib, u_int(mib.count), nil, &size, nil, 0) == 0, size > 0 else { return [] }
+        // 그 사이 프로세스가 늘 수 있어 여유를 둔다
+        let capacity = size / MemoryLayout<kinfo_proc>.stride + 32
+        var processes = [kinfo_proc](repeating: kinfo_proc(), count: capacity)
+        size = capacity * MemoryLayout<kinfo_proc>.stride
+        guard sysctl(&mib, u_int(mib.count), &processes, &size, nil, 0) == 0 else { return [] }
+        let count = size / MemoryLayout<kinfo_proc>.stride
+        return processes.prefix(count)
+            .filter { $0.kp_eproc.e_ppid == pid }
+            .map {
+                let time = $0.kp_proc.p_un.__p_starttime
+                return Date(timeIntervalSince1970: TimeInterval(time.tv_sec) + TimeInterval(time.tv_usec) / 1_000_000)
+            }
     }
 
     /// 번호가 다른 프로그램에 재사용됐으면 시작 시각이 달라진다

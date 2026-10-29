@@ -190,7 +190,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func showHistory() { history.show() }
 
     @objc private func toggleLidMode() {
-        if lidMode.isOn { lidMode.disable() } else { lidMode.enable() }
+        if lidMode.isOn { lidMode.disable(interactive: true) } else { lidMode.enable() }
     }
 
     @objc private func togglePanelVisibility() {

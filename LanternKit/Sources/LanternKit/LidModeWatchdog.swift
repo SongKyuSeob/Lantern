@@ -2,6 +2,9 @@ import Foundation
 
 /// 랜턴이 비정상적으로 꺼졌을 때 뚜껑 모드를 끄는 감시 작업 (launchd 사용자 에이전트).
 ///
+/// 뚜껑을 닫아 둔 채 뚜껑 모드를 풀면 macOS는 스스로 잠들지 않으므로, 뚜껑이 닫혀 있으면 재운다.
+/// 충전기와 외장 모니터가 모두 연결된 클램쉘 상태는 원래 깨어 있는 상황이라 그대로 둔다 (앱의 판단과 같음).
+///
 /// 뚜껑 모드를 켤 때 등록하고 끌 때 지운다. 랜턴 프로세스가 사라지면 `disablesleep 0`을 실행하고 스스로 지운다.
 /// 맥이 강제로 꺼진 경우에도 다음 로그인 때 다시 실행되어 같은 일을 한다.
 /// 사용자 권한으로만 돌고, 이미 허용된 pmset 명령 하나만 쓴다. 이 경로들은 sudoers에 넣지 않는다.
@@ -31,10 +34,20 @@ public enum LidModeWatchdog {
         while [ "$(/bin/ps -p \(pid) -o comm= 2>/dev/null)" = \(shellQuoted(executablePath)) ]; do /bin/sleep \(checkInterval); done
         /usr/bin/sudo -n \(SudoersRule.pmsetPath) \(SudoersRule.Command.enableSleep.arguments.joined(separator: " "))
         /bin/rm -f \(shellQuoted(scriptPath)) \(shellQuoted(plistPath))
+        if /usr/sbin/ioreg -r -c IOPMrootDomain -d 1 | /usr/bin/grep -q '"AppleClamshellState" = Yes'; then
+          external=$(/usr/sbin/system_profiler SPDisplaysDataType 2>/dev/null | /usr/bin/awk \(shellQuoted(externalDisplayCounter)))
+          if ! { \(SudoersRule.pmsetPath) -g batt | /usr/bin/grep -q "AC Power" && [ "${external:-0}" -gt 0 ]; }; then
+            /usr/bin/sudo -n \(SudoersRule.pmsetPath) \(SudoersRule.Command.sleepNow.arguments.joined(separator: " "))
+          fi
+        fi
         /bin/launchctl bootout gui/\(uid)/\(label)
 
         """
     }
+
+    /// `system_profiler SPDisplaysDataType` 출력에서 내장 화면이 아닌 화면 수를 세는 awk 프로그램.
+    /// 화면마다 8칸 들여쓴 "이름:" 줄로 시작하고, 내장 화면에는 "Connection Type: Internal" 줄이 있다
+    public static let externalDisplayCounter = #"/^        [^ ].*:$/ { if (n) e += !i; n = 1; i = 0; next } /Connection Type: Internal/ { i = 1 } END { if (n) e += !i; print e + 0 }"#
 
     /// launchd 등록 파일 내용
     public static func plist(scriptPath: String) throws -> Data {

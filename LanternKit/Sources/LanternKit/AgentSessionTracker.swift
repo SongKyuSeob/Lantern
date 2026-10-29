@@ -6,10 +6,18 @@ import Foundation
 /// - 에이전트 프로세스가 사라졌으면 끝난 것으로 본다
 /// - 실행 중인 도구 없이 `quietLimit` 동안 신호가 없으면 끝난 것으로 본다
 /// - 도구나 백그라운드 작업이 실행 중이면 `busyLimit`까지 기다린다 (긴 빌드처럼 중간 신호가 없는 경우)
-/// - 사용자 허락을 기다리는 중이면 도구가 실행 중이 아니므로 `quietLimit`을 쓴다
+/// - 사용자 허락을 기다리는 중이면 도구가 실행 중이 아니므로 `quietLimit`을 쓴다.
+///   다만 "허락했다"는 신호는 따로 오지 않으므로, 허락 요청 뒤에 시작해 `approvedCommandMinimumAge` 넘게 살아 있는
+///   자식 프로세스가 에이전트 아래에 있으면 허락받고 명령이 도는 중으로 보고 `busyLimit`을 쓴다.
+///   잠깐 생겼다 사라지는 프로세스(상태 줄 등)는 나이 조건으로 거른다. 틀리면 더 오래 깨어 있는 쪽이라 안전하다
 public struct AgentSessionTracker: Sendable {
     public static let quietLimit: TimeInterval = 30 * 60
     public static let busyLimit: TimeInterval = 3 * 3600
+    /// 응답은 끝났는데 백그라운드 작업만 남았을 때의 상한.
+    /// 개발 서버처럼 끝나지 않는 작업 때문에 매번 3시간씩 깨어 있지 않게 짧게 둔다
+    public static let backgroundLimit: TimeInterval = 60 * 60
+    /// 이보다 오래 살아 있어야 허락받고 실행 중인 명령으로 본다
+    public static let approvedCommandMinimumAge: TimeInterval = 10
 
     public enum Status: Equatable, Sendable {
         /// 신호가 계속 오고 있음
@@ -35,9 +43,11 @@ public struct AgentSessionTracker: Sendable {
         /// 끝 신호가 시작 신호보다 먼저 처리된 도구. 늦게 온 시작 신호를 무시한다
         fileprivate var finishedTools: Set<String> = []
         fileprivate var awaitingPermission = false
+        /// 마지막으로 허락을 요청한 시각
+        fileprivate var permissionRequestedAt: Date?
         fileprivate var hasBackgroundWork = false
 
-        var isBusy: Bool { !runningTools.isEmpty || anonymousTools > 0 || hasBackgroundWork }
+        var isRunningTool: Bool { !runningTools.isEmpty || anonymousTools > 0 }
     }
 
     public private(set) var sessions: [String: Session] = [:]
@@ -80,7 +90,8 @@ public struct AgentSessionTracker: Sendable {
                 session.anonymousTools += 1
             }
         case .toolEnd(let id):
-            session.isWorking = true
+            // 응답이 끝난 뒤 늦게 온 "도구 끝"은 세션을 다시 일하는 중으로 돌리지 않는다
+            guard session.isWorking else { break }
             if let id {
                 if session.runningTools.remove(id) == nil { session.finishedTools.insert(id) }
             } else {
@@ -89,8 +100,10 @@ public struct AgentSessionTracker: Sendable {
         case .permissionRequest:
             session.isWorking = true
             session.awaitingPermission = true
+            session.permissionRequestedAt = event.receivedAt
         case .subagentActivity:
-            session.isWorking = true
+            // 응답이 끝난 뒤 늦게 끝난 서브에이전트도 마찬가지
+            guard session.isWorking else { break }
         case .stop(let hasBackgroundWork):
             session.runningTools = []
             session.anonymousTools = 0
@@ -107,24 +120,43 @@ public struct AgentSessionTracker: Sendable {
         sessions[key] = session
     }
 
-    /// `isAlive`는 (프로세스 번호, 시작 시각)이 아직 같은 프로그램으로 살아 있는지 알려 준다
-    public func status(of session: Session, now: Date, isAlive: (Int32, Date?) -> Bool) -> Status {
+    /// `isAlive`는 (프로세스 번호, 시작 시각)이 아직 같은 프로그램으로 살아 있는지 알려 준다.
+    /// `childStartTimes`는 에이전트 프로세스의 자식 프로세스들이 시작한 시각 (허락 대기 중에만 묻는다)
+    public func status(
+        of session: Session,
+        now: Date,
+        isAlive: (Int32, Date?) -> Bool,
+        childStartTimes: (Int32) -> [Date] = { _ in [] }
+    ) -> Status {
         guard session.isWorking else { return .done }
         if let pid = session.agentPID, !isAlive(pid, session.agentStartedAt) { return .done }
         let quiet = now.timeIntervalSince(session.lastEventAt)
         if session.awaitingPermission {
+            if let pid = session.agentPID, let requestedAt = session.permissionRequestedAt,
+               childStartTimes(pid).contains(where: {
+                   $0 >= requestedAt.addingTimeInterval(-1) && now.timeIntervalSince($0) >= Self.approvedCommandMinimumAge
+               }) {
+                return quiet < Self.busyLimit ? .runningCommand : .done
+            }
             return quiet < Self.quietLimit ? .awaitingPermission : .done
         }
-        if session.isBusy {
+        if session.isRunningTool {
             return quiet < Self.busyLimit ? (quiet < 60 ? .working : .runningCommand) : .done
+        }
+        if session.hasBackgroundWork {
+            return quiet < Self.backgroundLimit ? (quiet < 60 ? .working : .runningCommand) : .done
         }
         return quiet < Self.quietLimit ? .working : .done
     }
 
     /// 일하는 중인 세션들
-    public func activeSessions(now: Date, isAlive: (Int32, Date?) -> Bool) -> [(session: Session, status: Status)] {
+    public func activeSessions(
+        now: Date,
+        isAlive: (Int32, Date?) -> Bool,
+        childStartTimes: (Int32) -> [Date] = { _ in [] }
+    ) -> [(session: Session, status: Status)] {
         sessions.values
-            .map { ($0, status(of: $0, now: now, isAlive: isAlive)) }
+            .map { ($0, status(of: $0, now: now, isAlive: isAlive, childStartTimes: childStartTimes)) }
             .filter { $0.1 != .done }
             .sorted { $0.0.lastEventAt > $1.0.lastEventAt }
     }

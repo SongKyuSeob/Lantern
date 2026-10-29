@@ -12,6 +12,8 @@ final class LidModeController {
     private(set) var lastError: String?
     /// 실제 상태가 바뀔 때 불린다
     @ObservationIgnored var onChange: ((Bool) -> Void)?
+    /// 사용자가 없을 때(세션 종료·안전장치·앱 종료) 끄지 못했을 때 불린다. 알림을 보내는 데 쓴다
+    @ObservationIgnored var onAutomaticDisableFailed: (() -> Void)?
 
     let setup: LidModeSetup
 
@@ -36,19 +38,33 @@ final class LidModeController {
         refresh()
     }
 
-    func disable() {
+    /// 끈다. `interactive`는 사용자가 직접 누른 경우로, 그때만 관리자 비밀번호 창으로 다시 시도한다.
+    /// 자동으로 끄는 경로(세션 종료·안전장치·앱 종료)는 사람이 없을 수 있어 비밀번호 창을 띄우지 않고 알린다.
+    /// 끄면 `true`
+    @discardableResult
+    func disable(interactive: Bool = false) -> Bool {
         lastError = nil
-        if !runPmset(.enableSleep) {
+        if !runPmset(.enableSleep), interactive {
             // 권한 규칙이 지워진 뒤에도 남아 있으면 관리자 비밀번호를 받아서라도 원래대로 돌린다
             setup.restoreSleepWithAdministratorPrivileges()
         }
         refresh()
-        if isOn { lastError = "끄지 못했어요. 터미널에서 sudo pmset -a disablesleep 0 을 실행해 주세요." }
+        guard isOn else { return true }
+        lastError = "끄지 못했어요. 설정 → 전원에서 권한을 확인하거나, 터미널에서 sudo pmset -a disablesleep 0 을 실행해 주세요."
+        if !interactive { onAutomaticDisableFailed?() }
+        return false
+    }
+
+    /// 켠 직후 감시 작업을 등록하지 못하면 되돌린다 (앱이 갑자기 꺼졌을 때 뚜껑 모드가 남지 않게)
+    func revertBecauseWatchdogFailed() {
+        disable()
+        lastError = "감시 작업을 등록하지 못해 켜지 않았어요. 시스템 설정 → 일반 → 로그인 항목 및 확장 프로그램에서 \"랜턴 뚜껑 모드 감시\"가 허용돼 있는지 확인해 주세요."
     }
 
     /// 뚜껑 모드를 끄고 맥을 바로 재운다. 뚜껑 모드가 켜져 있으면 애플 메뉴의 잠자기도 먹지 않는다
     func sleepNow() {
-        if isOn { disable() }
+        // 끄지 못하면 재워도 소용없다
+        if isOn, !disable() { return }
         if !runPmset(.sleepNow) {
             _ = ShellCommand.run(SudoersRule.pmsetPath, SudoersRule.Command.sleepNow.arguments)
         }

@@ -122,22 +122,45 @@ public enum AgentHookConfig {
         }
     }
 
+    /// 신호 폴더에 이보다 많이 쌓여 있으면 더 쓰지 않는다 (랜턴이 꺼져 있어 아무도 안 읽을 때)
+    public static let maxPendingEvents = 2000
+
     /// 에이전트가 신호마다 실행하는 스크립트.
     ///
-    /// 받은 JSON을 그대로 파일 하나로 남기고 바로 끝난다. 아무것도 출력하지 않는다
+    /// 받은 내용에서 랜턴이 쓰는 값(이벤트 종류, 세션·도구 번호, 백그라운드 작업 여부)만 뽑아 파일 하나로 남기고 끝난다.
+    /// 질문 원문이나 도구 결과 같은 내용은 디스크에 남기지 않는다. 아무것도 출력하지 않는다
     /// (Claude Code의 `UserPromptSubmit`은 출력이 대화에 들어간다). 프로세스 번호는 시작 신호 때만 찾는다.
     /// 반쯤 쓴 파일을 앱이 읽지 않도록 임시 파일에 쓰고 이름을 바꾼다
     public static func hookScript() -> String {
         #"""
         #!/bin/sh
-        # Lantern agent hook. Records each hook event as a file for the Lantern app. Prints nothing.
+        # Lantern agent hook. Records only the event kind and ids for the Lantern app (no prompt or tool content). Prints nothing.
         agent="$1"
         dir="$HOME/Library/Application Support/Lantern/agent-events"
         payload=$(cat)
         [ -n "$payload" ] && [ -d "$dir" ] || exit 0
+        [ "$(ls -1 "$dir" 2>/dev/null | wc -l)" -lt \#(maxPendingEvents) ] || exit 0
+        field() { printf '%s' "$payload" | /usr/bin/plutil -extract "$1" raw -o - - 2>/dev/null; }
+        escape() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'; }
+        event=$(field hook_event_name)
+        session=$(field session_id)
+        [ -n "$event" ] && [ -n "$session" ] || exit 0
+        tool=
+        case "$event" in
+          PreToolUse|PostToolUse|PostToolUseFailure)
+            tool=$(field tool_use_id)
+            [ -n "$tool" ] || tool=$(field call_id)
+            ;;
+        esac
+        extra=
+        if [ "$event" = Stop ]; then
+          tasks=$(printf '%s' "$payload" | /usr/bin/plutil -extract background_tasks json -o - - 2>/dev/null)
+          case "$tasks" in ""|"[]") ;; *) extra=',"background_tasks":[1]' ;; esac
+        fi
+        [ -z "$tool" ] || extra="$extra,\"tool_use_id\":\"$(escape "$tool")\""
         pid=
-        case "$payload" in
-          *'"SessionStart"'*|*'"UserPromptSubmit"'*)
+        case "$event" in
+          SessionStart|UserPromptSubmit)
             p=$PPID
             for _ in 1 2 3 4 5 6; do
               [ "$p" -gt 1 ] 2>/dev/null || break
@@ -149,7 +172,8 @@ public enum AgentHookConfig {
             ;;
         esac
         tmp="$dir/.$$.tmp"
-        { printf '%s\n%s\n' "$agent" "$pid"; printf '%s' "$payload"; } > "$tmp" 2>/dev/null && mv -f "$tmp" "$dir/$agent-$$-${RANDOM:-0}.event" 2>/dev/null
+        { printf '%s\n%s\n' "$agent" "$pid"; printf '{"hook_event_name":"%s","session_id":"%s"%s}' "$(escape "$event")" "$(escape "$session")" "$extra"; } > "$tmp" 2>/dev/null && mv -f "$tmp" "$dir/$agent-$$-${RANDOM:-0}.event" 2>/dev/null
+        rm -f "$tmp" 2>/dev/null
         exit 0
         """#
     }

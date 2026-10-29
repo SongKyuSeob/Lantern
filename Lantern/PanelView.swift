@@ -221,7 +221,7 @@ private struct LidModeRow: View {
             } else {
                 Toggle("", isOn: Binding(
                     get: { lidMode.isOn },
-                    set: { $0 ? lidMode.enable() : lidMode.disable() }
+                    set: { isOn in if isOn { lidMode.enable() } else { lidMode.disable(interactive: true) } }
                 ))
                 .toggleStyle(.switch)
                 .controlSize(.mini)

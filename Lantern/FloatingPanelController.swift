@@ -47,6 +47,8 @@ final class FloatingPanelController {
         panel.isMovable = false
         panel.isOpaque = false
         panel.backgroundColor = .clear
+        // 창은 어두운 테마 하나로 고정한다. 시스템이 라이트 모드여도 유리 배경이 밝아지지 않게 창 자체를 어둡게 둔다
+        panel.appearance = NSAppearance(named: .darkAqua)
         panel.acceptsMouseMovedEvents = true
         // 키 입력을 돌려줄 때 창을 잠깐 내렸다 올리는데, 기본 페이드(0.3초)가 재생되면 창이 꺼졌다 뜨는 것처럼 보인다
         panel.animationBehavior = .none
@@ -131,15 +133,20 @@ final class FloatingPanelController {
     /// 메뉴바 아이콘 왼쪽 클릭: 평소 ↔ 활성
     func toggleActive() {
         if !panel.isVisible {
+            moveToScreenUnderMouse()
             show()
             state.mode = .active
+        } else if state.mode == .active {
+            state.mode = .passive
         } else {
-            state.mode = state.mode == .active ? .passive : .active
+            moveToScreenUnderMouse()
+            state.mode = .active
         }
     }
 
     /// 메뉴의 "시각…": 창을 펼쳐 시각 고르기를 연다
     func showTimePicker() {
+        moveToScreenUnderMouse()
         show()
         state.isCollapsed = false
         state.tab = .awake
@@ -252,6 +259,8 @@ final class FloatingPanelController {
 
     /// 평소 창은 클릭이 뒤로 통과하니, 그 아래를 보거나 누르려고 커서를 올리면 거의 투명하게 비켜 준다
     private static let hoverAlpha: CGFloat = 0.12
+    /// 마지막으로 정한 불투명도. 애니메이션 도중의 값과 비교하면 흐린 채 멈출 수 있어 목표값을 따로 둔다
+    private var targetAlpha: CGFloat = 1
     private var hoverMonitor: Any?
     /// 흐려진 동안 커서가 벗어났는지 직접 확인한다. 커서가 순간 이동하면 마지막 이동 알림이 오지 않을 수 있다
     private var hoverCheckTimer: Timer?
@@ -296,7 +305,8 @@ final class FloatingPanelController {
     }
 
     private func setAlpha(_ alpha: CGFloat) {
-        guard panel.alphaValue != alpha else { return }
+        guard targetAlpha != alpha else { return }
+        targetAlpha = alpha
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.15
             panel.animator().alphaValue = alpha
@@ -305,9 +315,20 @@ final class FloatingPanelController {
 
     // MARK: - 위치
 
-    /// 메뉴바가 있는 화면의 오른쪽 위에 붙인다
+    /// 창을 띄울 화면. 화면이 여러 개면 아이콘이나 단축키를 누른 순간 커서가 있던 화면을 쓴다
+    private var targetScreen: NSScreen?
+
+    private func moveToScreenUnderMouse() {
+        let mouse = NSEvent.mouseLocation
+        targetScreen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) }
+        placeAtTopRight()
+    }
+
+    /// 고른 화면(없거나 빠졌으면 메뉴바가 있는 첫 화면)의 오른쪽 위에 붙인다
     private func placeAtTopRight() {
-        guard let screen = NSScreen.screens.first else { return }
+        let screens = NSScreen.screens
+        let chosen = targetScreen.flatMap { target in screens.first { $0.frame == target.frame } }
+        guard let screen = chosen ?? screens.first else { return }
         let visible = screen.visibleFrame
         let size = panel.frame.size
         let origin = NSPoint(

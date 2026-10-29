@@ -15,9 +15,10 @@ struct KeyShortcut: Codable, Equatable {
         self.modifiers = modifiers.intersection(Self.allowedModifiers)
     }
 
-    /// 다른 앱의 일반 입력을 가로채지 않도록 ⌘·⌥·⌃ 중 하나는 있어야 한다 (⇧만으로는 안 됨)
+    /// ⌃ 또는 ⌥가 꼭 들어가야 한다.
+    /// ⌘ 조합(⌘W, ⌘C, ⌘⇧K…)은 대부분 앱이 이미 쓰고 있어서, 전역 단축키로 가져가면 모든 앱에서 그 기능이 막힌다
     var isValid: Bool {
-        !modifiers.intersection([.command, .option, .control]).isEmpty
+        !modifiers.intersection([.control, .option]).isEmpty
     }
 
     /// "⌃⌥L"
