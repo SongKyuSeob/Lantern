@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/hero.jpg" width="720" alt="바탕화면 오른쪽 위에 떠 있는 랜턴 창">
+  <img src="docs/screenshots/hero.jpg" width="560" alt="바탕화면 오른쪽 위에 떠 있는 랜턴 창">
 </p>
 
 ---
