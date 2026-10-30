@@ -13,6 +13,9 @@ final class FloatingPanelController {
     private var outsideClickMonitor: Any?
     private var activityMonitor: Any?
     private var idleTimer: Timer?
+    /// 마우스가 창을 벗어났는지 짧은 간격으로 본다. 이 창은 다른 앱의 포커스를 뺏지 않아 창 위의 마우스 이동이 오지 않는다
+    private var mouseExitTimer: Timer?
+    private var wasMouseOver = false
     private var screenObserver: NSObjectProtocol?
     private var resizeObserver: NSObjectProtocol?
 
@@ -30,6 +33,7 @@ final class FloatingPanelController {
         agentMonitor: AgentMonitor,
         agentAwake: AgentAwakeController,
         todoStore: TodoStore,
+        updates: UpdateController,
         openSettings: @escaping () -> Void,
         openHistory: @escaping () -> Void
     ) {
@@ -58,7 +62,8 @@ final class FloatingPanelController {
         let host = NSHostingController(rootView: PanelView(
             awake: awake, power: power, state: state,
             lidMode: lidMode, safety: safety,
-            agentMonitor: agentMonitor, agentAwake: agentAwake, todoStore: todoStore, openSettings: openSettings, openHistory: openHistory
+            agentMonitor: agentMonitor, agentAwake: agentAwake, todoStore: todoStore, updates: updates,
+            openSettings: openSettings, openHistory: openHistory
         ))
         host.sizingOptions = .preferredContentSize
         host.view.wantsLayer = true
@@ -219,6 +224,14 @@ final class FloatingPanelController {
                 return consumed ? nil : event
             }
         }
+        if mouseExitTimer == nil {
+            wasMouseOver = isMouseOver
+            let timer = Timer(timeInterval: 0.2, repeats: true) { [weak self] _ in
+                MainActor.assumeIsolated { self?.checkMouseExit() }
+            }
+            RunLoop.main.add(timer, forMode: .common)
+            mouseExitTimer = timer
+        }
         restartIdleTimer()
     }
 
@@ -229,6 +242,8 @@ final class FloatingPanelController {
         activityMonitor = nil
         idleTimer?.invalidate()
         idleTimer = nil
+        mouseExitTimer?.invalidate()
+        mouseExitTimer = nil
     }
 
     /// 창 안에서 무언가 하면 10초를 다시 센다. Esc는 평소 상태로 돌아가고 `true`(이벤트 삼킴)
@@ -252,12 +267,21 @@ final class FloatingPanelController {
         idleTimer = timer
     }
 
-    /// 시각을 고르는 중이거나 마우스가 창 위에 있으면 조금 더 기다린다
+    private var isMouseOver: Bool { panel.frame.contains(NSEvent.mouseLocation) }
+
+    /// 마우스가 창을 벗어나면 그때부터 10초를 다시 센다
+    private func checkMouseExit() {
+        let isOver = isMouseOver
+        if wasMouseOver, !isOver { restartIdleTimer() }
+        wasMouseOver = isOver
+    }
+
+    /// 시각을 고르는 중이거나 마우스가 창 위에 있으면 조금 더 기다린다. 마우스가 벗어나면 `checkMouseExit`가 다시 센다
     private func idleTimerFired() {
         #if DEBUG
         if DemoData.isEnabled { return }
         #endif
-        if state.isPickingTime || state.isEditingText || panel.frame.contains(NSEvent.mouseLocation) {
+        if state.isPickingTime || state.isEditingText || isMouseOver {
             restartIdleTimer()
         } else {
             state.mode = .passive

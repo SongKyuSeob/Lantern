@@ -32,13 +32,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let agentHooks = AgentHookSetup()
     private let shortcuts = GlobalShortcutController()
     private let loginItem = LoginItemController()
+    private let updates = UpdateController()
     private let todoStoreResult = AppDelegate.makeTodoStore()
     private var todoStore: TodoStore { todoStoreResult.store }
     private lazy var agentAwake = AgentAwakeController(awake: awake, monitor: agentMonitor)
     private lazy var safety = SafetyController(awake: awake, power: power, lidMode: lidMode)
     private lazy var settings = SettingsWindowController(
         lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor,
-        shortcuts: shortcuts, loginItem: loginItem
+        shortcuts: shortcuts, loginItem: loginItem, updates: updates
     )
     private lazy var history = HistoryWindowController(todoStore: todoStore)
     private var panel: FloatingPanelController?
@@ -68,7 +69,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 reason: reason, usedLidMode: lidModeUsedInSession
             )
             lidModeUsedInSession = lidMode.isOn
+            // 깨어 있기가 끝난 뒤 설치하기로 한 업데이트가 있으면 이어서 설치한다 (랜턴을 끌 때는 제외)
+            if reason != .appQuit { updates.awakeDidEnd() }
         }
+        updates.isAwake = { [weak self] in self?.awake.isAwake ?? false }
         // 깨어 있기가 끝나면 뚜껑 모드를 먼저 끈다. 뚜껑이 닫혀 있었으면 세션이 다 정리된 뒤 재운다
         awake.onWillEnd = { [weak self] in
             guard let self, lidMode.isOn else { return }
@@ -90,7 +94,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             awake: awake, power: power, state: panelState,
             lidMode: lidMode, safety: safety,
             agentMonitor: agentMonitor, agentAwake: agentAwake,
-            todoStore: todoStore,
+            todoStore: todoStore, updates: updates,
             openSettings: { [weak self] in self?.settings.show() },
             openHistory: { [weak self] in self?.history.show() }
         )
@@ -106,7 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         #endif
         shortcuts.start()
         loginItem.enableOnFirstLaunch()
-        statusItem = StatusItemController(awake: awake, lidMode: lidMode, safety: safety, panel: panel, settings: settings, history: history)
+        statusItem = StatusItemController(awake: awake, lidMode: lidMode, safety: safety, panel: panel, settings: settings, history: history, updates: updates)
         panel.show()
     }
 
@@ -114,7 +118,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var debugObserver: NSObjectProtocol?
 
     /// 디버그 빌드에서만: `settings:<탭>`(설정 창 열기), `settingsSnapshot:<경로>`(설정 창을 PNG로 저장),
-    /// `todoAdd:<제목>` · `todoDoneFirst` · `todoDeleteAll`(할 일 시험용), `tab:<todo|awake>`
+    /// `todoAdd:<제목>` · `todoDoneFirst` · `todoDeleteAll`(할 일 시험용), `tab:<todo|awake>`, `checkForUpdates`(업데이트 확인)
     private func observeDebugCommands() {
         debugObserver = DistributedNotificationCenter.default().addObserver(
             forName: Notification.Name("com.songkyuseob.lantern.debug"), object: nil, queue: .main
@@ -137,6 +141,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     self?.history.show()
                 } else if command.hasPrefix("historySnapshot:") {
                     self?.history.snapshot(to: String(command.dropFirst("historySnapshot:".count)))
+                } else if command == "checkForUpdates" {
+                    self?.updates.checkForUpdates()
                 } else if command.hasPrefix("tab:") {
                     self?.panelState.tab = command.hasSuffix("todo") ? .todo : .awake
                 }

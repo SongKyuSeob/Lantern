@@ -13,6 +13,7 @@ final class SettingsWindowController {
     private let agentMonitor: AgentMonitor
     private let shortcuts: GlobalShortcutController
     private let loginItem: LoginItemController
+    private let updates: UpdateController
     private var window: NSWindow?
 
     init(
@@ -21,9 +22,11 @@ final class SettingsWindowController {
         agentHooks: AgentHookSetup,
         agentMonitor: AgentMonitor,
         shortcuts: GlobalShortcutController,
-        loginItem: LoginItemController
+        loginItem: LoginItemController,
+        updates: UpdateController
     ) {
         self.shortcuts = shortcuts
+        self.updates = updates
         self.loginItem = loginItem
         self.lidMode = lidMode
         self.safety = safety
@@ -35,7 +38,7 @@ final class SettingsWindowController {
         if window == nil {
             let host = NSHostingController(rootView: SettingsView(
                 lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor,
-                shortcuts: shortcuts, loginItem: loginItem
+                shortcuts: shortcuts, loginItem: loginItem, updates: updates
             ))
             let window = NSWindow(contentViewController: host)
             window.title = "랜턴 설정"
@@ -94,6 +97,7 @@ struct SettingsView: View {
     let agentMonitor: AgentMonitor
     let shortcuts: GlobalShortcutController
     let loginItem: LoginItemController
+    let updates: UpdateController
 
     private var lidModeSetup: LidModeSetup { lidMode.setup }
 
@@ -128,6 +132,7 @@ struct SettingsView: View {
             case .general:
                 Form {
                     GeneralSection(loginItem: loginItem)
+                    UpdateSection(updates: updates)
                     ShortcutSection(shortcuts: shortcuts)
                 }
                 .formStyle(.grouped)
@@ -376,6 +381,31 @@ private struct ShortcutSection: View {
         guard recording != nil else { return }
         recording = nil
         shortcuts.resume()
+    }
+}
+
+/// "업데이트" 칸: 지금 버전, 직접 확인, 하루 한 번 자동 확인
+private struct UpdateSection: View {
+    @Bindable var updates: UpdateController
+
+    var body: some View {
+        Section {
+            Toggle(isOn: $updates.automaticallyChecks) {
+                Text("업데이트 자동으로 확인")
+                Text("하루 한 번 새 버전이 있는지 확인해요. 설치는 직접 눌러야 해요.")
+            }
+            HStack {
+                Text("버전 \(updates.currentVersion)")
+                if let version = updates.availableVersion {
+                    Text("· \(version) 나옴")
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button("업데이트 확인") { updates.checkForUpdates() }
+            }
+        } header: {
+            Text("업데이트")
+        }
     }
 }
 

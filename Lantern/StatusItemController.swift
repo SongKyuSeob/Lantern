@@ -12,6 +12,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private let panel: FloatingPanelController
     private let settings: SettingsWindowController
     private let history: HistoryWindowController
+    private let updates: UpdateController
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     private let menu = NSMenu()
 
@@ -21,9 +22,11 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         safety: SafetyController,
         panel: FloatingPanelController,
         settings: SettingsWindowController,
-        history: HistoryWindowController
+        history: HistoryWindowController,
+        updates: UpdateController
     ) {
         self.history = history
+        self.updates = updates
         self.awake = awake
         self.lidMode = lidMode
         self.safety = safety
@@ -100,6 +103,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         menu.addItem(.separator())
         menu.addItem(actionItem(panel.isVisible ? "창 숨기기" : "창 보이기", #selector(togglePanelVisibility)))
         menu.addItem(actionItem("기록 보기…", #selector(showHistory)))
+        menu.addItem(actionItem("업데이트 확인…", #selector(checkForUpdates)))
         let settingsItem = actionItem("설정…", #selector(showSettings))
         settingsItem.keyEquivalent = ","
         menu.addItem(settingsItem)
@@ -188,6 +192,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func pickTime() { panel.showTimePicker() }
     @objc private func showSettings() { settings.show() }
     @objc private func showHistory() { history.show() }
+    @objc private func checkForUpdates() { updates.checkForUpdates() }
 
     @objc private func toggleLidMode() {
         if lidMode.isOn { lidMode.disable(interactive: true) } else { lidMode.enable() }

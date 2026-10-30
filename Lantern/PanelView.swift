@@ -12,6 +12,7 @@ struct PanelView: View {
     let agentMonitor: AgentMonitor
     let agentAwake: AgentAwakeController
     let todoStore: TodoStore
+    let updates: UpdateController
     let openSettings: () -> Void
     let openHistory: () -> Void
 
@@ -22,12 +23,12 @@ struct PanelView: View {
                 ActivePanel(
                     awake: awake, power: power, state: state, lidMode: lidMode, safety: safety,
                     agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase),
-                    todoStore: todoStore, openSettings: openSettings, openHistory: openHistory
+                    todoStore: todoStore, updates: updates, openSettings: openSettings, openHistory: openHistory
                 )
             } else if state.isCollapsed {
-                CollapsedBar(awake: awake, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase))
+                CollapsedBar(awake: awake, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase), updates: updates)
             } else {
-                PassiveSummary(awake: awake, power: power, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase))
+                PassiveSummary(awake: awake, power: power, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase), updates: updates)
             }
         }
         .frame(width: 300)
@@ -47,6 +48,7 @@ private struct ActivePanel: View {
     let safety: SafetyController
     let agents: AgentStatusText
     let todoStore: TodoStore
+    let updates: UpdateController
     let openSettings: () -> Void
     let openHistory: () -> Void
 
@@ -71,6 +73,13 @@ private struct ActivePanel: View {
                 style: .tab
             ) { state.tab = $0 }
             Spacer()
+            if let version = updates.availableVersion {
+                UpdatePill(version: version, waitsForAwake: updates.installsAfterAwake) {
+                    // 창은 평소로 돌려 Sparkle 창을 가리지 않게 한다
+                    state.mode = .passive
+                    updates.checkForUpdates()
+                }
+            }
             Button {
                 // 접기는 평소 상태의 모습을 정하므로, 누르면 평소로 돌아가 바뀐 모습을 바로 보여 준다
                 state.isCollapsed.toggle()
@@ -435,6 +444,7 @@ private struct PassiveSummary: View {
     let awake: AwakeController
     let power: PowerStateMonitor
     let agents: AgentStatusText
+    let updates: UpdateController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -456,13 +466,22 @@ private struct PassiveSummary: View {
                             .foregroundStyle(.white)
                     }
                 }
-                detailLine(session)
+                // 새 버전 표시는 위쪽 줄 오른편이 남은 시간으로 차 있어서 설명 줄 오른편에 둔다
+                HStack(alignment: .firstTextBaseline) {
+                    detailLine(session)
+                    Spacer(minLength: 8)
+                    updateNote
+                }
             } else {
-                HStack(spacing: 7) {
-                    HollowDot(size: 7)
-                    Text("깨어 있기 꺼짐")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.7))
+                HStack {
+                    HStack(spacing: 7) {
+                        HollowDot(size: 7)
+                        Text("깨어 있기 꺼짐")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                    Spacer(minLength: 8)
+                    updateNote
                 }
             }
             PassiveTodoList()
@@ -474,6 +493,20 @@ private struct PassiveSummary: View {
         // "깨어 있기 꺼짐" 한 줄일 때도 글자 길이만큼 줄어들지 않고 창 폭을 가득 채운다
         .frame(maxWidth: .infinity, alignment: .leading)
         .panelBackground(RoundedRectangle(cornerRadius: 14), passive: true)
+    }
+
+    /// 새 버전이 있으면 "● 새 버전 0.3.0". 평소 창은 클릭이 통과하므로 알리기만 하고, 설치는 펼친 창의 알약에서 한다
+    @ViewBuilder private var updateNote: some View {
+        if let version = updates.availableVersion {
+            HStack(spacing: 5) {
+                Circle().fill(Theme.primary).frame(width: 5, height: 5)
+                Text(updates.installsAfterAwake ? "끝나면 \(version) 설치" : "새 버전 \(version)")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+        }
     }
 
     /// "오후 4:30까지 · 지금 닫아도 유지됨"
@@ -500,6 +533,7 @@ private struct PassiveSummary: View {
 private struct CollapsedBar: View {
     let awake: AwakeController
     let agents: AgentStatusText
+    let updates: UpdateController
 
     var body: some View {
         HStack {
@@ -520,6 +554,10 @@ private struct CollapsedBar: View {
             }
             Spacer()
             CollapsedTodoCount()
+            // 새 버전이 있으면 작은 파란 점만 둔다. 펼치면 헤더 알약에서 설치한다
+            if updates.availableVersion != nil {
+                Circle().fill(Theme.primary).frame(width: 6, height: 6)
+            }
         }
         .shadow(color: .black.opacity(0.5), radius: 1.5, y: 1)
         .padding(.leading, 12)
@@ -583,6 +621,33 @@ private struct SegmentedPicker<Value: Hashable>: View {
     private func background(_ isSelected: Bool) -> Color {
         guard isSelected else { return .clear }
         return style == .tab ? Theme.tabSelectedFill : Theme.segmentSelectedFill
+    }
+}
+
+/// 펼친 창 머리의 "● 0.3.0 업데이트". 누르면 Sparkle 창에서 바뀐 내용을 보고 설치한다
+private struct UpdatePill: View {
+    let version: String
+    /// 깨어 있기가 끝나면 설치하려고 기다리는 중
+    let waitsForAwake: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 5) {
+                Circle().fill(Theme.primary).frame(width: 5, height: 5)
+                Text(waitsForAwake ? "끝나면 \(version) 설치" : "\(version) 업데이트")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(Theme.primaryLight)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Capsule().fill(Theme.primary.opacity(0.18)))
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .help("새 버전에서 바뀐 내용을 보고 설치해요")
     }
 }
 
