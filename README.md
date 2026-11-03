@@ -214,6 +214,10 @@ rm -f ~/Library/LaunchAgents/com.songkyuseob.lantern.watchdog.plist
 
 에이전트 설정에 남은 랜턴 신호는 앱을 지운 뒤에도 에이전트가 일할 때마다 작은 기록 파일을 남깁니다(무슨 일이 일어났는지만 적고, 대화 내용은 적지 않으며, 2,000개가 넘으면 더 쓰지 않습니다). 위의 `rm -rf ~/Library/Application\ Support/Lantern`으로 폴더를 지웠다면 아무 일도 하지 않습니다. 설정에서도 깔끔하게 빼고 싶다면 `~/.claude/settings.json`, `~/.codex/hooks.json`에서 `lantern-agent-hook`이 들어 있는 항목을 지우거나, 같은 폴더의 `.lantern-backup` 파일로 되돌리면 됩니다. 단, 백업 파일은 연결하기 전 내용이라 그 뒤에 바꾼 설정은 사라집니다.
 
+## 문의
+
+문제나 제안은 [Issues](https://github.com/SongKyuSeob/Lantern/issues)에 남겨 주세요. 보안 문제는 공개 Issues 대신 [Security 탭의 "Report a vulnerability"](https://github.com/SongKyuSeob/Lantern/security/advisories/new)로 알려 주세요.
+
 ## 라이선스
 
 [MIT](LICENSE)
