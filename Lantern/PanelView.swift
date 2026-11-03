@@ -72,7 +72,12 @@ private struct ActivePanel: View {
                 selection: state.tab,
                 style: .tab
             ) { state.tab = $0 }
-            Spacer()
+            .help(Self.moveHelp)
+            // 빈 곳에만 옮기기 설명을 단다. 줄 전체에 달면 알약·접기 버튼의 설명을 가린다
+            Color.clear
+                .frame(maxWidth: .infinity, minHeight: 20)
+                .contentShape(Rectangle())
+                .help(Self.moveHelp)
             if let version = updates.availableVersion {
                 UpdatePill(version: version, waitsForAwake: updates.installsAfterAwake) {
                     // 창은 평소로 돌려 Sparkle 창을 가리지 않게 한다
@@ -101,8 +106,9 @@ private struct ActivePanel: View {
                 .onChanged { _ in state.onHeaderDrag?(.changed) }
                 .onEnded { _ in state.onHeaderDrag?(.ended) }
         )
-        .help("끌어서 다른 모서리나 화면으로 옮길 수 있어요")
     }
+
+    private static let moveHelp = "끌어서 다른 모서리나 화면으로 옮길 수 있어요"
 }
 
 private struct AwakeTab: View {
