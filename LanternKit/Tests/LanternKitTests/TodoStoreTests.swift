@@ -64,6 +64,16 @@ struct TodoStoreTests {
         #expect(item.isRemoved)
     }
 
+    @Test("메모는 앞뒤 공백을 다듬고, 비우면 없어진다") func note() throws {
+        let store = try makeStore()
+        let item = try #require(store.add("하나"))
+        #expect(item.note.isEmpty)
+        store.setNote(item, to: "\n  첫 줄\n둘째 줄  \n")
+        #expect(item.note == "첫 줄\n둘째 줄")
+        store.setNote(item, to: " \n ")
+        #expect(item.note.isEmpty)
+    }
+
     @Test("완료 묶음 지우기는 작은 창에서만 치우고 기록에는 남긴다") func clearDone() throws {
         let store = try makeStore()
         let done = try #require(store.add("끝남"))

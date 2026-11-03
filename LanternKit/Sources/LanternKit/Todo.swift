@@ -16,6 +16,8 @@ public final class TodoItem {
     /// 작은 창에서 치운 시각. 끝낸 일은 "지우기", 안 끝낸 일은 ×로 치운다.
     /// 실제로 지우지 않고 기록 창에 남긴다 (끝낸 일 / 지운 일)
     public var hiddenAt: Date?
+    /// 할 일에 붙인 메모. 없으면 빈 글
+    public var note: String = ""
 
     /// 안 끝내고 지운 일
     public var isRemoved: Bool { !isDone && hiddenAt != nil }
@@ -120,6 +122,14 @@ public final class TodoStore {
             item.title = trimmed
             save()
         }
+    }
+
+    /// 앞뒤 공백·빈 줄은 지우고 저장한다. 비우면 메모가 없어진다
+    public func setNote(_ item: TodoItem, to note: String) {
+        let trimmed = note.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed != item.note else { return }
+        item.note = trimmed
+        save()
     }
 
     /// 작은 창에서 치운다. 기록에는 남는다

@@ -133,6 +133,27 @@ struct HistoryMarkdownTests {
         """)
     }
 
+    @Test("메모는 할 일 아래 들여쓴 목록으로 붙인다") func notes() {
+        let day = History.days(
+            todos: [HistoryTodo(title: "로그인 화면", isDone: true, completedAt: date(29, 9), hiddenAt: nil, note: "토큰은 그대로\n\n  UI만 나누기 ")],
+            awake: [],
+            calendar: calendar
+        ).values.first!
+        #expect(History.markdown(for: day, calendar: calendar).contains("""
+        - [x] 로그인 화면
+          - 토큰은 그대로
+          - UI만 나누기
+
+        """))
+    }
+
+    @Test("검색은 제목과 메모를 함께 본다") func search() {
+        let todo = HistoryTodo(title: "로그인 화면", isDone: true, completedAt: nil, hiddenAt: nil, note: "토큰 갱신")
+        #expect(todo.matches("로그인"))
+        #expect(todo.matches("토큰"))
+        #expect(!todo.matches("결제"))
+    }
+
     @Test("필터에 맞는 묶음만 쓴다") func filtered() {
         let completed = History.markdown(for: day, filter: .completed, calendar: calendar)
         #expect(completed.contains("끝낸 일") && !completed.contains("지운 일") && !completed.contains("깨어 있기"))

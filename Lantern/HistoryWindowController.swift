@@ -64,7 +64,7 @@ struct HistoryView: View {
 
     private var days: [Date: HistoryDay] {
         History.days(
-            todos: todos.map { HistoryTodo(title: $0.title, isDone: $0.isDone, completedAt: $0.completedAt, hiddenAt: $0.hiddenAt) },
+            todos: todos.map { HistoryTodo(title: $0.title, isDone: $0.isDone, completedAt: $0.completedAt, hiddenAt: $0.hiddenAt, note: $0.note) },
             awake: records.map { HistoryAwake(startedAt: $0.startedAt, endedAt: $0.endedAt, optionLabel: $0.optionLabel, usedLidMode: $0.usedLidMode) }
         )
     }
@@ -168,7 +168,7 @@ struct HistoryView: View {
     private func searchResults(_ days: [Date: HistoryDay]) -> some View {
         let query = search.trimmingCharacters(in: .whitespaces)
         let matched = days.values
-            .map { $0.filteringTodos { $0.title.localizedCaseInsensitiveContains(query) } }
+            .map { $0.filteringTodos { $0.matches(query) } }
             .filter { !$0.completed.isEmpty || !$0.removed.isEmpty }
             .sorted { $0.day > $1.day }
         return VStack(alignment: .leading, spacing: 16) {
@@ -307,14 +307,14 @@ private struct HistoryDayDetail: View {
                 if filter != .removed, !day.completed.isEmpty {
                     section("끝낸 일 \(day.completed.count)") {
                         ForEach(Array(day.completed.enumerated()), id: \.offset) { _, todo in
-                            row(icon: "checkmark.circle.fill", tint: .accentColor, title: todo.title, strike: false, time: todo.completedAt)
+                            row(icon: "checkmark.circle.fill", tint: .accentColor, todo: todo, strike: false, time: todo.completedAt)
                         }
                     }
                 }
                 if filter != .completed, !day.removed.isEmpty {
                     section("지운 일 \(day.removed.count)") {
                         ForEach(Array(day.removed.enumerated()), id: \.offset) { _, todo in
-                            row(icon: "xmark.circle", tint: .secondary, title: todo.title, strike: true, time: todo.hiddenAt)
+                            row(icon: "xmark.circle", tint: .secondary, todo: todo, strike: true, time: todo.hiddenAt)
                         }
                     }
                 }
@@ -350,14 +350,22 @@ private struct HistoryDayDetail: View {
         }
     }
 
-    private func row(icon: String, tint: Color, title: String, strike: Bool, time: Date?) -> some View {
-        HStack(spacing: 8) {
+    /// 메모가 있으면 제목 아래에 작게 붙인다
+    private func row(icon: String, tint: Color, todo: HistoryTodo, strike: Bool, time: Date?) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
             Image(systemName: icon)
                 .foregroundStyle(tint)
-            Text(title)
-                .strikethrough(strike)
-                .foregroundStyle(strike ? .secondary : .primary)
-                .textSelection(.enabled)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(todo.title)
+                    .strikethrough(strike)
+                    .foregroundStyle(strike ? .secondary : .primary)
+                if !todo.note.isEmpty {
+                    Text(todo.note)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .textSelection(.enabled)
             Spacer()
             if let time {
                 Text(History.clock(time))

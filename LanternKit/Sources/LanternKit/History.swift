@@ -6,12 +6,19 @@ public struct HistoryTodo: Equatable, Sendable {
     public let isDone: Bool
     public let completedAt: Date?
     public let hiddenAt: Date?
+    public let note: String
 
-    public init(title: String, isDone: Bool, completedAt: Date?, hiddenAt: Date?) {
+    public init(title: String, isDone: Bool, completedAt: Date?, hiddenAt: Date?, note: String = "") {
         self.title = title
+        self.note = note
         self.isDone = isDone
         self.completedAt = completedAt
         self.hiddenAt = hiddenAt
+    }
+
+    /// 검색어가 제목이나 메모에 들어 있는지
+    public func matches(_ query: String) -> Bool {
+        title.localizedCaseInsensitiveContains(query) || note.localizedCaseInsensitiveContains(query)
     }
 }
 
@@ -165,12 +172,12 @@ public enum History {
         if filter != .removed, !day.completed.isEmpty {
             lines.append("")
             lines.append("### 끝낸 일")
-            lines += day.completed.map { "- [x] \($0.title)" }
+            lines += day.completed.flatMap { ["- [x] \($0.title)"] + noteLines($0.note) }
         }
         if filter != .completed, !day.removed.isEmpty {
             lines.append("")
             lines.append("### 지운 일")
-            lines += day.removed.map { "- [ ] ~~\($0.title)~~" }
+            lines += day.removed.flatMap { ["- [ ] ~~\($0.title)~~"] + noteLines($0.note) }
         }
         if filter == .all, !day.awake.isEmpty {
             lines.append("")
@@ -183,6 +190,14 @@ public enum History {
             }
         }
         return lines.joined(separator: "\n") + "\n"
+    }
+
+    /// 메모는 할 일 아래 한 단계 들여쓴 목록으로 붙인다 (빈 줄은 뺀다)
+    private static func noteLines(_ note: String) -> [String] {
+        note.split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+            .map { "  - \($0)" }
     }
 
     /// "2026-10-29 (수)"

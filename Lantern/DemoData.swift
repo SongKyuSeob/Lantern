@@ -18,7 +18,9 @@ enum DemoData {
 
         let open = ["로그인 화면 리팩터링", "PR 리뷰 반영하기", "위젯 다크 모드 확인", "릴리스 노트 쓰기", "온보딩 문구 다듬기"]
         for (index, title) in open.enumerated() {
-            context.insert(TodoItem(title: title, order: Double(index + 1), createdAt: now.addingTimeInterval(-3600 * Double(5 - index))))
+            let item = TodoItem(title: title, order: Double(index + 1), createdAt: now.addingTimeInterval(-3600 * Double(5 - index)))
+            if index == 0 { item.note = "토큰 갱신 로직은 그대로 두고\nUI만 먼저 나누기" }
+            context.insert(item)
         }
         for (offset, title) in [(40, "크래시 로그 확인"), (95, "디자인 QA 피드백 정리")] {
             let item = TodoItem(title: title, order: 0, createdAt: now.addingTimeInterval(-86_400))
