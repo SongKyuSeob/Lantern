@@ -45,11 +45,13 @@ struct TodoStoreTests {
 
     @Test("끌어서 순서를 바꾼다") func move() throws {
         let store = try makeStore()
-        for title in ["가", "나", "다", "라"] { store.add(title) }
-        store.move(fromOffsets: IndexSet(integer: 3), toOffset: 0)
+        let items = ["가", "나", "다", "라"].compactMap { store.add($0) }
+        store.move(items[3], before: items[0])
         #expect(titles(store.openItems()) == ["라", "가", "나", "다"])
-        store.move(fromOffsets: IndexSet(integer: 0), toOffset: 4)
+        store.move(items[3], before: nil)
         #expect(titles(store.openItems()) == ["가", "나", "다", "라"])
+        store.move(items[0], before: items[2])
+        #expect(titles(store.openItems()) == ["나", "가", "다", "라"])
         store.add("마")
         #expect(titles(store.openItems()).last == "마")
     }
@@ -72,6 +74,18 @@ struct TodoStoreTests {
         #expect(item.note == "첫 줄\n둘째 줄")
         store.setNote(item, to: " \n ")
         #expect(item.note.isEmpty)
+    }
+
+    @Test("기한은 그날 0시로 저장하고, nil이면 없앤다") func dueDate() throws {
+        let store = try makeStore()
+        let item = try #require(store.add("하나"))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Asia/Seoul")!
+        let afternoon = try #require(calendar.date(from: DateComponents(year: 2026, month: 11, day: 7, hour: 15, minute: 30)))
+        store.setDueDate(item, to: afternoon, calendar: calendar)
+        #expect(item.dueDate == calendar.date(from: DateComponents(year: 2026, month: 11, day: 7)))
+        store.setDueDate(item, to: nil, calendar: calendar)
+        #expect(item.dueDate == nil)
     }
 
     @Test("완료 묶음 지우기는 작은 창에서만 치우고 기록에는 남긴다") func clearDone() throws {

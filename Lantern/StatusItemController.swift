@@ -102,6 +102,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
         menu.addItem(actionItem(panel.isVisible ? "창 숨기기" : "창 보이기", #selector(togglePanelVisibility)))
+        let compactItem = actionItem("한 줄로 보기", #selector(toggleCompact))
+        compactItem.state = panel.isCompact ? .on : .off
+        menu.addItem(compactItem)
         menu.addItem(actionItem("기록 보기…", #selector(showHistory)))
         menu.addItem(actionItem("업데이트 확인…", #selector(checkForUpdates)))
         let settingsItem = actionItem("설정…", #selector(showSettings))
@@ -197,6 +200,8 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     @objc private func toggleLidMode() {
         if lidMode.isOn { lidMode.disable(interactive: true) } else { lidMode.enable() }
     }
+
+    @objc private func toggleCompact() { panel.isCompact.toggle() }
 
     @objc private func togglePanelVisibility() {
         if panel.isVisible { panel.hide() } else { panel.show() }

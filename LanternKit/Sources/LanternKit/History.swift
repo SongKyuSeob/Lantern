@@ -7,10 +7,12 @@ public struct HistoryTodo: Equatable, Sendable {
     public let completedAt: Date?
     public let hiddenAt: Date?
     public let note: String
+    public let dueDate: Date?
 
-    public init(title: String, isDone: Bool, completedAt: Date?, hiddenAt: Date?, note: String = "") {
+    public init(title: String, isDone: Bool, completedAt: Date?, hiddenAt: Date?, note: String = "", dueDate: Date? = nil) {
         self.title = title
         self.note = note
+        self.dueDate = dueDate
         self.isDone = isDone
         self.completedAt = completedAt
         self.hiddenAt = hiddenAt
@@ -172,12 +174,12 @@ public enum History {
         if filter != .removed, !day.completed.isEmpty {
             lines.append("")
             lines.append("### 끝낸 일")
-            lines += day.completed.flatMap { ["- [x] \($0.title)"] + noteLines($0.note) }
+            lines += day.completed.flatMap { ["- [x] \($0.title)" + dueSuffix($0.dueDate, calendar: calendar)] + noteLines($0.note) }
         }
         if filter != .completed, !day.removed.isEmpty {
             lines.append("")
             lines.append("### 지운 일")
-            lines += day.removed.flatMap { ["- [ ] ~~\($0.title)~~"] + noteLines($0.note) }
+            lines += day.removed.flatMap { ["- [ ] ~~\($0.title)~~" + dueSuffix($0.dueDate, calendar: calendar)] + noteLines($0.note) }
         }
         if filter == .all, !day.awake.isEmpty {
             lines.append("")
@@ -190,6 +192,13 @@ public enum History {
             }
         }
         return lines.joined(separator: "\n") + "\n"
+    }
+
+    /// " (기한 2026-11-07)". 기한이 없으면 빈 글
+    private static func dueSuffix(_ dueDate: Date?, calendar: Calendar) -> String {
+        guard let dueDate else { return "" }
+        let parts = calendar.dateComponents([.year, .month, .day], from: dueDate)
+        return String(format: " (기한 %04d-%02d-%02d)", parts.year ?? 0, parts.month ?? 0, parts.day ?? 0)
     }
 
     /// 메모는 할 일 아래 한 단계 들여쓴 목록으로 붙인다 (빈 줄은 뺀다)

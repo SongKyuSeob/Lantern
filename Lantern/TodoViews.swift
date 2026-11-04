@@ -4,7 +4,7 @@ import SwiftUI
 
 // MARK: - 할 일 탭 (활성 창)
 
-/// 할 일 탭: 맨 위 입력 칸, 안 끝낸 목록(끌어서 순서 바꾸기), 완료 묶음
+/// 할 일 탭: 맨 위 입력 칸, 안 끝낸 목록(기한 임박한 것이 맨 위, 나머지는 끌어서 순서 바꾸기), 완료 묶음
 struct TodoTab: View {
     let store: TodoStore
     @Bindable var state: PanelState
@@ -25,6 +25,9 @@ struct TodoTab: View {
     @State private var expandedID: UUID?
     /// 메모를 쓰고 있는 할 일
     @State private var noteEditingID: UUID?
+    /// 기한을 고르고 있는 할 일
+    @State private var dueEditingID: UUID?
+    @AppStorage(TodoDue.soonDaysKey) private var soonDays = TodoDue.defaultSoonDays
     /// 끌고 있는 할 일과 끈 거리(위아래)
     @State private var dragging: (id: UUID, offset: CGFloat)?
 
@@ -55,8 +58,10 @@ struct TodoTab: View {
             .padding(.horizontal, 2)
         }
         .onChange(of: isAdding) { syncEditingState() }
+        .onChange(of: state.todoDraft) { syncEditingState() }
         .onChange(of: editingID) { syncEditingState() }
         .onChange(of: noteEditingID) { syncEditingState() }
+        .onChange(of: dueEditingID) { syncEditingState() }
         // 창이 평소 상태로 바뀌거나 탭을 옮겨 이 화면이 사라지면 입력 중 표시를 푼다 (Esc·10초 무조작이 다시 동작하게)
         .onDisappear { state.isEditingText = false }
     }
@@ -83,34 +88,50 @@ struct TodoTab: View {
 
     @ViewBuilder
     private var list: some View {
+        let arranged = arrangedItems
         let rows = VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(openItems.enumerated()), id: \.element.id) { index, item in
+            ForEach(Array(arranged.all.enumerated()), id: \.element.id) { index, item in
                 let isDragged = dragging?.id == item.id
-                TodoRow(item: item, store: store, editingID: $editingID, expandedID: $expandedID, noteEditingID: $noteEditingID, isDragged: isDragged)
+                let isSoon = index < arranged.soonCount
+                row(item, isDragged: isDragged)
                     .offset(y: isDragged ? dragging?.offset ?? 0 : shift(at: index))
                     .zIndex(isDragged ? 1 : 0)
                     .animation(isDragged ? nil : .snappy(duration: 0.18), value: shift(at: index))
-                    // 펼친 줄은 메모 글을 끌어 고를 수 있게 끌기를 받지 않는다
-                    .gesture(reorderGesture(for: item), including: expandedID == item.id ? .subviews : .all)
+                    // 임박한 할 일은 기한 순으로 자리가 정해져 끌지 않는다. 펼친 줄은 메모 글을 끌어 고를 수 있게 끌기를 받지 않는다
+                    .gesture(reorderGesture(for: item), including: isSoon || expandedID == item.id ? .subviews : .all)
             }
             // 안 끝낸 목록과 완료 묶음 사이 간격
             Color.clear.frame(height: 6)
             if !doneItems.isEmpty {
                 doneHeader
                 ForEach(doneItems) { item in
-                    TodoRow(item: item, store: store, editingID: $editingID, expandedID: $expandedID, noteEditingID: $noteEditingID, isDragged: false)
+                    row(item, isDragged: false)
                 }
             }
         }
         let rowCount = openItems.count + doneItems.count + (doneItems.isEmpty ? 0 : 1)
         if rowCount > Self.maxVisibleRows {
             ScrollView {
-                rows
+                // 스크롤 막대가 내용 위에 겹쳐 그려져서, 줄 오른쪽의 기한·×를 가리지 않게 막대 폭만큼 비운다
+                rows.padding(.trailing, 10)
             }
             .frame(height: CGFloat(Self.maxVisibleRows) * Self.rowHeight)
         } else {
             rows
         }
+    }
+
+    private func row(_ item: TodoItem, isDragged: Bool) -> some View {
+        TodoRow(
+            item: item, store: store, editingID: $editingID, expandedID: $expandedID,
+            noteEditingID: $noteEditingID, dueEditingID: $dueEditingID, isDragged: isDragged
+        )
+    }
+
+    /// 화면 순서: 임박한 할 일(기한 순) 다음에 나머지(끌어서 정한 순서)
+    private var arrangedItems: (all: [TodoItem], soonCount: Int) {
+        let arranged = TodoDue.arrange(openItems, now: Date(), days: soonDays)
+        return (arranged.soon + arranged.rest, arranged.soon.count)
     }
 
     private var doneHeader: some View {
@@ -142,6 +163,7 @@ struct TodoTab: View {
                 guard editingID != item.id else { return }
                 // 줄 높이가 모두 같아야 비켜 줄 거리를 셀 수 있어서, 펼친 줄을 먼저 접는다
                 if expandedID != nil { expandedID = nil }
+                if dueEditingID != nil { dueEditingID = nil }
                 dragging = (item.id, value.translation.height)
             }
             .onEnded { _ in
@@ -151,18 +173,21 @@ struct TodoTab: View {
                 transaction.disablesAnimations = true
                 withTransaction(transaction) {
                     if source != target {
-                        store.move(fromOffsets: IndexSet(integer: source), toOffset: target > source ? target + 1 : target)
+                        // 놓은 자리에 원래 있던 할 일 앞으로 옮긴다 (끄는 줄을 뺀 목록 기준)
+                        let others = arrangedItems.all.filter { $0.id != item.id }
+                        store.move(item, before: target < others.count ? others[target] : nil)
                     }
                     dragging = nil
                 }
             }
     }
 
-    /// 끄는 할 일의 원래 자리와 지금 놓으면 갈 자리
+    /// 끄는 할 일의 원래 자리와 지금 놓으면 갈 자리. 임박한 할 일 칸 위로는 올라가지 않는다
     private func dragTarget() -> (source: Int, target: Int)? {
-        guard let dragging, let source = openItems.firstIndex(where: { $0.id == dragging.id }) else { return nil }
+        let arranged = arrangedItems
+        guard let dragging, let source = arranged.all.firstIndex(where: { $0.id == dragging.id }) else { return nil }
         let target = source + Int((dragging.offset / Self.rowHeight).rounded())
-        return (source, min(max(target, 0), openItems.count - 1))
+        return (source, min(max(target, arranged.soonCount), arranged.all.count - 1))
     }
 
     /// 끄는 동안 다른 줄이 비켜 주는 거리
@@ -173,14 +198,17 @@ struct TodoTab: View {
         return 0
     }
 
-    /// 입력 중에는 10초 무조작·Esc로 창이 닫히지 않게 한다
+    /// 입력 중에는 10초 무조작·Esc로 창이 닫히지 않게 한다.
+    /// 메뉴·말풍선이 닫히면 창이 첫 입력 칸("할 일 추가")에 포커스를 돌려주므로, 그 칸은 글을 적었을 때만 입력 중으로 본다
     private func syncEditingState() {
-        state.isEditingText = isAdding || editingID != nil || noteEditingID != nil
+        state.isEditingText = (isAdding && !state.todoDraft.isEmpty) || editingID != nil || noteEditingID != nil || dueEditingID != nil
     }
 }
 
 /// 할 일 한 줄. 동그라미를 누르면 끝내기·되돌리기, 더블클릭하면 이름 고치기, 마우스를 올리면 ×로 지우기.
-/// 오른쪽 클릭하면 메모 · 이름 바꾸기 · 지우기 메뉴. 메모가 있으면 제목 옆 아이콘을 눌러 제목 전체와 메모를 펼친다.
+/// 오른쪽 클릭하면 메모 · 기한 · 이름 바꾸기 · 지우기 메뉴. 메모와 기한은 말풍선(`TodoNoteEditor`, `TodoDueEditor`)에서 고친다.
+/// 메모가 있으면 제목 옆 아이콘을 눌러 제목 전체와 메모를 펼쳐 본다 (읽기 전용, "편집"으로 말풍선).
+/// 기한이 있으면 오른쪽에 "11/7", 임박했거나 지났으면 주황색.
 /// 안 끝낸 할 일은 끌어서 순서를 바꾼다 (`TodoTab.reorderGesture`)
 private struct TodoRow: View {
     let item: TodoItem
@@ -188,14 +216,14 @@ private struct TodoRow: View {
     @Binding var editingID: UUID?
     @Binding var expandedID: UUID?
     @Binding var noteEditingID: UUID?
+    @Binding var dueEditingID: UUID?
     /// 끌고 있는 줄이면 바탕을 깔아 다른 줄과 겹쳐도 읽히게 한다
     let isDragged: Bool
 
     @State private var isHovering = false
     @State private var draft = ""
-    @State private var noteDraft = ""
     @FocusState private var isFocused: Bool
-    @FocusState private var isNoteFocused: Bool
+    @AppStorage(TodoDue.soonDaysKey) private var soonDays = TodoDue.defaultSoonDays
 
     private var isExpanded: Bool { expandedID == item.id }
 
@@ -218,11 +246,14 @@ private struct TodoRow: View {
                 // 메모 표시는 제목 바로 뒤에 붙여, 마우스를 올려 ×가 나타나도 자리가 바뀌지 않게 한다
                 HStack(alignment: .top, spacing: 3) {
                     title
-                    if !item.note.isEmpty || isExpanded {
+                    if !item.note.isEmpty {
                         noteToggle
                     }
                 }
                 Spacer(minLength: 4)
+                if let dueDate = item.dueDate {
+                    dueLabel(dueDate)
+                }
                 if isHovering && editingID != item.id {
                     Button {
                         store.hide(item)
@@ -238,10 +269,28 @@ private struct TodoRow: View {
                 }
             }
             if isExpanded {
-                noteField
+                noteView
                     // 제목 글자와 줄을 맞춘다 (동그라미 13 + 간격 8)
                     .padding(.leading, 21)
                     .padding(.bottom, 7)
+            }
+        }
+        // 말풍선은 패널 바깥(왼쪽)으로 띄운다. 패널이 화면 가장자리에 붙어 있어서 반대쪽은 자리가 없다
+        .popover(isPresented: isPresented($noteEditingID), arrowEdge: .leading) {
+            TodoNoteEditor(title: item.title, note: item.note) { note in
+                store.setNote(item, to: note)
+                noteEditingID = nil
+                if item.note.isEmpty, isExpanded { expandedID = nil }
+            } onCancel: {
+                noteEditingID = nil
+            }
+        }
+        .popover(isPresented: isPresented($dueEditingID), arrowEdge: .leading) {
+            TodoDueEditor(title: item.title, current: item.dueDate) { date in
+                store.setDueDate(item, to: date)
+                dueEditingID = nil
+            } onCancel: {
+                dueEditingID = nil
             }
         }
         .padding(.horizontal, 2)
@@ -257,11 +306,14 @@ private struct TodoRow: View {
         .onHover { isHovering = $0 }
         .contextMenu {
             // 메뉴가 닫힐 때 창이 첫 입력 칸("할 일 추가")에 포커스를 돌려주므로, 그 뒤에 입력 칸을 연다
-            Button(item.note.isEmpty ? "메모 추가" : "메모 편집") {
-                afterMenuCloses {
-                    expandedID = item.id
-                    noteEditingID = item.id
-                }
+            Button(item.note.isEmpty ? "메모 추가…" : "메모 편집…") {
+                afterMenuCloses { noteEditingID = item.id }
+            }
+            Button(item.dueDate == nil ? "기한 정하기…" : "기한 바꾸기…") {
+                afterMenuCloses { dueEditingID = item.id }
+            }
+            if item.dueDate != nil {
+                Button("기한 없애기") { store.setDueDate(item, to: nil) }
             }
             Button("이름 바꾸기") { afterMenuCloses { editingID = item.id } }
             Divider()
@@ -319,46 +371,31 @@ private struct TodoRow: View {
         .help(isExpanded ? "메모 접기" : "메모 보기")
     }
 
-    /// 펼친 메모. 바로 고칠 수 있고(Enter는 줄바꿈), 바깥을 누르거나 Esc를 누르면 저장한다
-    private var noteField: some View {
-        // TextEditor는 글 길이에 맞춰 늘지 않으므로, 같은 글을 보이지 않게 깔아 높이를 정한다
-        ZStack(alignment: .topLeading) {
-            Text(noteDraft.isEmpty || noteDraft.hasSuffix("\n") ? noteDraft + " " : noteDraft)
-                .lineLimit(10)
-                .hidden()
-            if noteDraft.isEmpty {
-                Text("메모")
-                    .foregroundStyle(.white.opacity(0.3))
-                    .allowsHitTesting(false)
-            }
-            TextEditor(text: $noteDraft)
-                .scrollContentBackground(.hidden)
-                // 글 상자 안쪽 여백만큼 당겨 위 글자와 줄을 맞춘다
-                .padding(.leading, -5)
-                .focused($isNoteFocused)
+    /// 펼친 메모 (읽기 전용, 글자는 골라 복사할 수 있다). 끝의 "편집"으로 말풍선을 띄운다
+    private var noteView: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(item.note)
+                .font(.system(size: 11.5))
+                .foregroundStyle(.white.opacity(0.62))
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+            Button("편집") { noteEditingID = item.id }
+                .buttonStyle(.plain)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Theme.primaryLight)
         }
-        .font(.system(size: 11.5))
-        .foregroundStyle(.white.opacity(0.62))
-        .onAppear {
-            noteDraft = item.note
-            if noteEditingID == item.id { isNoteFocused = true }
-        }
-        .onChange(of: noteEditingID) {
-            if noteEditingID == item.id { isNoteFocused = true }
-        }
-        .onChange(of: isNoteFocused) {
-            if isNoteFocused {
-                noteEditingID = item.id
-            } else {
-                finishNote()
-            }
-        }
-        .onKeyPress(.escape) {
-            isNoteFocused = false
-            return .handled
-        }
-        // 쓰던 중에 접히거나 창이 바뀌어 사라져도 저장한다
-        .onDisappear(perform: finishNote)
+    }
+
+    /// "11/7". 임박했거나 지났으면 주황색 (끝낸 일은 흐리게)
+    private func dueLabel(_ dueDate: Date) -> some View {
+        let now = Date()
+        let isSoon = !item.isDone && TodoDue.isSoon(dueDate, now: now, days: soonDays)
+        return Text(TodoDue.label(dueDate, now: now))
+            .font(.system(size: 10.5, weight: isSoon ? .semibold : .regular))
+            .monospacedDigit()
+            .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flame) : AnyShapeStyle(.white.opacity(item.isDone ? 0.25 : 0.4)))
+            .frame(height: TodoTab.rowHeight)
+            .help("기한 " + History.dateTitle(dueDate))
     }
 
     @ViewBuilder
@@ -374,8 +411,11 @@ private struct TodoRow: View {
         }
     }
 
-    private func afterMenuCloses(_ action: @escaping () -> Void) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: action)
+    private func afterMenuCloses(_ action: @escaping @MainActor () -> Void) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(100))
+            action()
+        }
     }
 
     private func finishEditing() {
@@ -384,52 +424,71 @@ private struct TodoRow: View {
         store.rename(item, to: draft)
     }
 
-    /// 메모를 저장한다. 비운 채로 끝내면 접는다
-    private func finishNote() {
-        store.setNote(item, to: noteDraft)
-        if noteEditingID == item.id { noteEditingID = nil }
-        if item.note.isEmpty, isExpanded { expandedID = nil }
+    /// 이 할 일을 고치는 중인지를 말풍선 표시 여부로 바꾼다. 말풍선이 닫히면(바깥 클릭 등) 고치기를 끝낸다
+    private func isPresented(_ editingID: Binding<UUID?>) -> Binding<Bool> {
+        Binding(
+            get: { editingID.wrappedValue == item.id },
+            set: { if !$0, editingID.wrappedValue == item.id { editingID.wrappedValue = nil } }
+        )
     }
 }
 
 // MARK: - 평소 창
 
-/// 평소 창에 보이는 할 일: 위에서 세 개, 더 있으면 "⋯ n more". 없으면 아무것도 그리지 않는다
+/// 평소 창에 보이는 할 일: 위에서 세 개(임박한 것 먼저), 더 있으면 "⋯ n more". 없으면 아무것도 그리지 않는다
 struct PassiveTodoList: View {
     @Query(
         filter: TodoItem.openPredicate,
         sort: [SortDescriptor(\TodoItem.order), SortDescriptor(\TodoItem.createdAt)]
     ) private var openItems: [TodoItem]
+    @AppStorage(TodoDue.soonDaysKey) private var soonDays = TodoDue.defaultSoonDays
 
     static let visibleCount = 3
 
     var body: some View {
         if !openItems.isEmpty {
-            VStack(alignment: .leading, spacing: 6) {
-                Rectangle().fill(Theme.divider).frame(height: 1)
-                ForEach(openItems.prefix(Self.visibleCount)) { item in
-                    HStack(spacing: 7) {
-                        Circle()
-                            .strokeBorder(.white.opacity(0.5), lineWidth: 1.1)
-                            .frame(width: 9, height: 9)
-                        Text(item.title)
-                            .font(.system(size: 11.5))
-                            .foregroundStyle(.white.opacity(0.85))
-                            .lineLimit(1)
-                            .truncationMode(.tail)
+            // 평소 창은 오래 떠 있으므로, 날짜가 바뀌면 임박 여부와 순서를 다시 정한다
+            TimelineView(.everyMinute) { context in
+                list(now: context.date)
+            }
+        }
+    }
+
+    private func list(now: Date) -> some View {
+        let arranged = TodoDue.arrange(openItems, now: now, days: soonDays)
+        let items = arranged.soon + arranged.rest
+        return VStack(alignment: .leading, spacing: 6) {
+            Rectangle().fill(Theme.divider).frame(height: 1)
+            ForEach(items.prefix(Self.visibleCount)) { item in
+                HStack(spacing: 7) {
+                    Circle()
+                        .strokeBorder(.white.opacity(0.5), lineWidth: 1.1)
+                        .frame(width: 9, height: 9)
+                    Text(item.title)
+                        .font(.system(size: 11.5))
+                        .foregroundStyle(.white.opacity(0.85))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                    if let dueDate = item.dueDate {
+                        Spacer(minLength: 4)
+                        let isSoon = TodoDue.isSoon(dueDate, now: now, days: soonDays)
+                        Text(TodoDue.label(dueDate, now: now))
+                            .font(.system(size: 10.5, weight: isSoon ? .semibold : .regular))
+                            .monospacedDigit()
+                            .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flameTextPassive) : AnyShapeStyle(.white.opacity(0.4)))
                     }
                 }
-                if openItems.count > Self.visibleCount {
-                    // 할 일 줄과 같은 자리에 맞춰, 동그라미 대신 흐린 ⋯를 둔다
-                    HStack(spacing: 7) {
-                        Image(systemName: "ellipsis")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.4))
-                            .frame(width: 9)
-                        Text("\(openItems.count - Self.visibleCount) more")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.white.opacity(0.45))
-                    }
+            }
+            if openItems.count > Self.visibleCount {
+                // 할 일 줄과 같은 자리에 맞춰, 동그라미 대신 흐린 ⋯를 둔다
+                HStack(spacing: 7) {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(.white.opacity(0.4))
+                        .frame(width: 9)
+                    Text("\(openItems.count - Self.visibleCount) more")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.white.opacity(0.45))
                 }
             }
         }

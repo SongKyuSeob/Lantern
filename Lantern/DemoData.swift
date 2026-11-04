@@ -20,6 +20,9 @@ enum DemoData {
         for (index, title) in open.enumerated() {
             let item = TodoItem(title: title, order: Double(index + 1), createdAt: now.addingTimeInterval(-3600 * Double(5 - index)))
             if index == 0 { item.note = "토큰 갱신 로직은 그대로 두고\nUI만 먼저 나누기" }
+            // 기한: 하나는 내일(임박), 하나는 다음 주
+            if index == 2 { item.dueDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) }
+            if index == 3 { item.dueDate = calendar.date(byAdding: .day, value: 8, to: calendar.startOfDay(for: now)) }
             context.insert(item)
         }
         for (offset, title) in [(40, "크래시 로그 확인"), (95, "디자인 QA 피드백 정리")] {

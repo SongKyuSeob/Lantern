@@ -14,6 +14,7 @@ final class SettingsWindowController {
     private let shortcuts: GlobalShortcutController
     private let loginItem: LoginItemController
     private let updates: UpdateController
+    private let panelState: PanelState
     private var window: NSWindow?
 
     init(
@@ -23,8 +24,10 @@ final class SettingsWindowController {
         agentMonitor: AgentMonitor,
         shortcuts: GlobalShortcutController,
         loginItem: LoginItemController,
-        updates: UpdateController
+        updates: UpdateController,
+        panelState: PanelState
     ) {
+        self.panelState = panelState
         self.shortcuts = shortcuts
         self.updates = updates
         self.loginItem = loginItem
@@ -38,7 +41,7 @@ final class SettingsWindowController {
         if window == nil {
             let host = NSHostingController(rootView: SettingsView(
                 lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor,
-                shortcuts: shortcuts, loginItem: loginItem, updates: updates
+                shortcuts: shortcuts, loginItem: loginItem, updates: updates, panelState: panelState
             ))
             let window = NSWindow(contentViewController: host)
             window.title = "랜턴 설정"
@@ -98,6 +101,7 @@ struct SettingsView: View {
     let shortcuts: GlobalShortcutController
     let loginItem: LoginItemController
     let updates: UpdateController
+    let panelState: PanelState
 
     private var lidModeSetup: LidModeSetup { lidMode.setup }
 
@@ -131,7 +135,8 @@ struct SettingsView: View {
             switch tab {
             case .general:
                 Form {
-                    GeneralSection(loginItem: loginItem)
+                    GeneralSection(loginItem: loginItem, panelState: panelState)
+                    TodoSection()
                     UpdateSection(updates: updates)
                     ShortcutSection(shortcuts: shortcuts)
                 }
@@ -409,9 +414,31 @@ private struct UpdateSection: View {
     }
 }
 
-/// "일반" 칸: 로그인할 때 열기
+/// "할 일" 칸: 기한이 며칠 남았을 때부터 임박으로 볼지
+private struct TodoSection: View {
+    @AppStorage(TodoDue.soonDaysKey) private var soonDays = TodoDue.defaultSoonDays
+
+    var body: some View {
+        Section {
+            Picker("기한 임박 표시", selection: $soonDays) {
+                ForEach(TodoDue.soonDayOptions, id: \.self) { days in
+                    Text(TodoDue.soonDaysTitle(days)).tag(days)
+                }
+            }
+        } header: {
+            Text("할 일")
+        } footer: {
+            Text("기한이 이만큼 남았거나 지난 할 일은 주황색으로 표시하고 목록 맨 위로 올려요.")
+                .font(.callout)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+/// "일반" 칸: 로그인할 때 열기, 평소 창 한 줄 보기
 private struct GeneralSection: View {
     let loginItem: LoginItemController
+    @Bindable var panelState: PanelState
 
     var body: some View {
         Section {
@@ -432,6 +459,10 @@ private struct GeneralSection: View {
                 Text(error)
                     .font(.callout)
                     .foregroundStyle(.red)
+            }
+            Toggle(isOn: $panelState.isCollapsed) {
+                Text("평소 창을 한 줄로 보기")
+                Text("깨어 있기 상태와 할 일 개수만 한 줄로 보여 줘요. 메뉴바 아이콘 메뉴에서도 바꿀 수 있어요.")
             }
         } header: {
             Text("일반")

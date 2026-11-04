@@ -18,6 +18,8 @@ public final class TodoItem {
     public var hiddenAt: Date?
     /// 할 일에 붙인 메모. 없으면 빈 글
     public var note: String = ""
+    /// 기한 (그날 0시). 없으면 `nil`
+    public var dueDate: Date?
 
     /// 안 끝내고 지운 일
     public var isRemoved: Bool { !isDone && hiddenAt != nil }
@@ -45,7 +47,7 @@ public extension TodoItem {
 ///
 /// - 새 할 일은 안 끝낸 목록 맨 아래에 붙는다
 /// - 끝내면 줄이 그어져 완료 묶음으로 내려가고, 되돌리면 안 끝낸 목록 맨 아래로 돌아간다
-/// - 순서는 끌어서 바꾼다
+/// - 순서는 끌어서 바꾼다. 기한이 임박한 할 일은 화면에서 맨 위에 모아 보여 준다 (`TodoDue.arrange`)
 /// - 치운 할 일(`hiddenAt`)은 작은 창에서만 사라지고 기록에는 남는다
 @MainActor
 public final class TodoStore {
@@ -145,17 +147,23 @@ public final class TodoStore {
         save()
     }
 
-    /// 안 끝낸 목록에서 끌어서 옮긴다 (SwiftUI `onMove`와 같은 인자)
-    public func move(fromOffsets source: IndexSet, toOffset destination: Int) {
-        var items = openItems()
-        // SwiftUI의 Array.move(fromOffsets:toOffset:)와 같은 동작 (LanternKit은 SwiftUI에 기대지 않는다)
-        let moving = source.map { items[$0] }
-        let insertAt = destination - source.filter { $0 < destination }.count
-        for index in source.sorted(by: >) { items.remove(at: index) }
-        items.insert(contentsOf: moving, at: insertAt)
+    /// 안 끝낸 할 일을 `anchor` 바로 앞으로 옮긴다. `anchor`가 `nil`이면 맨 뒤로.
+    /// 화면에서는 임박한 할 일이 위에 따로 모여 있어서, 자리 번호 대신 기준이 되는 할 일로 옮긴다
+    public func move(_ item: TodoItem, before anchor: TodoItem?) {
+        var items = openItems().filter { $0.id != item.id }
+        let index = anchor.flatMap { anchor in items.firstIndex { $0.id == anchor.id } } ?? items.count
+        items.insert(item, at: index)
         for (index, item) in items.enumerated() {
             item.order = Double(index)
         }
+        save()
+    }
+
+    /// 기한을 정한다. 시각은 버리고 그날 0시로 저장한다. `nil`이면 기한을 없앤다
+    public func setDueDate(_ item: TodoItem, to date: Date?, calendar: Calendar = .current) {
+        let day = date.map { calendar.startOfDay(for: $0) }
+        guard day != item.dueDate else { return }
+        item.dueDate = day
         save()
     }
 

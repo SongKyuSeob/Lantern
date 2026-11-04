@@ -18,7 +18,7 @@ struct PanelView: View {
 
     var body: some View {
         Group {
-            // 활성 상태는 접어 두었어도 전체 창. 접기는 평소 상태의 모습만 정한다
+            // 활성 상태는 한 줄 보기여도 전체 창. 한 줄 보기는 평소 상태의 모습만 정한다 (메뉴바 메뉴·설정에서 고름)
             if state.mode == .active {
                 ActivePanel(
                     awake: awake, power: power, state: state, lidMode: lidMode, safety: safety,
@@ -73,7 +73,7 @@ private struct ActivePanel: View {
                 style: .tab
             ) { state.tab = $0 }
             .help(Self.moveHelp)
-            // 빈 곳에만 옮기기 설명을 단다. 줄 전체에 달면 알약·접기 버튼의 설명을 가린다
+            // 빈 곳에만 옮기기 설명을 단다. 줄 전체에 달면 업데이트 알약의 설명을 가린다
             Color.clear
                 .frame(maxWidth: .infinity, minHeight: 20)
                 .contentShape(Rectangle())
@@ -85,19 +85,6 @@ private struct ActivePanel: View {
                     updates.checkForUpdates()
                 }
             }
-            Button {
-                // 접기는 평소 상태의 모습을 정하므로, 누르면 평소로 돌아가 바뀐 모습을 바로 보여 준다
-                state.isCollapsed.toggle()
-                state.mode = .passive
-            } label: {
-                Image(systemName: state.isCollapsed ? "chevron.down" : "chevron.up")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.55))
-                    .frame(width: 20, height: 20)
-                    .background(Circle().fill(.white.opacity(0.05)))
-            }
-            .buttonStyle(.plain)
-            .help(state.isCollapsed ? "펼쳐 두기" : "접어 두기")
         }
         // 탭 줄을 끌면 창을 옮긴다. 놓으면 그 화면의 가장 가까운 모서리에 붙는다
         .contentShape(Rectangle())

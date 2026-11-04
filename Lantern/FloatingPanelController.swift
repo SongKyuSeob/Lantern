@@ -122,6 +122,12 @@ final class FloatingPanelController {
 
     var isVisible: Bool { panel.isVisible }
 
+    /// 평소 창을 한 줄로 볼지 (메뉴바 메뉴 "한 줄로 보기")
+    var isCompact: Bool {
+        get { state.isCollapsed }
+        set { state.isCollapsed = newValue }
+    }
+
     func show() {
         place()
         panel.orderFrontRegardless()
@@ -153,7 +159,6 @@ final class FloatingPanelController {
     /// 메뉴의 "시각…": 창을 펼쳐 시각 고르기를 연다
     func showTimePicker() {
         show()
-        state.isCollapsed = false
         state.tab = .awake
         state.isPickingTime = true
         state.mode = .active
@@ -183,7 +188,9 @@ final class FloatingPanelController {
             panel.allowsKey = false
             panel.hasShadow = false
             giveBackKeyFocus()
+            giveBackActivation()
         case .active:
+            rememberFrontmostApp()
             stopHoverFade()
             panel.ignoresMouseEvents = false
             panel.allowsKey = true
@@ -193,6 +200,23 @@ final class FloatingPanelController {
             startWatchingActivity()
         }
         panel.invalidateShadow()
+    }
+
+    /// 창을 펼칠 때 앞에 있던 다른 앱. 말풍선(메모·기한) 안을 누르면 랜턴이 앞 앱이 되어서, 창을 닫을 때 돌려준다
+    private var appBeforeActive: NSRunningApplication?
+
+    private func rememberFrontmostApp() {
+        let front = NSWorkspace.shared.frontmostApplication
+        appBeforeActive = front?.processIdentifier == ProcessInfo.processInfo.processIdentifier ? nil : front
+    }
+
+    /// 랜턴이 앞 앱이 된 채로 창이 닫히면 원래 앱을 앞으로 돌려준다. 설정·기록 창을 보고 있으면 그대로 둔다
+    private func giveBackActivation() {
+        defer { appBeforeActive = nil }
+        guard NSApp.isActive, let app = appBeforeActive, !app.isTerminated else { return }
+        let showsOtherWindow = NSApp.windows.contains { $0 !== panel && $0.isVisible && $0.styleMask.contains(.titled) }
+        guard !showsOtherWindow else { return }
+        app.activate()
     }
 
     /// 창이 키 입력을 받고 있었다면 원래 앱으로 돌려준다

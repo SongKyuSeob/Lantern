@@ -64,7 +64,7 @@ struct HistoryView: View {
 
     private var days: [Date: HistoryDay] {
         History.days(
-            todos: todos.map { HistoryTodo(title: $0.title, isDone: $0.isDone, completedAt: $0.completedAt, hiddenAt: $0.hiddenAt, note: $0.note) },
+            todos: todos.map { HistoryTodo(title: $0.title, isDone: $0.isDone, completedAt: $0.completedAt, hiddenAt: $0.hiddenAt, note: $0.note, dueDate: $0.dueDate) },
             awake: records.map { HistoryAwake(startedAt: $0.startedAt, endedAt: $0.endedAt, optionLabel: $0.optionLabel, usedLidMode: $0.usedLidMode) }
         )
     }
@@ -356,9 +356,16 @@ private struct HistoryDayDetail: View {
             Image(systemName: icon)
                 .foregroundStyle(tint)
             VStack(alignment: .leading, spacing: 3) {
-                Text(todo.title)
-                    .strikethrough(strike)
-                    .foregroundStyle(strike ? .secondary : .primary)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(todo.title)
+                        .strikethrough(strike)
+                        .foregroundStyle(strike ? .secondary : .primary)
+                    if let dueDate = todo.dueDate {
+                        Text("기한 \(TodoDue.label(dueDate, now: Date()))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 if !todo.note.isEmpty {
                     Text(todo.note)
                         .font(.callout)

@@ -39,7 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var safety = SafetyController(awake: awake, power: power, lidMode: lidMode)
     private lazy var settings = SettingsWindowController(
         lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor,
-        shortcuts: shortcuts, loginItem: loginItem, updates: updates
+        shortcuts: shortcuts, loginItem: loginItem, updates: updates, panelState: panelState
     )
     private lazy var history = HistoryWindowController(todoStore: todoStore)
     private var panel: FloatingPanelController?
