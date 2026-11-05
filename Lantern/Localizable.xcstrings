@@ -942,7 +942,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "today"
+            "value": "Today"
           }
         },
         "ko": {
@@ -1310,7 +1310,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "tomorrow"
+            "value": "Tomorrow"
           }
         },
         "ko": {

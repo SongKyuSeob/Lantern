@@ -4,6 +4,8 @@
 # 사용법: scripts/make-appcast.sh <버전> <빌드 번호> <dmg 경로> <바뀐 내용 HTML 파일> [내려받기 주소 앞부분]
 #   예: scripts/make-appcast.sh 0.3.0 4 release/Lantern-0.3.0.dmg build/release-notes-0.3.0.html
 #   결과: dmg와 같은 폴더의 appcast.xml
+#   바뀐 내용 HTML과 같은 이름의 영어판(예: release-notes-0.5.0.en.html)이 있으면 함께 넣는다.
+#   Sparkle은 앱 언어에 맞는 글을 고르고, 언어 표시(xml:lang)가 없는 글은 영어로 본다
 #
 # dmg 서명에는 이 맥 키체인의 Sparkle 비밀 키를 쓴다 (generate_keys로 만든 것, 저장소에는 없음).
 # 서명 도구는 Xcode가 내려받은 Sparkle 패키지 안에 있다. 다른 곳에 있으면 SPARKLE_BIN에 폴더를 지정한다.
@@ -34,22 +36,34 @@ case "$SIGNATURE" in
   *) echo "서명하지 못했어요: $SIGNATURE" >&2; exit 1 ;;
 esac
 
+NOTES_EN="${NOTES%.html}.en.html"
+if [ -f "$NOTES_EN" ]; then
+  DESCRIPTIONS="      <description xml:lang=\"ko\"><![CDATA[
+$(cat "$NOTES")
+      ]]></description>
+      <description><![CDATA[
+$(cat "$NOTES_EN")
+      ]]></description>"
+else
+  DESCRIPTIONS="      <description><![CDATA[
+$(cat "$NOTES")
+      ]]></description>"
+fi
+
 OUT=$(dirname "$DMG")/appcast.xml
 DATE=$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")
 cat > "$OUT" <<XML
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>랜턴</title>
+    <title>Lantern</title>
     <item>
       <title>$VERSION</title>
       <pubDate>$DATE</pubDate>
       <sparkle:version>$BUILD</sparkle:version>
       <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
       <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
-      <description><![CDATA[
-$(cat "$NOTES")
-      ]]></description>
+$DESCRIPTIONS
       <enclosure url="$BASE_URL/$(basename "$DMG")" $SIGNATURE type="application/octet-stream"/>
     </item>
   </channel>

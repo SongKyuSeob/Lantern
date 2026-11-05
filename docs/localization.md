@@ -142,6 +142,8 @@
 - 시각·날짜·기간·요일·달 이름은 문장으로 번역하지 않고 시스템 형식(`Date.FormatStyle`, `Duration` 형식, `Calendar.shortWeekdaySymbols`)을 쓴다. 영어 시각은 "4:30 PM"의 공백이 좁은 공백(U+202F)이다
 - 화면 언어(`Localization.language`)는 앱이 실제로 고른 번역(`Bundle.main.preferredLocalizations`)이다. 설정 → 일반 → 언어(시스템 설정 따르기 / 한국어 / English, UserDefaults `app.language`)를 바꾸면 앱 선호 언어(`AppleLanguages`)를 바꾸고 "다시 켜기"로 재시작한다
 - Info.plist `CFBundleLocalizations`에 ko·en (Sparkle 창도 영어로 나오게), 영어 앱 이름은 `Lantern/en.lproj/InfoPlist.strings`
+- 앱 타깃 빌드 설정 `DEVELOPMENT_LANGUAGE = en`: 맥 언어가 한국어도 영어도 아니면(일본어 등) 영어로 보이게 한다. 프로젝트 개발 지역(ko)을 따르면 한국어로 보이고, "시스템 설정 따르기"의 판단(영어)과도 어긋났다. Info.plist에 `CFBundleDevelopmentRegion`을 직접 적으면 빌드 때 덮인다
+- 확인한 언어 고르기: 맥 언어 일본어 → 영어, 독일어·한국어 → 한국어, 한국어 → 한국어, 영어 → 영어 (`-AppleLanguages`로 띄워 확인)
 - 기록에 남은 깨어 있기 옵션 이름은 그때 언어로 저장돼 있어서 `History.optionLabel`이 지금 언어로 바꿔 보여 준다
 - 줄 끝에 `// 번역 안 함: 이유`를 단 곳만 한글을 그대로 쓴다 (언어 이름 "한국어", 감시 작업 파일 이름 등)
 

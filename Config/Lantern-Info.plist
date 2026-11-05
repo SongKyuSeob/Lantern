@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- 화면 언어. 영어를 적어 둬야 Sparkle 창 같은 시스템 화면도 영어로 나온다 (문구는 코드의 L(한국어, 영어)) -->
+	<!-- 화면 언어. 영어를 적어 둬야 Sparkle 창 같은 시스템 화면도 영어로 나온다 -->
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>ko</string>

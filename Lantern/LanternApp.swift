@@ -184,6 +184,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             state.isCollapsed = false
             state.mode = .active
             panel("panel-awake-on")
+            state.isPickingTime = true
+            panel("panel-awake-time")
+            state.isPickingTime = false
             awake.stop()
             awake.start(.untilAgentsFinish)
             panel("panel-awake-agents")
