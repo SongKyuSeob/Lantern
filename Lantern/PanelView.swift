@@ -68,7 +68,7 @@ private struct ActivePanel: View {
     private var header: some View {
         HStack {
             SegmentedPicker(
-                items: [(PanelState.Tab.todo, L("할 일", "To-dos")), (.awake, L("깨어 있기", "Awake"))],
+                items: [(PanelState.Tab.todo, String(localized: "할 일")), (.awake, String(localized: "tab.awake", defaultValue: "깨어 있기", comment: "펼친 창의 탭 이름"))],
                 selection: state.tab,
                 style: .tab
             ) { state.tab = $0 }
@@ -95,7 +95,7 @@ private struct ActivePanel: View {
         )
     }
 
-    private static var moveHelp: String { L("끌어서 다른 모서리나 화면으로 옮길 수 있어요", "Drag to move to another corner or display") }
+    private static var moveHelp: String { String(localized: "끌어서 다른 모서리나 화면으로 옮길 수 있어요") }
 }
 
 private struct AwakeTab: View {
@@ -122,11 +122,11 @@ private struct AwakeTab: View {
             if awake.isAwake {
                 Divider()
                 HStack {
-                    Button(L("화면 끄기", "Turn Display Off")) { awake.turnOffDisplay() }
+                    Button(String(localized: "화면 끄기")) { awake.turnOffDisplay() }
                         .font(.system(size: 12))
                         .foregroundStyle(.white.opacity(0.6))
                     Spacer()
-                    Button(L("깨어 있기 끄기", "Turn Off Keep Awake")) { awake.stop() }
+                    Button(String(localized: "깨어 있기 끄기")) { awake.stop() }
                         .font(.system(size: 12, weight: .semibold))
                         .foregroundStyle(Theme.primaryLight)
                 }
@@ -150,16 +150,16 @@ private struct AwakeTab: View {
         }()
         // 다섯 칸이 라벨과 한 줄에 들어가지 않아 라벨을 위로 올린다
         return VStack(alignment: .leading, spacing: 6) {
-            Text(L("언제까지", "Until"))
+            Text(String(localized: "언제까지"))
                 .font(.system(size: 12))
                 .foregroundStyle(.white.opacity(0.5))
             SegmentedPicker(
                 items: [
-                    (Choice.option(.indefinite), L("계속", "Always")),
-                    (.option(.hours(1)), L("1시간", "1 Hour")),
-                    (.option(.hours(2)), L("2시간", "2 Hours")),
-                    (.pickTime, L("시각", "Time")),
-                    (.option(.untilAgentsFinish), L("에이전트", "Agents")),
+                    (Choice.option(.indefinite), String(localized: "계속")),
+                    (.option(.hours(1)), String(localized: "1시간")),
+                    (.option(.hours(2)), String(localized: "2시간")),
+                    (.pickTime, String(localized: "시각")),
+                    (.option(.untilAgentsFinish), String(localized: "에이전트")),
                 ],
                 selection: selected,
                 style: .segment
@@ -180,7 +180,7 @@ private struct AwakeTab: View {
         let color = lid.staysAwake ? Theme.good : Theme.bad
         return VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(L("지금 뚜껑을 닫으면", "If you close the lid now"))
+                Text(String(localized: "지금 뚜껑을 닫으면"))
                     .font(.system(size: 12.5))
                     .foregroundStyle(.white.opacity(0.85))
                 Spacer()
@@ -209,7 +209,7 @@ private struct LidModeRow: View {
     var body: some View {
         HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(L("뚜껑 닫아도 유지", "Closed-Lid Mode"))
+                Text(String(localized: "뚜껑 닫아도 유지"))
                     .font(.system(size: 12.5))
                     .foregroundStyle(.white.opacity(canToggle ? 0.85 : 0.45))
                 if let note {
@@ -222,12 +222,12 @@ private struct LidModeRow: View {
             Spacer()
             if lidMode.setup.status == .notInstalled {
                 Button(action: openSettings) {
-                    Label(L("설정", "Settings"), systemImage: "lock.fill")
+                    Label(String(localized: "설정"), systemImage: "lock.fill")
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(Theme.primaryLight)
                 }
                 .buttonStyle(.plain)
-                .help(L("권한 설치는 설정 창에서 해요", "Set up the permission in Settings"))
+                .help(String(localized: "권한 설치는 설정 창에서 해요"))
             } else {
                 Toggle("", isOn: Binding(
                     get: { lidMode.isOn },
@@ -251,11 +251,11 @@ private struct LidModeRow: View {
     private var note: (text: String, isError: Bool)? {
         if let error = lidMode.lastError { return (error, true) }
         if lidMode.isOn { return nil }
-        if lidMode.setup.status == .notInstalled { return (L("처음 한 번 권한 설치가 필요해요", "Needs a one-time setup"), false) }
-        if !awake.isAwake { return (L("깨어 있는 동안만 켤 수 있어요", "Available only while Keep Awake is on"), false) }
+        if lidMode.setup.status == .notInstalled { return (String(localized: "처음 한 번 권한 설치가 필요해요"), false) }
+        if !awake.isAwake { return (String(localized: "깨어 있는 동안만 켤 수 있어요"), false) }
         switch safety.lidModeBlock {
-        case .lowBattery(let threshold): return (L("배터리가 \(threshold)% 이하라 켤 수 없어요", "Can't turn on with the battery at \(threshold)% or below"), false)
-        case .tooHot: return (L("맥이 뜨거워서 지금은 켤 수 없어요", "Your Mac is too hot to turn this on right now"), false)
+        case .lowBattery(let threshold): return (String(localized: "배터리가 \(threshold)% 이하라 켤 수 없어요"), false)
+        case .tooHot: return (String(localized: "맥이 뜨거워서 지금은 켤 수 없어요"), false)
         case nil: return nil
         }
     }
@@ -272,7 +272,7 @@ private struct StatusCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         FlameDot(size: 6)
-                        Text(L("깨어 있는 중 · 에이전트가 끝날 때까지", "Awake · Until agents finish"))
+                        Text(String(localized: "깨어 있는 중 · 에이전트가 끝날 때까지"))
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(Theme.flameText)
                     }
@@ -291,16 +291,16 @@ private struct StatusCard: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
                         FlameDot(size: 6)
-                        Text(L("깨어 있는 중", "Awake") + " · " + (AwakeText.until(session) ?? AwakeText.label(for: session.option)))
+                        Text(String(localized: "깨어 있는 중") + " · " + (AwakeText.until(session) ?? AwakeText.label(for: session.option)))
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(Theme.flameText)
                     }
                     if let remaining = awake.remaining {
-                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 20, weight: .semibold)).foregroundStyle(.white))\(Text(L(" 남음", " left")).font(.system(size: 13, weight: .medium)).foregroundStyle(.white.opacity(0.5)))")
+                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 20, weight: .semibold)).foregroundStyle(.white))\(Text(String(localized: " 남음")).font(.system(size: 13, weight: .medium)).foregroundStyle(.white.opacity(0.5)))")
                             .tracking(-0.3)
                             .monospacedDigit()
                     } else {
-                        Text(L("끌 때까지 깨어 있음", "Awake until you turn it off"))
+                        Text(String(localized: "끌 때까지 깨어 있음"))
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.white)
                     }
@@ -313,7 +313,7 @@ private struct StatusCard: View {
                             Button(item.label) { awake.extend(by: item.interval) }
                         }
                     } label: {
-                        Text(L("연장 ›", "Extend ›"))
+                        Text(String(localized: "연장 ›"))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(Theme.primaryLight)
                             .contentShape(Rectangle())
@@ -322,22 +322,22 @@ private struct StatusCard: View {
                     .buttonStyle(.plain)
                     .menuIndicator(.hidden)
                     .fixedSize()
-                    .help(L("지금 끝 시각에 시간을 더해요", "Add time to the current end time"))
+                    .help(String(localized: "지금 끝 시각에 시간을 더해요"))
                 }
             } else {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
                         HollowDot(size: 6)
-                        Text(L("깨어 있기 꺼짐", "Keep Awake off"))
+                        Text(String(localized: "깨어 있기 꺼짐"))
                             .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.white.opacity(0.6))
                     }
-                    Text(L("맥이 평소처럼 잠들어요", "Your Mac sleeps as usual"))
+                    Text(String(localized: "맥이 평소처럼 잠들어요"))
                         .font(.system(size: 13, weight: .medium))
                         .foregroundStyle(.white.opacity(0.5))
                 }
                 Spacer()
-                Button(L("\(AwakeText.shortLabel(for: awake.lastOption)) 시작 ›", "Start · \(AwakeText.shortLabel(for: awake.lastOption)) ›")) { awake.startWithLastOption() }
+                Button(String(localized: "\(AwakeText.shortLabel(for: awake.lastOption)) 시작 ›")) { awake.startWithLastOption() }
                     .buttonStyle(.plain)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(Theme.primaryLight)
@@ -378,7 +378,7 @@ private struct TimePickerRow: View {
                 .foregroundStyle(.white.opacity(0.55))
                 .lineLimit(1)
             Spacer(minLength: 0)
-            Button(L("시작", "Start")) {
+            Button(String(localized: "시작")) {
                 state.isPickingTime = false
                 awake.start(option)
             }
@@ -397,12 +397,12 @@ private struct TimePickerRow: View {
     private var preview: String {
         let now = Date()
         guard let end = option.endDate(startingAt: now) else { return "" }
-        return Calendar.current.isDate(end, inSameDayAs: now) ? L("까지", "today") : L("내일까지", "tomorrow")
+        return Calendar.current.isDate(end, inSameDayAs: now) ? String(localized: "까지") : String(localized: "내일까지")
     }
 
     /// "05분" / ":05"
     private static func minuteLabel(_ minute: Int) -> String {
-        L(String(format: "%02d분", minute), String(format: ":%02d", minute))
+        String(format: String(localized: "%02d분", comment: "시각 고르기의 분 칸"), minute)
     }
 }
 
@@ -450,13 +450,13 @@ private struct PassiveSummary: View {
                 HStack {
                     HStack(spacing: 7) {
                         FlameDot(size: 7)
-                        Text(L("깨어 있는 중", "Awake"))
+                        Text(String(localized: "깨어 있는 중"))
                             .font(.system(size: 12.5, weight: .semibold))
                             .foregroundStyle(Theme.flameTextPassive)
                     }
                     Spacer()
                     if let remaining = awake.remaining {
-                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white))\(Text(L(" 남음", " left")).font(.system(size: 11, weight: .medium)).foregroundStyle(.white.opacity(0.6)))")
+                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white))\(Text(String(localized: " 남음")).font(.system(size: 11, weight: .medium)).foregroundStyle(.white.opacity(0.6)))")
                             .monospacedDigit()
                     } else if session.option == .untilAgentsFinish {
                         Text(agents.short)
@@ -474,7 +474,7 @@ private struct PassiveSummary: View {
                 HStack {
                     HStack(spacing: 7) {
                         HollowDot(size: 7)
-                        Text(L("깨어 있기 꺼짐", "Keep Awake off"))
+                        Text(String(localized: "깨어 있기 꺼짐"))
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.white.opacity(0.7))
                     }
@@ -498,7 +498,7 @@ private struct PassiveSummary: View {
         if let version = updates.availableVersion {
             HStack(spacing: 5) {
                 Circle().fill(Theme.primary).frame(width: 5, height: 5)
-                Text(updates.installsAfterAwake ? L("끝나면 \(version) 설치", "Will update to \(version) when done") : L("새 버전 \(version)", "Version \(version) available"))
+                Text(updates.installsAfterAwake ? String(localized: "끝나면 \(version) 설치") : String(localized: "새 버전 \(version)"))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.white.opacity(0.6))
                     .lineLimit(1)
@@ -513,7 +513,7 @@ private struct PassiveSummary: View {
         let base = Text(until).foregroundStyle(.white.opacity(0.65))
         let line: Text
         if let lid = AwakeText.lidClose(LidClosePrediction.outcome(for: power.snapshot)) {
-            let lead = lid.staysAwake ? L(" · 지금 닫아도 ", " · Closing the lid: ") : L(" · 지금 닫으면 ", " · Closing the lid: ")
+            let lead = lid.staysAwake ? String(localized: " · 지금 닫아도 ") : String(localized: " · 지금 닫으면 ")
             let value = Text(lid.value)
                 .fontWeight(.medium)
                 .foregroundStyle(lid.staysAwake ? Theme.goodPassive : Theme.bad)
@@ -538,14 +538,14 @@ private struct CollapsedBar: View {
             if awake.isAwake {
                 HStack(spacing: 7) {
                     FlameDot(size: 7)
-                    Text("\(Text(L("깨어 있는 중", "Awake")).foregroundStyle(Theme.flameTextPassive))\(Text(" · \(shortStatus)").foregroundStyle(.white))")
+                    Text("\(Text(String(localized: "깨어 있는 중")).foregroundStyle(Theme.flameTextPassive))\(Text(" · \(shortStatus)").foregroundStyle(.white))")
                         .font(.system(size: 12, weight: .semibold))
                         .monospacedDigit()
                 }
             } else {
                 HStack(spacing: 7) {
                     HollowDot(size: 7)
-                    Text(L("깨어 있기 꺼짐", "Keep Awake off"))
+                    Text(String(localized: "깨어 있기 꺼짐"))
                         .font(.system(size: 12, weight: .medium))
                         .foregroundStyle(.white.opacity(0.7))
                 }
@@ -633,7 +633,7 @@ private struct UpdatePill: View {
         Button(action: action) {
             HStack(spacing: 5) {
                 Circle().fill(Theme.primary).frame(width: 5, height: 5)
-                Text(waitsForAwake ? L("끝나면 \(version) 설치", "\(version) Pending") : L("\(version) 업데이트", "Update to \(version)"))
+                Text(waitsForAwake ? String(localized: "update.pill.pending", defaultValue: "끝나면 \(version) 설치", comment: "펼친 창 업데이트 알약: 깨어 있기가 끝나길 기다리는 중") : String(localized: "\(version) 업데이트"))
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(Theme.primaryLight)
                     .lineLimit(1)
@@ -645,7 +645,7 @@ private struct UpdatePill: View {
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .help(L("새 버전에서 바뀐 내용을 보고 설치해요", "See what's new and install"))
+        .help(String(localized: "새 버전에서 바뀐 내용을 보고 설치해요"))
     }
 }
 
@@ -712,45 +712,39 @@ struct AgentStatusText {
 
     /// 판단 기준. 상태 카드에 마우스를 올리면 보인다
     static var rulesHelp: String {
-        L("""
+        String(localized: """
         Claude Code·Codex가 보내는 신호로 판단해요.
         · 일하는 에이전트가 모두 끝나면 1분 뒤 깨어 있기를 꺼요
         · 명령이 실행 중이면 신호가 없어도 최대 3시간 기다려요
         · 그 밖에 30분 동안 신호가 없으면 끝난 것으로 봐요 (Esc로 중단한 경우 등)
         · 에이전트 프로그램을 닫으면 바로 끝난 것으로 봐요
-        """, """
-        Lantern decides based on signals from Claude Code and Codex.
-        · When every agent has finished, Keep Awake turns off after 1 minute
-        · While a command is running, it waits up to 3 hours, even without signals
-        · Otherwise, 30 minutes without a signal counts as done (for example, after you stop a task with Esc)
-        · Quitting the agent counts as done right away
         """)
     }
 
     /// "Claude Code 2개 작업 중"
     var headline: String {
         switch phase {
-        case .waitingForAgents: return L("에이전트를 기다리는 중", "Waiting for agents")
-        case .finishing: return L("모두 끝남 · 곧 꺼져요", "All done · Turning off soon")
+        case .waitingForAgents: return String(localized: "에이전트를 기다리는 중")
+        case .finishing: return String(localized: "모두 끝남 · 곧 꺼져요")
         case .working, .inactive:
             let parts = AgentKind.allCases.compactMap { agent -> String? in
                 let count = monitor.count(of: agent)
-                return count > 0 ? L("\(agent.displayName) \(count)개", "\(agent.displayName) \(count)") : nil
+                return count > 0 ? String(localized: "\(agent.displayName) \(count)개") : nil
             }
-            if parts.isEmpty { return L("에이전트를 기다리는 중", "Waiting for agents") }
-            return L(parts.joined(separator: " · ") + " 작업 중", "Working: " + parts.joined(separator: " · "))
+            if parts.isEmpty { return String(localized: "에이전트를 기다리는 중") }
+            return String(localized: "\(parts.joined(separator: " · ")) 작업 중")
         }
     }
 
     /// "명령 실행 중", "허락을 기다리는 중"
     var detail: String? {
         switch phase {
-        case .waitingForAgents: return L("일을 시작하면 끝날 때까지 깨어 있어요", "Stays awake from when an agent starts until it's done")
-        case .finishing: return L("1분 안에 다시 일하면 이어져요", "Keeps going if an agent starts again within 1 minute")
+        case .waitingForAgents: return String(localized: "일을 시작하면 끝날 때까지 깨어 있어요")
+        case .finishing: return String(localized: "1분 안에 다시 일하면 이어져요")
         case .working, .inactive:
             let statuses = monitor.activeSessions.map(\.status)
-            if statuses.contains(.awaitingPermission) { return L("허락을 기다리는 에이전트가 있어요", "An agent is waiting for your approval") }
-            if statuses.contains(.runningCommand) { return L("명령 실행 중", "Running a command") }
+            if statuses.contains(.awaitingPermission) { return String(localized: "허락을 기다리는 에이전트가 있어요") }
+            if statuses.contains(.runningCommand) { return String(localized: "명령 실행 중") }
             return nil
         }
     }
@@ -758,11 +752,11 @@ struct AgentStatusText {
     /// 한 줄 요약용: "작업 중 3", "기다리는 중", "곧 꺼짐"
     var short: String {
         switch phase {
-        case .waitingForAgents: return L("기다리는 중", "Waiting")
-        case .finishing: return L("곧 꺼짐", "Ending soon")
+        case .waitingForAgents: return String(localized: "기다리는 중")
+        case .finishing: return String(localized: "곧 꺼짐")
         case .working, .inactive:
             let count = monitor.activeSessions.count
-            return count > 0 ? L("작업 중 \(count)", "\(count) working") : L("기다리는 중", "Waiting")
+            return count > 0 ? String(localized: "작업 중 \(count)") : String(localized: "기다리는 중")
         }
     }
 }

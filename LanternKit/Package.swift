@@ -5,12 +5,13 @@ import PackageDescription
 // AppKit 의존은 앱 타깃에만 두고, 나중에 iOS 앱에서도 재사용할 수 있게 유지한다.
 let package = Package(
     name: "LanternKit",
+    defaultLocalization: "ko",
     platforms: [.macOS(.v26)],
     products: [
         .library(name: "LanternKit", targets: ["LanternKit"]),
     ],
     targets: [
-        .target(name: "LanternKit"),
+        .target(name: "LanternKit", resources: [.process("Localizable.xcstrings")]),
         .testTarget(name: "LanternKitTests", dependencies: ["LanternKit"]),
     ]
 )

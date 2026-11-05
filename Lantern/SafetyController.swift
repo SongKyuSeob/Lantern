@@ -66,7 +66,7 @@ final class SafetyController {
         if lidMode.isOn {
             // 앱을 막 켠 참이라 사람이 있으니, 끄지 못하면 비밀번호 창으로라도 끈다
             lidMode.disable(interactive: true)
-            notify(L("지난번에 켜져 있던 뚜껑 닫아도 유지를 껐어요.", "Closed-Lid Mode was still on from last time, so Lantern turned it off."))
+            notify(String(localized: "지난번에 켜져 있던 뚜껑 닫아도 유지를 껐어요."))
         }
         evaluate()
     }
@@ -108,17 +108,17 @@ final class SafetyController {
     func evaluate() {
         guard let action = guardian.evaluate(power: power.snapshot, thermalState: thermalState, isAwake: awake.isAwake) else { return }
         let willSleep = shouldSleepAfterLidModeEnds()
-        let sleepNote = willSleep ? L(" 뚜껑이 닫혀 있어 맥을 재울게요.", " The lid is closed, so your Mac will go to sleep.") : ""
+        let sleepNote = willSleep ? String(localized: " 뚜껑이 닫혀 있어 맥을 재울게요.") : ""
         switch action {
         case .endAwakeForLowBattery(let percent):
-            notify(L("배터리가 \(percent)%라 깨어 있기를 껐어요.", "Battery is at \(percent)%, so Keep Awake was turned off.") + sleepNote)
+            notify(String(localized: "배터리가 \(percent)%라 깨어 있기를 껐어요.") + sleepNote)
             // 재우는 일은 세션이 끝날 때(awake.onWillEnd) 함께 처리된다
             awake.stop(reason: .lowBattery)
         case .disableLidModeForHeat:
             // 끄기에 실패했다면 잠시 다시 시도하지 않는다 (전원 알림마다 같은 실패·알림이 반복되지 않게)
             if let lastFailure = lidModeOffFailedAt, Date().timeIntervalSince(lastFailure) < Self.retryCooldown { return }
             guard lidMode.disable() else { return }
-            notify(L("맥이 많이 뜨거워서 뚜껑 닫아도 유지를 껐어요.", "Your Mac got too hot, so Closed-Lid Mode was turned off.") + sleepNote)
+            notify(String(localized: "맥이 많이 뜨거워서 뚜껑 닫아도 유지를 껐어요.") + sleepNote)
             if willSleep { lidMode.sleepNow() }
         }
     }
@@ -132,12 +132,12 @@ final class SafetyController {
         let now = Date()
         if let last = lidModeOffFailedAt, now.timeIntervalSince(last) < Self.retryCooldown { return }
         lidModeOffFailedAt = now
-        notify(L("뚜껑 닫아도 유지를 끄지 못했어요. 맥이 잠들지 않을 수 있어요. 설정 → 전원에서 권한을 확인해 주세요.", "Couldn't turn off Closed-Lid Mode, so your Mac may not sleep. Check the permission in Settings → Power."))
+        notify(String(localized: "뚜껑 닫아도 유지를 끄지 못했어요. 맥이 잠들지 않을 수 있어요. 설정 → 전원에서 권한을 확인해 주세요."))
     }
 
     private func notify(_ body: String) {
         let content = UNMutableNotificationContent()
-        content.title = L("랜턴", "Lantern")
+        content.title = String(localized: "랜턴")
         content.body = body
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         UNUserNotificationCenter.current().add(request)

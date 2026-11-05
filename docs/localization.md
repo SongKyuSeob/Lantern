@@ -135,12 +135,20 @@
 
 ## 구현 방식 (0.5.0)
 
-- 문구는 쓰는 자리에 두 언어를 함께 둔다: `L("한국어", "English")` (LanternKit `Localization.swift`). 언어가 둘뿐이라 String Catalog보다 단순하고, 번역 열쇠가 어긋나 조용히 빠지는 일이 없다. 테스트처럼 언어를 직접 정해야 하면 `AppLanguage.text(_:_:)`와 함수의 `language:` 인자를 쓴다
-- 화면 언어(`Localization.language`)는 앱을 켤 때 한 번 정한다. 설정 → 일반 → 언어(시스템 설정 따르기 / 한국어 / English, UserDefaults `app.language`). 바꾸면 앱 선호 언어(`AppleLanguages`)도 맞추고 "다시 켜기"로 재시작한다. Sparkle 창 같은 시스템 화면까지 같은 언어로 나오게 하려고 실행 중 전환은 하지 않는다
-- 시스템 설정을 따를 때는 선호 언어 목록에서 한국어와 영어 중 먼저 나오는 쪽, 둘 다 없으면 영어
-- Info.plist `CFBundleLocalizations`에 ko·en을 적어야 Sparkle 창이 영어로 나온다. 영어 앱 이름은 `Lantern/en.lproj/InfoPlist.strings`
-- 기록에 남은 깨어 있기 옵션 이름은 그때 화면 언어로 저장돼 있어서, 보여 줄 때 `History.optionLabel`로 지금 언어로 바꾼다
-- 화면 확인(디버그 빌드): `open -g -n --env LANTERN_DEMO=1 --env LANTERN_RENDER=<폴더> <디버그 앱>`을 실행하면 한국어·영어로 패널·편집 말풍선·기록·설정 화면을 PNG로 저장하고 꺼진다(`<폴더>/ko`, `<폴더>/en`). 창을 화면 밖에 올려 그려서 포커스를 가져가지 않고, 시연 데이터를 쓴다. 유리 효과는 그림에 잡히지 않아 이때만 단색 바탕으로 그린다. 메뉴바 메뉴와 알림은 그림으로 확인할 수 없다
+- **String Catalog**: 앱은 `Lantern/Localizable.xcstrings`, LanternKit은 `LanternKit/Sources/LanternKit/Localizable.xcstrings`(패키지 `defaultLocalization: "ko"`). 원본 언어는 한국어이고, 열쇠는 한국어 문장 그대로다
+- 코드에서는 `Text(String(localized: "할 일 추가"))`, `String(localized: "깨어 있는 중 · \(label)")`처럼 쓴다. 보간은 열쇠에서 `%@`·`%lld`가 된다. 개수가 들어간 문구("%lld일 남음")는 카탈로그의 영어 복수형(one/other)으로 처리한다
+- 같은 한국어가 자리마다 다른 영어가 돼야 하면 따로 열쇠를 둔다: `String(localized: "tab.awake", defaultValue: "깨어 있기", comment: …)` (지금: `tab.awake`, `history.metric.awake`, `update.pill.pending`, `todo.clearDone`, LanternKit `time.range`)
+- LanternKit에서 언어를 직접 정해야 하는 곳(Markdown, 남은 날, 기간 — 테스트용)은 `localized(_:_:)`가 그 언어의 `.lproj` 묶음에서 가져온다. 그래서 카탈로그에 한국어 값도 적어 둔다(`scripts/l10n-fill-source.py`)
+- 시각·날짜·기간·요일·달 이름은 문장으로 번역하지 않고 시스템 형식(`Date.FormatStyle`, `Duration` 형식, `Calendar.shortWeekdaySymbols`)을 쓴다. 영어 시각은 "4:30 PM"의 공백이 좁은 공백(U+202F)이다
+- 화면 언어(`Localization.language`)는 앱이 실제로 고른 번역(`Bundle.main.preferredLocalizations`)이다. 설정 → 일반 → 언어(시스템 설정 따르기 / 한국어 / English, UserDefaults `app.language`)를 바꾸면 앱 선호 언어(`AppleLanguages`)를 바꾸고 "다시 켜기"로 재시작한다
+- Info.plist `CFBundleLocalizations`에 ko·en (Sparkle 창도 영어로 나오게), 영어 앱 이름은 `Lantern/en.lproj/InfoPlist.strings`
+- 기록에 남은 깨어 있기 옵션 이름은 그때 언어로 저장돼 있어서 `History.optionLabel`이 지금 언어로 바꿔 보여 준다
+- 줄 끝에 `// 번역 안 함: 이유`를 단 곳만 한글을 그대로 쓴다 (언어 이름 "한국어", 감시 작업 파일 이름 등)
+
+## 누락 점검
+
+- `scripts/check-localization.sh`: 빌드해서 코드의 문구를 카탈로그에 모으고(`xcstringstool sync`), 영어가 빠진 문구, 영어에 한글이 남은 문구, 쓰지 않게 된 문구, 번역을 거치지 않는 코드 속 한글을 찾는다. 하나라도 있으면 실패. 새 문구를 넣으면 이걸 돌리고, 알려 준 열쇠에 Xcode에서 영어를 채운다
+- `scripts/render-screens.sh [폴더]`: 주요 화면을 한국어·영어 PNG로 저장(기본 `~/Downloads/랜턴-화면`)하고, 영어 화면에서 글자를 인식해 한글이 남았는지 확인한다. 디버그 빌드의 `LANTERN_RENDER` 모드를 언어마다 따로 실행한다. 창을 화면 밖에 그려 마우스·키보드·포커스를 쓰지 않고 시연 데이터를 쓴다. 유리 효과는 그림에 잡히지 않아 이때만 단색 바탕이고, 입력 칸 테두리도 일부만 그려진다(실제 앱은 정상). 메뉴바 메뉴와 알림은 그림으로 확인할 수 없다
 
 ## 번역할 때 따로 정할 것
 

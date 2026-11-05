@@ -26,7 +26,7 @@ struct TodoNoteEditor: View {
                 .lineLimit(2)
             ZStack(alignment: .topLeading) {
                 if draft.isEmpty {
-                    Text(L("메모를 적어요", "Write a note"))
+                    Text(String(localized: "메모를 적어요"))
                         .foregroundStyle(.tertiary)
                         .padding(.top, 1)
                         .allowsHitTesting(false)
@@ -42,13 +42,13 @@ struct TodoNoteEditor: View {
             .frame(height: 120)
             .background(RoundedRectangle(cornerRadius: 7).fill(.quaternary.opacity(0.6)))
             HStack(spacing: 8) {
-                Text(L("⌘↩ 저장", "⌘↩ to save"))
+                Text(String(localized: "⌘↩ 저장"))
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
                 Spacer()
-                Button(L("취소", "Cancel"), action: onCancel)
+                Button(String(localized: "취소"), action: onCancel)
                     .keyboardShortcut(.cancelAction)
-                Button(L("저장", "Save")) { onSave(draft) }
+                Button(String(localized: "저장")) { onSave(draft) }
                     .keyboardShortcut(.return, modifiers: .command)
                     .buttonStyle(.borderedProminent)
             }
@@ -73,9 +73,7 @@ struct TodoDueEditor: View {
     @State private var month: Date
 
     private let calendar = Calendar.current
-    private static var weekdays: [String] {
-        L("일 월 화 수 목 금 토", "Sun Mon Tue Wed Thu Fri Sat").split(separator: " ").map(String.init)
-    }
+    private static var weekdays: [String] { History.weekdaySymbols() }
     private static let cellSize: CGFloat = 32
 
     init(title: String, current: Date?, onSave: @escaping (Date?) -> Void, onCancel: @escaping () -> Void) {
@@ -120,12 +118,12 @@ struct TodoDueEditor: View {
             }
             HStack(spacing: 8) {
                 if current != nil {
-                    Button(L("기한 없애기", "Remove Due Date")) { onSave(nil) }
+                    Button(String(localized: "기한 없애기")) { onSave(nil) }
                 }
                 Spacer()
-                Button(L("취소", "Cancel"), action: onCancel)
+                Button(String(localized: "취소"), action: onCancel)
                     .keyboardShortcut(.cancelAction)
-                Button(L("정하기", "Set")) { onSave(selected) }
+                Button(String(localized: "정하기")) { onSave(selected) }
                     .keyboardShortcut(.defaultAction)
                     .buttonStyle(.borderedProminent)
             }
@@ -142,15 +140,15 @@ struct TodoDueEditor: View {
                 .font(.system(size: 14, weight: .semibold))
             Spacer()
             Button { moveMonth(-1) } label: { Image(systemName: "chevron.left").frame(width: 22, height: 22) }
-                .help(L("이전 달", "Previous Month"))
-            Button(L("오늘", "Today")) {
+                .help(String(localized: "이전 달"))
+            Button(String(localized: "오늘")) {
                 let today = calendar.startOfDay(for: Date())
                 month = today
                 selected = today
             }
             .font(.system(size: 11.5, weight: .medium))
             Button { moveMonth(1) } label: { Image(systemName: "chevron.right").frame(width: 22, height: 22) }
-                .help(L("다음 달", "Next Month"))
+                .help(String(localized: "다음 달"))
         }
         .buttonStyle(.borderless)
     }
@@ -193,11 +191,9 @@ struct TodoDueEditor: View {
         return Array(Self.weekdays[start...] + Self.weekdays[..<start])
     }
 
-    /// "11월 7일 (토)" / "Sat, Nov 7"
+    /// "11월 7일 (토)" / "Sat, Nov 7" (시스템 날짜 형식)
     private func dayTitle(_ date: Date) -> String {
-        let parts = calendar.dateComponents([.month, .day, .weekday], from: date)
-        let weekday = Self.weekdays[((parts.weekday ?? 1) - 1) % 7]
-        return L("\(parts.month ?? 0)월 \(parts.day ?? 0)일 (\(weekday))", "\(weekday), " + date.formatted(.dateTime.month(.abbreviated).day().locale(Localization.locale)))
+        date.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day().locale(Localization.locale))
     }
 
     private func moveMonth(_ value: Int) {

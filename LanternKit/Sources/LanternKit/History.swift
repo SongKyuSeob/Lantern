@@ -176,28 +176,27 @@ public enum History {
         var lines = ["## \(dateTitle(day.day, calendar: calendar, language: language))"]
         if filter != .removed, !day.completed.isEmpty {
             lines.append("")
-            lines.append("### " + language.text("끝낸 일", "Completed"))
+            lines.append("### " + localized("끝낸 일", language))
             lines += day.completed.flatMap {
                 ["- [x] \($0.title)" + dueSuffix($0.dueDate, calendar: calendar, language: language)] + noteLines($0.note)
             }
         }
         if filter != .completed, !day.removed.isEmpty {
             lines.append("")
-            lines.append("### " + language.text("지운 일", "Removed"))
+            lines.append("### " + localized("지운 일", language))
             lines += day.removed.flatMap {
                 ["- [ ] ~~\($0.title)~~" + dueSuffix($0.dueDate, calendar: calendar, language: language)] + noteLines($0.note)
             }
         }
         if filter == .all, !day.awake.isEmpty {
             lines.append("")
-            lines.append("### " + language.text("깨어 있기", "Keep Awake") + " · \(durationText(day.awakeDuration, language: language))")
+            lines.append("### " + localized("깨어 있기", language) + " · \(durationText(day.awakeDuration, language: language))")
             lines += day.awake.map { record in
-                let start = clock(record.startedAt, calendar: calendar, language: language)
-                let end = clock(record.endedAt, calendar: calendar, language: language)
-                var line = "- \(start)" + language.text(" ~ ", " – ") + "\(end) (\(durationText(record.duration, language: language)))"
+                let range = timeRange(record.startedAt, record.endedAt, calendar: calendar, language: language)
+                var line = "- \(range) (\(durationText(record.duration, language: language)))"
                 let option = optionLabel(record.optionLabel, language: language)
                 if !option.isEmpty { line += " · \(option)" }
-                if record.usedLidMode { line += " · " + language.text("뚜껑 닫아도 유지", "Closed-Lid Mode") }
+                if record.usedLidMode { line += " · " + localized("뚜껑 닫아도 유지", language) }
                 return line
             }
         }
@@ -209,7 +208,7 @@ public enum History {
         guard let dueDate else { return "" }
         let parts = calendar.dateComponents([.year, .month, .day], from: dueDate)
         let date = String(format: "%04d-%02d-%02d", parts.year ?? 0, parts.month ?? 0, parts.day ?? 0)
-        return " (" + language.text("기한", "due") + " \(date))"
+        return " (" + localized("기한", language) + " \(date))"
     }
 
     /// 메모는 할 일 아래 한 단계 들여쓴 목록으로 붙인다 (빈 줄은 뺀다)
@@ -223,49 +222,60 @@ public enum History {
     /// "2026-10-29 (수)", "2026-10-29 (Thu)"
     public static func dateTitle(_ date: Date, calendar: Calendar = .current, language: AppLanguage = Localization.language) -> String {
         let parts = calendar.dateComponents([.year, .month, .day, .weekday], from: date)
-        let weekdays = language == .korean
-            ? ["일", "월", "화", "수", "목", "금", "토"]
-            : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-        let weekday = weekdays[((parts.weekday ?? 1) - 1) % 7]
+        let weekday = weekdaySymbols(language)[((parts.weekday ?? 1) - 1) % 7]
         return String(format: "%04d-%02d-%02d", parts.year ?? 0, parts.month ?? 0, parts.day ?? 0) + " (\(weekday))"
     }
 
-    /// "오후 3:05", "3:05 PM"
+    /// 요일 짧은 이름, 일요일부터: "일"…"토" / "Sun"…"Sat" (시스템 이름)
+    public static func weekdaySymbols(_ language: AppLanguage = Localization.language) -> [String] {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Localization.locale(for: language)
+        return calendar.shortWeekdaySymbols
+    }
+
+    /// "오후 3:05", "3:05 PM" (시스템 시각 형식)
     public static func clock(_ date: Date, calendar: Calendar = .current, language: AppLanguage = Localization.language) -> String {
-        let parts = calendar.dateComponents([.hour, .minute], from: date)
-        return clock(hour: parts.hour ?? 0, minute: parts.minute ?? 0, language: language)
+        date.formatted(Date.FormatStyle(
+            date: .omitted, time: .shortened,
+            locale: Localization.locale(for: language), calendar: calendar, timeZone: calendar.timeZone
+        ))
     }
 
-    /// "오후 3:05", "3:05 PM"
-    public static func clock(hour: Int, minute: Int, language: AppLanguage = Localization.language) -> String {
-        let hour12 = hour % 12 == 0 ? 12 : hour % 12
-        let time = "\(hour12):" + String(format: "%02d", minute)
-        return language == .korean ? "\(hour < 12 ? "오전" : "오후") \(time)" : "\(time) \(hour < 12 ? "AM" : "PM")"
+    /// "오후 1:05 ~ 오후 3:10" / "1:05 PM – 3:10 PM"
+    public static func timeRange(_ start: Date, _ end: Date, calendar: Calendar = .current, language: AppLanguage = Localization.language) -> String {
+        let start = clock(start, calendar: calendar, language: language)
+        let end = clock(end, calendar: calendar, language: language)
+        return String(
+            localized: "time.range", defaultValue: "\(start) ~ \(end)",
+            bundle: language.bundle, locale: Localization.locale(for: language), comment: "시작 시각과 끝 시각 사이"
+        )
     }
 
-    /// "2시간 5분", "45분" / "2 hr 5 min", "45 min"
+    /// 오늘 그 시각을 `clock(_:)` 형식으로
+    public static func clock(hour: Int, minute: Int, calendar: Calendar = .current, language: AppLanguage = Localization.language) -> String {
+        let date = calendar.date(bySettingHour: hour, minute: minute, second: 0, of: Date()) ?? Date()
+        return clock(date, calendar: calendar, language: language)
+    }
+
+    /// "2시간 5분", "45분" / "2 hr, 5 min", "45 min" (시스템 기간 형식, 분 단위로 버림)
     public static func durationText(_ interval: TimeInterval, language: AppLanguage = Localization.language) -> String {
         let minutes = Int(interval / 60)
-        let hours = minutes / 60
-        let rest = minutes % 60
-        let hourText = language.text("\(hours)시간", "\(hours) hr")
-        let minuteText = language.text("\(rest)분", "\(rest) min")
-        if hours == 0 { return minuteText }
-        return rest == 0 ? hourText : "\(hourText) \(minuteText)"
+        return Duration.seconds(minutes * 60)
+            .formatted(.units(allowed: [.hours, .minutes], width: .abbreviated).locale(Localization.locale(for: language)))
     }
 
     /// 기록에 남은 옵션 이름을 지금 화면 언어로 바꾼다. 기록은 그때 화면 언어로 저장돼 있다.
     /// 알아볼 수 없는 이름은 그대로 둔다
     public static func optionLabel(_ stored: String, language: AppLanguage = Localization.language) -> String {
         let hours = /^(\d+)(?:시간| Hours?)$/
-        let until = /^(?:Until )?(내일 |tomorrow )?(?:(오전|오후) (\d{1,2}):(\d{2})|(\d{1,2}):(\d{2}) (AM|PM))(?:까지)?$/
+        let until = /^(?:Until )?(내일 |tomorrow )?(?:(오전|오후) (\d{1,2}):(\d{2})|(\d{1,2}):(\d{2})[ \u{202F}](AM|PM))(?:까지)?$/
         switch stored {
-        case "계속", "Always": return language.text("계속", "Always")
-        case "에이전트가 끝날 때까지", "Until agents finish": return language.text("에이전트가 끝날 때까지", "Until agents finish")
+        case "계속", "Always": return localized("계속", language)
+        case "에이전트가 끝날 때까지", "Until agents finish": return localized("에이전트가 끝날 때까지", language)
         default: break
         }
         if let match = stored.wholeMatch(of: hours), let count = Int(match.1) {
-            return language.text("\(count)시간", count == 1 ? "1 Hour" : "\(count) Hours")
+            return localized("\(count)시간", language)
         }
         if let match = stored.wholeMatch(of: until) {
             let isTomorrow = match.1 != nil
@@ -273,7 +283,7 @@ public enum History {
             let hour12: Int
             let minute: Int
             if let period = match.2, let h = Int(match.3 ?? ""), let m = Int(match.4 ?? "") {
-                isPM = period == "오후"; hour12 = h; minute = m
+                isPM = period == "오후"; hour12 = h; minute = m  // 번역 안 함: 저장된 한국어 기록을 읽는다
             } else if let h = Int(match.5 ?? ""), let m = Int(match.6 ?? "") {
                 isPM = match.7 == "PM"; hour12 = h; minute = m
             } else {
@@ -287,8 +297,6 @@ public enum History {
 
     /// "오후 4:30까지", "내일 오전 7:00까지" / "Until 4:30 PM", "Until tomorrow 7:00 AM"
     public static func untilText(_ time: String, tomorrow: Bool, language: AppLanguage = Localization.language) -> String {
-        language == .korean
-            ? (tomorrow ? "내일 " : "") + "\(time)까지"
-            : "Until " + (tomorrow ? "tomorrow " : "") + time
+        tomorrow ? localized("내일 \(time)까지", language) : localized("\(time)까지", language)
     }
 }

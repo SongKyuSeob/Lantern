@@ -13,7 +13,7 @@ import Foundation
 /// 이름 있는 스크립트 파일을 실행한다 ("sh"로 보이면 사용자가 무엇인지 알 수 없다)
 public enum LidModeWatchdog {
     public static let label = "com.songkyuseob.lantern.watchdog"
-    public static let scriptName = "랜턴 뚜껑 모드 감시"
+    public static let scriptName = "랜턴 뚜껑 모드 감시"  // 번역 안 함: 파일 이름 (바꾸면 예전 파일 정리가 필요)
     /// 랜턴이 살아 있는지 확인하는 간격(초)
     public static let checkInterval = 5
 

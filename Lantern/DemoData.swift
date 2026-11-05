@@ -19,18 +19,18 @@ enum DemoData {
         let now = Date()
 
         let open = [
-            L("로그인 화면 리팩터링", "Refactor the login screen"), L("PR 리뷰 반영하기", "Address PR review comments"),
-            L("위젯 다크 모드 확인", "Check widget dark mode"), L("릴리스 노트 쓰기", "Write release notes"), L("온보딩 문구 다듬기", "Polish onboarding copy"),
+            String(localized: "로그인 화면 리팩터링"), String(localized: "PR 리뷰 반영하기"),
+            String(localized: "위젯 다크 모드 확인"), String(localized: "릴리스 노트 쓰기"), String(localized: "온보딩 문구 다듬기"),
         ]
         for (index, title) in open.enumerated() {
             let item = TodoItem(title: title, order: Double(index + 1), createdAt: now.addingTimeInterval(-3600 * Double(5 - index)))
-            if index == 0 { item.note = L("토큰 갱신 로직은 그대로 두고\nUI만 먼저 나누기", "Keep the token refresh logic as is\nSplit up the UI first") }
+            if index == 0 { item.note = String(localized: "토큰 갱신 로직은 그대로 두고\nUI만 먼저 나누기") }
             // 기한: 하나는 내일(임박), 하나는 다음 주
             if index == 2 { item.dueDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) }
             if index == 3 { item.dueDate = calendar.date(byAdding: .day, value: 8, to: calendar.startOfDay(for: now)) }
             context.insert(item)
         }
-        for (offset, title) in [(40, L("크래시 로그 확인", "Look into crash logs")), (95, L("디자인 QA 피드백 정리", "Sort out design QA feedback"))] {
+        for (offset, title) in [(40, String(localized: "크래시 로그 확인")), (95, String(localized: "디자인 QA 피드백 정리"))] {
             let item = TodoItem(title: title, order: 0, createdAt: now.addingTimeInterval(-86_400))
             item.isDone = true
             item.completedAt = now.addingTimeInterval(-60 * Double(offset))
@@ -39,10 +39,7 @@ enum DemoData {
 
         // 지난 기록: 날마다 끝낸 일·깨어 있기를 조금씩 (같은 결과가 나오게 고정된 난수)
         var random = SeededRandom(seed: 7)
-        let pastTitles = L(
-            "API 응답 캐싱|단위 테스트 보강|접근성 라벨 점검|빌드 설정 정리|푸시 알림 문구 수정|메모리 누수 확인|설정 화면 개편|앱스토어 스크린샷 교체|오프라인 모드 점검|로그 정리",
-            "Cache API responses|Add more unit tests|Review accessibility labels|Clean up build settings|Fix push notification copy|Check for memory leaks|Redesign the settings screen|Replace App Store screenshots|Test offline mode|Clean up logs"
-        ).split(separator: "|").map(String.init)
+        let pastTitles = String(localized: "API 응답 캐싱|단위 테스트 보강|접근성 라벨 점검|빌드 설정 정리|푸시 알림 문구 수정|메모리 누수 확인|설정 화면 개편|앱스토어 스크린샷 교체|오프라인 모드 점검|로그 정리").split(separator: "|").map(String.init)
         let today = calendar.startOfDay(for: now)
         for daysAgo in 1...300 {
             guard let day = calendar.date(byAdding: .day, value: -daysAgo, to: today) else { continue }
@@ -67,7 +64,7 @@ enum DemoData {
                 let agent = random.next(upTo: 3) != 0
                 context.insert(AwakeRecord(
                     startedAt: start, endedAt: start.addingTimeInterval(3600 * hours),
-                    optionLabel: agent ? "에이전트가 끝날 때까지" : "2시간",
+                    optionLabel: agent ? "에이전트가 끝날 때까지" : "2시간",  // 번역 안 함: 예전 한국어 기록을 흉내 낸다
                     endReason: agent ? .agentsFinished : .timeElapsed,
                     usedLidMode: agent && random.next(upTo: 2) == 0
                 ))

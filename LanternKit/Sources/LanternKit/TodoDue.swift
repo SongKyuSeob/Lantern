@@ -45,10 +45,10 @@ public enum TodoDue {
     ) -> String {
         let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: dueDate)).day ?? 0
         switch days {
-        case 0: return language.text("오늘", "Today")
-        case 1: return language.text("내일", "Tomorrow")
-        case ..<0: return language.text("\(-days)일 지남", -days == 1 ? "1 day overdue" : "\(-days) days overdue")
-        default: return language.text("\(days)일 남음", "\(days) days left")
+        case 0: return localized("오늘", language)
+        case 1: return localized("내일", language)
+        case ..<0: return localized("\(-days)일 지남", language)
+        default: return localized("\(days)일 남음", language)
         }
     }
 
@@ -69,9 +69,9 @@ public enum TodoDue {
     /// 설정 선택지 이름: "당일", "1일 전", "1주 전" / "On the due date", "1 day before", "1 week before"
     public static func soonDaysTitle(_ days: Int, language: AppLanguage = Localization.language) -> String {
         switch days {
-        case 0: language.text("당일", "On the due date")
-        case 7: language.text("1주 전", "1 week before")
-        default: language.text("\(days)일 전", days == 1 ? "1 day before" : "\(days) days before")
+        case 0: localized("당일", language)
+        case 7: localized("1주 전", language)
+        default: localized("\(days)일 전", language)
         }
     }
 }

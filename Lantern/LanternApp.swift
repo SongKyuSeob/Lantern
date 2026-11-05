@@ -14,7 +14,7 @@ struct LanternApp: App {
         }
         .commands {
             CommandGroup(replacing: .appSettings) {
-                Button(L("설정…", "Settings…")) { appDelegate.showSettings() }
+                Button(String(localized: "설정…")) { appDelegate.showSettings() }
                     .keyboardShortcut(",")
             }
         }
@@ -123,7 +123,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     #if DEBUG
-    /// 디버그 빌드에서만: 한국어·영어로 주요 화면을 PNG로 저장한다. `LANTERN_RENDER=<폴더>`로 켜면 그리고 바로 끈다.
+    /// 디버그 빌드에서만: 지금 언어로 주요 화면을 PNG로 저장한다 (`<폴더>/<언어>`). `LANTERN_RENDER=<폴더>`로 켜면 그리고 바로 끈다.
     /// 창을 화면에 띄우지 않아 포커스를 가져가지 않고, 실제 할 일 대신 시연 데이터를 쓴다
     private func renderSnapshots(to directory: String) {
         let defaults = UserDefaults.standard
@@ -133,8 +133,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 그림용 창 상태는 실제 설정에 남지 않게 따로 둔다
         let scratchDomain = "com.songkyuseob.lantern.render"
         let scratch = UserDefaults(suiteName: scratchDomain) ?? .standard
-        for language in AppLanguage.allCases {
-            Localization.language = language
+        // 문구는 앱을 켤 때 고른 언어로 정해지므로, 언어마다 따로 실행한다 (`-AppleLanguages "(en)"`)
+        for language in [Localization.language] {
             let folder = URL(fileURLWithPath: directory).appending(path: language.rawValue)
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let store = DemoData.makeStore()
@@ -277,7 +277,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 못 연 파일은 지우지 않고 이름을 바꿔 보관한다 (SwiftData는 -shm, -wal 파일도 함께 쓴다)
         let stamp = Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: false))
             .replacingOccurrences(of: ":", with: "")
-        let keptName = L("todos-열지 못함-\(stamp).store", "todos-unreadable-\(stamp).store")
+        let keptName = String(localized: "todos-열지 못함-\(stamp).store")
         for suffix in ["", "-shm", "-wal"] {
             let source = directory.appending(path: "todos.store\(suffix)")
             guard manager.fileExists(atPath: source.path) else { continue }
@@ -285,11 +285,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if let container = try? TodoStore.makeContainer(url: url) {
             return (TodoStore(container: container),
-                    L("할 일 저장 파일을 열 수 없어서 새로 만들었어요. 원래 파일은 Application Support/Lantern 폴더에 \"\(keptName)\"로 보관했어요.",
-                      "Couldn't open your to-do file, so Lantern created a new one. The original was kept as \"\(keptName)\" in the Application Support/Lantern folder."))
+                    String(localized: "할 일 저장 파일을 열 수 없어서 새로 만들었어요. 원래 파일은 Application Support/Lantern 폴더에 \"\(keptName)\"로 보관했어요."))
         }
         let memory = TodoStore(container: try! TodoStore.makeContainer(url: nil))
-        return (memory, L("할 일 저장 파일을 열 수 없어요. 이번에 적는 할 일은 랜턴을 끄면 사라져요.", "Couldn't open your to-do file. To-dos you add now will be lost when you quit Lantern."))
+        return (memory, String(localized: "할 일 저장 파일을 열 수 없어요. 이번에 적는 할 일은 랜턴을 끄면 사라져요."))
     }
 
     func showSettings() {
@@ -298,7 +297,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private static func notify(_ body: String) {
         let content = UNMutableNotificationContent()
-        content.title = L("랜턴", "Lantern")
+        content.title = String(localized: "랜턴")
         content.body = body
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }

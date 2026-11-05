@@ -97,13 +97,10 @@ final class UpdateController: NSObject {
     /// 깨어 있는 동안 재시작하기 전에 묻는다. 지금 설치하면 true
     private func confirmInstallWhileAwake() -> Bool {
         let alert = NSAlert()
-        alert.messageText = L("지금 설치할까요?", "Install now?")
-        alert.informativeText = L(
-            "설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요. \"끝난 뒤 설치\"를 고르면 깨어 있기가 끝날 때 저절로 설치해요.",
-            "Installing restarts Lantern and ends your Keep Awake session. Choose Install Later to install automatically when the session ends."
-        )
-        alert.addButton(withTitle: L("끝난 뒤 설치", "Install Later"))
-        alert.addButton(withTitle: L("지금 설치", "Install Now"))
+        alert.messageText = String(localized: "지금 설치할까요?")
+        alert.informativeText = String(localized: "설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요. \"끝난 뒤 설치\"를 고르면 깨어 있기가 끝날 때 저절로 설치해요.")
+        alert.addButton(withTitle: String(localized: "끝난 뒤 설치"))
+        alert.addButton(withTitle: String(localized: "지금 설치"))
         NSApp.activate()
         return alert.runModal() == .alertSecondButtonReturn
     }
@@ -111,13 +108,10 @@ final class UpdateController: NSObject {
     /// 깨어 있기가 끝나길 기다리는 설치를 지금 할지 묻는다. 지금 설치하면 true
     private func confirmInstallNow() -> Bool {
         let alert = NSAlert()
-        alert.messageText = L("지금 설치할까요?", "Install now?")
-        alert.informativeText = L(
-            "깨어 있기가 끝나면 \(availableVersion ?? "새 버전")을 설치하려고 기다리는 중이에요. 지금 설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요.",
-            "Lantern will install \(availableVersion ?? "the new version") when your Keep Awake session ends. Installing now restarts Lantern and ends the session."
-        )
-        alert.addButton(withTitle: L("그대로 두기", "Keep Waiting"))
-        alert.addButton(withTitle: L("지금 설치", "Install Now"))
+        alert.messageText = String(localized: "지금 설치할까요?")
+        alert.informativeText = String(localized: "깨어 있기가 끝나면 \(availableVersion ?? String(localized: "새 버전"))을 설치하려고 기다리는 중이에요. 지금 설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요.")
+        alert.addButton(withTitle: String(localized: "그대로 두기"))
+        alert.addButton(withTitle: String(localized: "지금 설치"))
         NSApp.activate()
         return alert.runModal() == .alertSecondButtonReturn
     }

@@ -5,17 +5,17 @@ import LanternKit
 enum AwakeText {
     static func label(for option: AwakeOption) -> String {
         switch option {
-        case .indefinite: L("계속", "Always")
-        case .hours(let hours): L("\(hours)시간", hours == 1 ? "1 Hour" : "\(hours) Hours")
+        case .indefinite: String(localized: "계속")
+        case .hours(let hours): String(localized: "\(hours)시간")
         case .timeOfDay(let hour, let minute): History.untilText(clock(hour: hour, minute: minute), tomorrow: false)
-        case .untilAgentsFinish: L("에이전트가 끝날 때까지", "Until agents finish")
+        case .untilAgentsFinish: String(localized: "에이전트가 끝날 때까지")
         }
     }
 
     /// 세그먼트·버튼에 쓰는 짧은 이름: "에이전트", "오후 4:30" / "Agents", "4:30 PM"
     static func shortLabel(for option: AwakeOption) -> String {
         switch option {
-        case .untilAgentsFinish: L("에이전트", "Agents")
+        case .untilAgentsFinish: String(localized: "에이전트")
         case .timeOfDay(let hour, let minute): clock(hour: hour, minute: minute)
         default: label(for: option)
         }
@@ -35,13 +35,13 @@ enum AwakeText {
 
     /// 연장 버튼에서 고르는 시간
     static var extensions: [(label: String, interval: TimeInterval)] {
-        [(L("30분 더", "+30 Minutes"), 30 * 60), (L("1시간 더", "+1 Hour"), 3600), (L("2시간 더", "+2 Hours"), 2 * 3600)]
+        [(String(localized: "30분 더"), 30 * 60), (String(localized: "1시간 더"), 3600), (String(localized: "2시간 더"), 2 * 3600)]
     }
 
     /// "오전 7시", "오후 12시" / "7 AM", "12 PM"
     static func hourLabel(_ hour: Int) -> String {
-        let hour12 = hour % 12 == 0 ? 12 : hour % 12
-        return L("\(hour < 12 ? "오전" : "오후") \(hour12)시", "\(hour12) \(hour < 12 ? "AM" : "PM")")
+        let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) ?? Date()
+        return date.formatted(Date.FormatStyle(locale: Localization.locale).hour(.defaultDigits(amPM: .abbreviated)))
     }
 
     /// "오전 7:00", "오후 12:30" / "7:00 AM", "12:30 PM"
@@ -53,11 +53,11 @@ enum AwakeText {
     static func lidClose(_ outcome: LidCloseOutcome) -> (staysAwake: Bool, value: String, detail: String)? {
         switch outcome {
         case .noLid: nil
-        case .staysAwake(.clamshell): (true, L("유지됨", "Stays awake"), L("전원 · 외장 모니터 연결됨", "Plugged in · External display connected"))
-        case .staysAwake(.lidMode): (true, L("유지됨", "Stays awake"), L("뚜껑 모드", "Closed-Lid Mode"))
-        case .sleeps(.noExternalDisplay): (false, L("잠듦", "Sleeps"), L("외장 모니터 없음", "No external display"))
-        case .sleeps(.noPower): (false, L("잠듦", "Sleeps"), L("전원 어댑터 연결 안 됨", "Not plugged in"))
-        case .sleeps(.noPowerAndNoExternalDisplay): (false, L("잠듦", "Sleeps"), L("전원 어댑터 · 외장 모니터 없음", "Not plugged in · No external display"))
+        case .staysAwake(.clamshell): (true, String(localized: "유지됨"), String(localized: "전원 · 외장 모니터 연결됨"))
+        case .staysAwake(.lidMode): (true, String(localized: "유지됨"), String(localized: "뚜껑 모드"))
+        case .sleeps(.noExternalDisplay): (false, String(localized: "잠듦"), String(localized: "외장 모니터 없음"))
+        case .sleeps(.noPower): (false, String(localized: "잠듦"), String(localized: "전원 어댑터 연결 안 됨"))
+        case .sleeps(.noPowerAndNoExternalDisplay): (false, String(localized: "잠듦"), String(localized: "전원 어댑터 · 외장 모니터 없음"))
         }
     }
 }

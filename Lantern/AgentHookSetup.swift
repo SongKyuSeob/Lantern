@@ -79,9 +79,9 @@ final class AgentHookSetup {
             // 키 순서와 모양을 지켜, 랜턴 hook 말고는 파일이 바뀌지 않게 쓴다
             try Data(change(root).formatted().utf8).write(to: URL(fileURLWithPath: path), options: .atomic)
         } catch ConfigError.unreadable {
-            lastError = L("\(agent.displayName) 설정 파일을 읽을 수 없어서 건드리지 않았어요. 파일 내용을 확인해 주세요.", "Couldn't read the \(agent.displayName) settings file, so Lantern left it alone. Check the file's contents.")
+            lastError = String(localized: "\(agent.displayName) 설정 파일을 읽을 수 없어서 건드리지 않았어요. 파일 내용을 확인해 주세요.")
         } catch {
-            lastError = L("\(agent.displayName) 설정을 바꾸지 못했어요.", "Couldn't update the \(agent.displayName) settings.") + " \(error.localizedDescription)"
+            lastError = String(localized: "\(agent.displayName) 설정을 바꾸지 못했어요.") + " \(error.localizedDescription)"
         }
         refresh()
     }

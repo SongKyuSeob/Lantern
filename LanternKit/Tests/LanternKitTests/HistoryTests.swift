@@ -171,8 +171,8 @@ struct HistoryMarkdownTests {
         ### Removed
         - [ ] ~~안 할 일~~
 
-        ### Keep Awake · 2 hr 5 min
-        - 1:05 PM – 3:10 PM (2 hr 5 min) · 2 Hours · Closed-Lid Mode
+        ### Keep Awake · 2 hr, 5 min
+        - 1:05\u{202F}PM – 3:10\u{202F}PM (2 hr, 5 min) · 2 Hours · Closed-Lid Mode
 
         """)
     }
@@ -182,8 +182,9 @@ struct HistoryMarkdownTests {
         ("1 Hour", .korean, "1시간"),
         ("계속", .english, "Always"),
         ("에이전트가 끝날 때까지", .english, "Until agents finish"),
-        ("오후 4:30까지", .english, "Until 4:30 PM"),
-        ("내일 오전 7:00까지", .english, "Until tomorrow 7:00 AM"),
+        // 시스템 시각 형식은 시각과 AM/PM 사이에 좁은 공백(U+202F)을 쓴다
+        ("오후 4:30까지", .english, "Until 4:30\u{202F}PM"),
+        ("내일 오전 7:00까지", .english, "Until tomorrow 7:00\u{202F}AM"),
         ("Until 12:15 AM", .korean, "오전 12:15까지"),
         ("이상한 이름", .english, "이상한 이름"),
     ])

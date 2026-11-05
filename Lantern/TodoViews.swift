@@ -39,7 +39,7 @@ struct TodoTab: View {
         VStack(alignment: .leading, spacing: 8) {
             addField
             if openItems.isEmpty && doneItems.isEmpty {
-                Text(L("적어 둔 할 일은 평소 창에 위에서 세 개까지 보여요", "The top three to-dos show in the summary window"))
+                Text(String(localized: "적어 둔 할 일은 평소 창에 위에서 세 개까지 보여요"))
                     .font(.system(size: 11.5))
                     .foregroundStyle(.white.opacity(0.4))
                     .padding(.horizontal, 2)
@@ -49,11 +49,11 @@ struct TodoTab: View {
             }
             HStack {
                 Spacer()
-                Button(L("기록 ›", "History ›"), action: openHistory)
+                Button(String(localized: "기록 ›"), action: openHistory)
                     .buttonStyle(.plain)
                     .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.white.opacity(0.5))
-                    .help(L("지금까지 끝낸 일 · 지운 일 · 깨어 있기를 날짜별로 봐요", "See completed and removed to-dos and Keep Awake sessions by date"))
+                    .help(String(localized: "지금까지 끝낸 일 · 지운 일 · 깨어 있기를 날짜별로 봐요"))
             }
             .padding(.horizontal, 2)
         }
@@ -71,7 +71,7 @@ struct TodoTab: View {
             Image(systemName: "plus")
                 .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(.white.opacity(0.45))
-            TextField(L("할 일 추가", "Add a to-do"), text: $state.todoDraft)
+            TextField(String(localized: "할 일 추가"), text: $state.todoDraft)
                 .textFieldStyle(.plain)
                 .font(.system(size: 12.5))
                 .focused($isAdding)
@@ -136,11 +136,11 @@ struct TodoTab: View {
 
     private var doneHeader: some View {
         HStack {
-            Text(L("완료 \(doneItems.count)", "Done \(doneItems.count)"))
+            Text(String(localized: "완료 \(doneItems.count)"))
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.white.opacity(0.4))
             Spacer()
-            Button(L("지우기", "Clear")) { store.clearDone() }
+            Button(String(localized: "todo.clearDone", defaultValue: "지우기", comment: "완료 묶음을 치우는 버튼")) { store.clearDone() }
                 .buttonStyle(.plain)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Theme.primaryLight)
@@ -241,7 +241,7 @@ private struct TodoRow: View {
                         .padding(.horizontal, -3.5)
                 }
                 .buttonStyle(.plain)
-                .help(item.isDone ? L("되돌리기", "Mark as Not Done") : L("끝내기", "Mark as Done"))
+                .help(item.isDone ? String(localized: "되돌리기") : String(localized: "끝내기"))
 
                 // 메모 표시는 제목 바로 뒤에 붙여, 마우스를 올려 ×가 나타나도 자리가 바뀌지 않게 한다
                 HStack(alignment: .top, spacing: 3) {
@@ -265,7 +265,7 @@ private struct TodoRow: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .help(L("지우기 (기록에는 남아요)", "Remove (stays in History)"))
+                    .help(String(localized: "지우기 (기록에는 남아요)"))
                 }
             }
             if isExpanded {
@@ -306,18 +306,18 @@ private struct TodoRow: View {
         .onHover { isHovering = $0 }
         .contextMenu {
             // 메뉴가 닫힐 때 창이 첫 입력 칸("할 일 추가")에 포커스를 돌려주므로, 그 뒤에 입력 칸을 연다
-            Button(item.note.isEmpty ? L("메모 추가…", "Add Note…") : L("메모 편집…", "Edit Note…")) {
+            Button(item.note.isEmpty ? String(localized: "메모 추가…") : String(localized: "메모 편집…")) {
                 afterMenuCloses { noteEditingID = item.id }
             }
-            Button(item.dueDate == nil ? L("기한 정하기…", "Set Due Date…") : L("기한 바꾸기…", "Change Due Date…")) {
+            Button(item.dueDate == nil ? String(localized: "기한 정하기…") : String(localized: "기한 바꾸기…")) {
                 afterMenuCloses { dueEditingID = item.id }
             }
             if item.dueDate != nil {
-                Button(L("기한 없애기", "Remove Due Date")) { store.setDueDate(item, to: nil) }
+                Button(String(localized: "기한 없애기")) { store.setDueDate(item, to: nil) }
             }
-            Button(L("이름 바꾸기", "Rename")) { afterMenuCloses { editingID = item.id } }
+            Button(String(localized: "이름 바꾸기")) { afterMenuCloses { editingID = item.id } }
             Divider()
-            Button(L("지우기", "Remove")) { store.hide(item) }
+            Button(String(localized: "지우기")) { store.hide(item) }
         }
     }
 
@@ -368,7 +368,7 @@ private struct TodoRow: View {
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help(isExpanded ? L("메모 접기", "Hide Note") : L("메모 보기", "Show Note"))
+        .help(isExpanded ? String(localized: "메모 접기") : String(localized: "메모 보기"))
     }
 
     /// 펼친 메모 (읽기 전용, 글자는 골라 복사할 수 있다). 끝의 "편집"으로 말풍선을 띄운다
@@ -379,7 +379,7 @@ private struct TodoRow: View {
                 .foregroundStyle(.white.opacity(0.62))
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
-            Button(L("편집", "Edit")) { noteEditingID = item.id }
+            Button(String(localized: "편집")) { noteEditingID = item.id }
                 .buttonStyle(.plain)
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Theme.primaryLight)
@@ -395,7 +395,7 @@ private struct TodoRow: View {
             .monospacedDigit()
             .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flame) : AnyShapeStyle(.white.opacity(item.isDone ? 0.25 : 0.4)))
             .frame(height: TodoTab.rowHeight)
-            .help(L("기한 ", "Due ") + History.dateTitle(dueDate))
+            .help(String(localized: "기한 ") + History.dateTitle(dueDate))
     }
 
     @ViewBuilder
@@ -501,7 +501,7 @@ struct CollapsedTodoCount: View {
 
     var body: some View {
         if !openItems.isEmpty {
-            Text(L("할 일 \(openItems.count)", openItems.count == 1 ? "1 to-do" : "\(openItems.count) to-dos"))
+            Text(String(localized: "할 일 \(openItems.count)"))
                 .font(.system(size: 11.5, weight: .medium))
                 .foregroundStyle(.white.opacity(0.6))
                 .monospacedDigit()

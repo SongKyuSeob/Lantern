@@ -17,7 +17,7 @@ final class HistoryWindowController {
             let host = NSHostingController(rootView: HistoryView().modelContainer(todoStore.container))
             host.sizingOptions = []
             let window = NSWindow(contentViewController: host)
-            window.title = L("랜턴 기록", "Lantern History")
+            window.title = String(localized: "랜턴 기록")
             window.styleMask = [.titled, .closable, .resizable, .miniaturizable]
             window.setContentSize(NSSize(width: 740, height: 640))
             window.contentMinSize = NSSize(width: 740, height: 480)
@@ -76,25 +76,25 @@ struct HistoryView: View {
         let grid = History.grid(year: year)
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 12) {
-                Text(L("기록", "History"))
+                Text(String(localized: "기록"))
                     .font(.title2.weight(.semibold))
                 Spacer()
                 HStack(spacing: 4) {
                     Button { year -= 1 } label: { Image(systemName: "chevron.left") }
                         .disabled(year <= earliest)
-                        .help(L("이전 해", "Previous Year"))
+                        .help(String(localized: "이전 해"))
                     Text(verbatim: "\(year)")
                         .font(.headline)
                         .monospacedDigit()
                         .frame(minWidth: 44)
                     Button { year += 1 } label: { Image(systemName: "chevron.right") }
                         .disabled(year >= thisYear)
-                        .help(L("다음 해", "Next Year"))
+                        .help(String(localized: "다음 해"))
                 }
                 .buttonStyle(.borderless)
-                Picker(L("잔디 기준", "Color by"), selection: $metric) {
-                    Text(L("끝낸 할 일", "Completed To-dos")).tag(HistoryMetric.todos)
-                    Text(L("깨어 있기", "Time Awake")).tag(HistoryMetric.awake)
+                Picker(String(localized: "잔디 기준"), selection: $metric) {
+                    Text(String(localized: "끝낸 할 일")).tag(HistoryMetric.todos)
+                    Text(String(localized: "history.metric.awake", defaultValue: "깨어 있기", comment: "잔디 기준: 깨어 있던 시간")).tag(HistoryMetric.awake)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
@@ -122,15 +122,15 @@ struct HistoryView: View {
         let completed = inRange.reduce(0) { $0 + $1.completed.count }
         let awake = inRange.reduce(0) { $0 + $1.awakeDuration }
         return HStack(spacing: 6) {
-            Text(verbatim: L("\(year)년 · 끝낸 일 \(completed)개 · 깨어 있기 \(History.durationText(awake))", "\(year) · \(completed) completed · \(History.durationText(awake)) awake"))
+            Text(verbatim: String(localized: "\(year)년 · 끝낸 일 \(completed)개 · 깨어 있기 \(History.durationText(awake))"))
             Spacer()
-            Text(L("적음", "Less"))
+            Text(String(localized: "적음"))
             ForEach(0..<5) { level in
                 RoundedRectangle(cornerRadius: 2.5)
                     .fill(HistoryGrid.color(level: level))
                     .frame(width: 11, height: 11)
             }
-            Text(L("많음", "More"))
+            Text(String(localized: "많음"))
         }
         .font(.caption)
         .foregroundStyle(.secondary)
@@ -138,22 +138,22 @@ struct HistoryView: View {
 
     private func detailHeader(_ days: [Date: HistoryDay]) -> some View {
         HStack(spacing: 10) {
-            Text(search.isEmpty ? History.dateTitle(selectedDay) : L("검색 결과", "Search Results"))
+            Text(search.isEmpty ? History.dateTitle(selectedDay) : String(localized: "검색 결과"))
                 .font(.headline)
             Spacer()
-            Picker(L("보기", "Show"), selection: $filter) {
-                Text(L("전체", "All")).tag(HistoryFilter.all)
-                Text(L("끝낸 일", "Completed")).tag(HistoryFilter.completed)
-                Text(L("지운 일", "Removed")).tag(HistoryFilter.removed)
+            Picker(String(localized: "보기"), selection: $filter) {
+                Text(String(localized: "전체")).tag(HistoryFilter.all)
+                Text(String(localized: "끝낸 일")).tag(HistoryFilter.completed)
+                Text(String(localized: "지운 일")).tag(HistoryFilter.removed)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
             .fixedSize()
-            TextField(L("할 일 검색", "Search To-dos"), text: $search)
+            TextField(String(localized: "할 일 검색"), text: $search)
                 .textFieldStyle(.roundedBorder)
                 // 영어는 버튼 글자가 길어서, 자리가 모자라면 검색 칸이 먼저 줄어든다
                 .frame(minWidth: 110, maxWidth: 150)
-            Button(copied ? L("복사했어요", "Copied") : L("Markdown 복사", "Copy as Markdown")) {
+            Button(copied ? String(localized: "복사했어요") : String(localized: "Markdown 복사")) {
                 guard let day = days[selectedDay] else { return }
                 NSPasteboard.general.clearContents()
                 NSPasteboard.general.setString(History.markdown(for: day, filter: filter), forType: .string)
@@ -162,7 +162,7 @@ struct HistoryView: View {
             }
             .fixedSize()
             .disabled(days[selectedDay] == nil || !search.isEmpty)
-            .help(L("고른 날의 기록을 Obsidian·Notion에 붙여 넣을 수 있는 체크리스트로 복사해요", "Copy the selected day as a checklist you can paste into Obsidian or Notion"))
+            .help(String(localized: "고른 날의 기록을 Obsidian·Notion에 붙여 넣을 수 있는 체크리스트로 복사해요"))
         }
     }
 
@@ -175,7 +175,7 @@ struct HistoryView: View {
             .sorted { $0.day > $1.day }
         return VStack(alignment: .leading, spacing: 16) {
             if matched.isEmpty {
-                Text(L("\"\(query)\"이(가) 들어간 할 일이 없어요", "No to-dos match \"\(query)\""))
+                Text(String(localized: "\"\(query)\"이(가) 들어간 할 일이 없어요"))
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -237,21 +237,21 @@ private struct HistoryGrid: View {
     private var weekdayLabels: some View {
         VStack(alignment: .trailing, spacing: Self.gap) {
             Text(" ").font(.system(size: 9)).frame(height: 12)
-            ForEach(Array(L("일 월 화 수 목 금 토", "Sun Mon Tue Wed Thu Fri Sat").split(separator: " ").enumerated()), id: \.offset) { index, name in
+            ForEach(Array(History.weekdaySymbols().enumerated()), id: \.offset) { index, name in
                 Text(index % 2 == 1 ? String(name) : "")
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
                     .frame(height: Self.cell)
             }
         }
-        .frame(width: Localization.language == .korean ? 14 : 22)
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     /// 그 주에 1일이 들어 있으면 "10월"("Oct")처럼 달을 적는다
     private func monthLabel(_ week: [Date?]) -> some View {
         let calendar = Calendar.current
         let firstOfMonth = week.compactMap { $0 }.first { calendar.component(.day, from: $0) == 1 }
-        let text = firstOfMonth.map { L("\(calendar.component(.month, from: $0))월", $0.formatted(.dateTime.month(.abbreviated).locale(Localization.locale))) } ?? ""
+        let text = firstOfMonth.map { $0.formatted(.dateTime.month(.abbreviated).locale(Localization.locale)) } ?? ""
         return Text(text)
             .font(.system(size: 9))
             .foregroundStyle(.secondary)
@@ -290,9 +290,9 @@ private struct HistoryGrid: View {
 
     private func tooltip(_ date: Date, _ day: HistoryDay?) -> String {
         var parts = [History.dateTitle(date)]
-        parts.append(L("끝낸 일 \(day?.completed.count ?? 0)", "\(day?.completed.count ?? 0) completed"))
-        if let removed = day?.removed.count, removed > 0 { parts.append(L("지운 일 \(removed)", "\(removed) removed")) }
-        if let awake = day?.awakeDuration, awake > 0 { parts.append(L("깨어 있기 \(History.durationText(awake))", "\(History.durationText(awake)) awake")) }
+        parts.append(String(localized: "끝낸 일 \(day?.completed.count ?? 0)"))
+        if let removed = day?.removed.count, removed > 0 { parts.append(String(localized: "지운 일 \(removed)")) }
+        if let awake = day?.awakeDuration, awake > 0 { parts.append(String(localized: "깨어 있기 \(History.durationText(awake))")) }
         return parts.joined(separator: " · ")
     }
 }
@@ -307,28 +307,28 @@ private struct HistoryDayDetail: View {
         VStack(alignment: .leading, spacing: 14) {
             if let day, !isEmpty(day) {
                 if filter != .removed, !day.completed.isEmpty {
-                    section(L("끝낸 일 \(day.completed.count)", "Completed \(day.completed.count)")) {
+                    section(String(localized: "끝낸 일 \(day.completed.count)")) {
                         ForEach(Array(day.completed.enumerated()), id: \.offset) { _, todo in
                             row(icon: "checkmark.circle.fill", tint: .accentColor, todo: todo, strike: false, time: todo.completedAt)
                         }
                     }
                 }
                 if filter != .completed, !day.removed.isEmpty {
-                    section(L("지운 일 \(day.removed.count)", "Removed \(day.removed.count)")) {
+                    section(String(localized: "지운 일 \(day.removed.count)")) {
                         ForEach(Array(day.removed.enumerated()), id: \.offset) { _, todo in
                             row(icon: "xmark.circle", tint: .secondary, todo: todo, strike: true, time: todo.hiddenAt)
                         }
                     }
                 }
                 if showsAwake, filter == .all, !day.awake.isEmpty {
-                    section(L("깨어 있기", "Keep Awake") + " · \(History.durationText(day.awakeDuration))") {
+                    section(String(localized: "깨어 있기") + " · \(History.durationText(day.awakeDuration))") {
                         ForEach(Array(day.awake.enumerated()), id: \.offset) { _, record in
                             awakeRow(record)
                         }
                     }
                 }
             } else {
-                Text(L("이날은 기록이 없어요", "Nothing recorded on this day"))
+                Text(String(localized: "이날은 기록이 없어요"))
                     .foregroundStyle(.secondary)
             }
         }
@@ -363,7 +363,7 @@ private struct HistoryDayDetail: View {
                         .strikethrough(strike)
                         .foregroundStyle(strike ? .secondary : .primary)
                     if let dueDate = todo.dueDate {
-                        Text(L("기한 ", "Due ") + TodoDue.label(dueDate, now: Date()))
+                        Text(String(localized: "기한 ") + TodoDue.label(dueDate, now: Date()))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -389,12 +389,12 @@ private struct HistoryDayDetail: View {
         HStack(spacing: 8) {
             Image(systemName: record.usedLidMode ? "flame.fill" : "flame")
                 .foregroundStyle(.orange)
-            Text(History.clock(record.startedAt) + L(" ~ ", " – ") + History.clock(record.endedAt))
+            Text(History.timeRange(record.startedAt, record.endedAt))
                 .monospacedDigit()
             Text(History.durationText(record.duration))
                 .foregroundStyle(.secondary)
             Spacer()
-            Text([History.optionLabel(record.optionLabel), record.usedLidMode ? L("뚜껑 닫아도 유지", "Closed-Lid Mode") : nil].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "))
+            Text([History.optionLabel(record.optionLabel), record.usedLidMode ? String(localized: "뚜껑 닫아도 유지") : nil].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · "))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

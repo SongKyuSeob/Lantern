@@ -100,8 +100,8 @@ enum ShortcutAction: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .toggle: L("창 열기·닫기", "Open or close window")
-        case .hide: L("창 숨기기·보이기", "Hide or show window")
+        case .toggle: String(localized: "창 열기·닫기")
+        case .hide: String(localized: "창 숨기기·보이기")
         }
     }
 

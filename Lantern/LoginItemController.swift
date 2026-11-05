@@ -63,7 +63,7 @@ final class LoginItemController {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            lastError = (enabled ? L("로그인 항목에 넣지 못했어요.", "Couldn't add Lantern to Login Items.") : L("로그인 항목에서 빼지 못했어요.", "Couldn't remove Lantern from Login Items.")) + " \(error.localizedDescription)"
+            lastError = (enabled ? String(localized: "로그인 항목에 넣지 못했어요.") : String(localized: "로그인 항목에서 빼지 못했어요.")) + " \(error.localizedDescription)"
         }
         refresh()
     }

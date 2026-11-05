@@ -1,0 +1,3642 @@
+{
+  "sourceLanguage": "ko",
+  "strings": {
+    "": {
+      "shouldTranslate": false
+    },
+    " ": {
+      "shouldTranslate": false
+    },
+    " · %@": {
+      "shouldTranslate": false
+    },
+    " · 지금 닫아도 ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · Closing the lid: "
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · 지금 닫아도 "
+          }
+        }
+      }
+    },
+    " · 지금 닫으면 ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · Closing the lid: "
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · 지금 닫으면 "
+          }
+        }
+      }
+    },
+    " 남음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " left"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " 남음"
+          }
+        }
+      }
+    },
+    " 뚜껑이 닫혀 있어 맥을 재울게요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " The lid is closed, so your Mac will go to sleep."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " 뚜껑이 닫혀 있어 맥을 재울게요."
+          }
+        }
+      }
+    },
+    "\"%@\"이(가) 들어간 할 일이 없어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No to-dos match \"%@\""
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"%@\"이(가) 들어간 할 일이 없어요"
+          }
+        }
+      }
+    },
+    "%02d분": {
+      "comment": "시각 고르기의 분 칸",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ":%02d"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%02d분"
+          }
+        }
+      }
+    },
+    "%@ %lld개": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ %lld"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ %2$lld개"
+          }
+        }
+      }
+    },
+    "%@ · %@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ · %2$@"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "%@ 단축키를 등록하지 못했어요. 다른 조합으로 바꿔 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't register the shortcut for %@. Try a different combination."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 단축키를 등록하지 못했어요. 다른 조합으로 바꿔 주세요."
+          }
+        }
+      }
+    },
+    "%@ 설정 파일을 읽을 수 없어서 건드리지 않았어요. 파일 내용을 확인해 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read the %@ settings file, so Lantern left it alone. Check the file's contents."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 설정 파일을 읽을 수 없어서 건드리지 않았어요. 파일 내용을 확인해 주세요."
+          }
+        }
+      }
+    },
+    "%@ 설정을 바꾸지 못했어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't update the %@ settings."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 설정을 바꾸지 못했어요."
+          }
+        }
+      }
+    },
+    "%@ 시작 ›": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start · %@ ›"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 시작 ›"
+          }
+        }
+      }
+    },
+    "%@ 업데이트": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update to %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 업데이트"
+          }
+        }
+      }
+    },
+    "%@ 작업 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Working: %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 작업 중"
+          }
+        }
+      }
+    },
+    "%@%@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@%2$@"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "%@%@%@": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@%2$@%3$@"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "%@는 이미 %@에 쓰고 있어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is already used for %@."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@는 이미 %2$@에 쓰고 있어요."
+          }
+        }
+      }
+    },
+    "%lld": {
+      "shouldTranslate": false
+    },
+    "%lld more": {
+      "shouldTranslate": false
+    },
+    "%lld%%": {
+      "shouldTranslate": false
+    },
+    "%lld년 · 끝낸 일 %lld개 · 깨어 있기 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld · %lld completed · %@ awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld년 · 끝낸 일 %2$lld개 · 깨어 있기 %3$@"
+          }
+        }
+      }
+    },
+    "%lld시간": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Hour"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Hours"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld시간"
+          }
+        }
+      }
+    },
+    "1분 안에 다시 일하면 이어져요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keeps going if an agent starts again within 1 minute"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1분 안에 다시 일하면 이어져요"
+          }
+        }
+      }
+    },
+    "1시간": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 Hour"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1시간"
+          }
+        }
+      }
+    },
+    "1시간 더": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+1 Hour"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1시간 더"
+          }
+        }
+      }
+    },
+    "2시간": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 Hours"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2시간"
+          }
+        }
+      }
+    },
+    "2시간 더": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+2 Hours"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2시간 더"
+          }
+        }
+      }
+    },
+    "30분 더": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "+30 Minutes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30분 더"
+          }
+        }
+      }
+    },
+    "API 응답 캐싱|단위 테스트 보강|접근성 라벨 점검|빌드 설정 정리|푸시 알림 문구 수정|메모리 누수 확인|설정 화면 개편|앱스토어 스크린샷 교체|오프라인 모드 점검|로그 정리": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache API responses|Add more unit tests|Review accessibility labels|Clean up build settings|Fix push notification copy|Check for memory leaks|Redesign the settings screen|Replace App Store screenshots|Test offline mode|Clean up logs"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API 응답 캐싱|단위 테스트 보강|접근성 라벨 점검|빌드 설정 정리|푸시 알림 문구 수정|메모리 누수 확인|설정 화면 개편|앱스토어 스크린샷 교체|오프라인 모드 점검|로그 정리"
+          }
+        }
+      }
+    },
+    "Claude Code·Codex가 보내는 신호로 판단해요.\n· 일하는 에이전트가 모두 끝나면 1분 뒤 깨어 있기를 꺼요\n· 명령이 실행 중이면 신호가 없어도 최대 3시간 기다려요\n· 그 밖에 30분 동안 신호가 없으면 끝난 것으로 봐요 (Esc로 중단한 경우 등)\n· 에이전트 프로그램을 닫으면 바로 끝난 것으로 봐요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern decides based on signals from Claude Code and Codex.\n· When every agent has finished, Keep Awake turns off after 1 minute\n· While a command is running, it waits up to 3 hours, even without signals\n· Otherwise, 30 minutes without a signal counts as done (for example, after you stop a task with Esc)\n· Quitting the agent counts as done right away"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claude Code·Codex가 보내는 신호로 판단해요.\n· 일하는 에이전트가 모두 끝나면 1분 뒤 깨어 있기를 꺼요\n· 명령이 실행 중이면 신호가 없어도 최대 3시간 기다려요\n· 그 밖에 30분 동안 신호가 없으면 끝난 것으로 봐요 (Esc로 중단한 경우 등)\n· 에이전트 프로그램을 닫으면 바로 끝난 것으로 봐요"
+          }
+        }
+      }
+    },
+    "Codex는 연결한 뒤 Codex를 다시 켜서 /hooks에서 랜턴 hook을 한 번 승인해야 동작해요. Claude Code는 처음 여는 폴더를 신뢰해야 hook이 동작해요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For Codex, restart it after connecting and approve the Lantern hook once in /hooks. For Claude Code, the hook works only in folders you've trusted."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codex는 연결한 뒤 Codex를 다시 켜서 /hooks에서 랜턴 hook을 한 번 승인해야 동작해요. Claude Code는 처음 여는 폴더를 신뢰해야 hook이 동작해요."
+          }
+        }
+      }
+    },
+    "Markdown 복사": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy as Markdown"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markdown 복사"
+          }
+        }
+      }
+    },
+    "PR 리뷰 반영하기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address PR review comments"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PR 리뷰 반영하기"
+          }
+        }
+      }
+    },
+    "history.metric.awake": {
+      "comment": "잔디 기준: 깨어 있던 시간",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "깨어 있기"
+          }
+        }
+      }
+    },
+    "tab.awake": {
+      "comment": "펼친 창의 탭 이름",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "깨어 있기"
+          }
+        }
+      }
+    },
+    "todo.clearDone": {
+      "comment": "완료 묶음을 치우는 버튼",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "지우기"
+          }
+        }
+      }
+    },
+    "todos-열지 못함-%@.store": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "todos-unreadable-%@.store"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "todos-열지 못함-%@.store"
+          }
+        }
+      }
+    },
+    "update.pill.pending": {
+      "comment": "펼친 창 업데이트 알약: 깨어 있기가 끝나길 기다리는 중",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Pending"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "끝나면 %@ 설치"
+          }
+        }
+      }
+    },
+    "· %@ 나옴": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· %@ available"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· %@ 나옴"
+          }
+        }
+      }
+    },
+    "⌃ 또는 ⌥와 함께 눌러 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include ⌃ or ⌥ in the shortcut."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌃ 또는 ⌥와 함께 눌러 주세요."
+          }
+        }
+      }
+    },
+    "⌘↩ 저장": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘↩ to save"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌘↩ 저장"
+          }
+        }
+      }
+    },
+    "감시 작업을 등록하지 못해 켜지 않았어요. 시스템 설정 → 일반 → 로그인 항목 및 확장 프로그램에서 \"%@\"가 허용돼 있는지 확인해 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern couldn't register its watchdog, so Closed-Lid Mode stayed off. Make sure \"%@\" is allowed in System Settings → General → Login Items & Extensions."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "감시 작업을 등록하지 못해 켜지 않았어요. 시스템 설정 → 일반 → 로그인 항목 및 확장 프로그램에서 \"%@\"가 허용돼 있는지 확인해 주세요."
+          }
+        }
+      }
+    },
+    "검색 결과": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Results"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "검색 결과"
+          }
+        }
+      }
+    },
+    "계속": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계속"
+          }
+        }
+      }
+    },
+    "고른 날의 기록을 Obsidian·Notion에 붙여 넣을 수 있는 체크리스트로 복사해요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the selected day as a checklist you can paste into Obsidian or Notion"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "고른 날의 기록을 Obsidian·Notion에 붙여 넣을 수 있는 체크리스트로 복사해요"
+          }
+        }
+      }
+    },
+    "곧 꺼짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ending soon"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "곧 꺼짐"
+          }
+        }
+      }
+    },
+    "권한": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "권한"
+          }
+        }
+      }
+    },
+    "권한 설치는 설정 창에서 해요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up the permission in Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "권한 설치는 설정 창에서 해요"
+          }
+        }
+      }
+    },
+    "그대로 두기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Waiting"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "그대로 두기"
+          }
+        }
+      }
+    },
+    "기다리는 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기다리는 중"
+          }
+        }
+      }
+    },
+    "기록": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록"
+          }
+        }
+      }
+    },
+    "기록 ›": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History ›"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록 ›"
+          }
+        }
+      }
+    },
+    "기록 보기…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show History…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록 보기…"
+          }
+        }
+      }
+    },
+    "기본값": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기본값"
+          }
+        }
+      }
+    },
+    "기한 ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Due "
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기한 "
+          }
+        }
+      }
+    },
+    "기한 바꾸기…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Due Date…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기한 바꾸기…"
+          }
+        }
+      }
+    },
+    "기한 없애기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Due Date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기한 없애기"
+          }
+        }
+      }
+    },
+    "기한 임박 표시": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Highlight as due soon"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기한 임박 표시"
+          }
+        }
+      }
+    },
+    "기한 정하기…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Due Date…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기한 정하기…"
+          }
+        }
+      }
+    },
+    "기한이 이만큼 남았거나 지난 할 일은 주황색으로 표시하고 목록 맨 위로 올려요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To-dos due within this range, or overdue, turn orange and move to the top of the list."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기한이 이만큼 남았거나 지난 할 일은 주황색으로 표시하고 목록 맨 위로 올려요."
+          }
+        }
+      }
+    },
+    "까지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "까지"
+          }
+        }
+      }
+    },
+    "깨어 있기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있기"
+          }
+        }
+      }
+    },
+    "깨어 있기 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있기 %@"
+          }
+        }
+      }
+    },
+    "깨어 있기 꺼짐": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Awake off"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있기 꺼짐"
+          }
+        }
+      }
+    },
+    "깨어 있기 끄기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn Off Keep Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있기 끄기"
+          }
+        }
+      }
+    },
+    "깨어 있기 상태와 할 일 개수만 한 줄로 보여 줘요. 메뉴바 아이콘 메뉴에서도 바꿀 수 있어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows just your Keep Awake status and to-do count. You can also change this from the menu bar icon."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있기 상태와 할 일 개수만 한 줄로 보여 줘요. 메뉴바 아이콘 메뉴에서도 바꿀 수 있어요."
+          }
+        }
+      }
+    },
+    "깨어 있기 시작": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있기 시작"
+          }
+        }
+      }
+    },
+    "깨어 있기가 끝나면 %@을 설치하려고 기다리는 중이에요. 지금 설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern will install %@ when your Keep Awake session ends. Installing now restarts Lantern and ends the session."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있기가 끝나면 %@을 설치하려고 기다리는 중이에요. 지금 설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요."
+          }
+        }
+      }
+    },
+    "깨어 있는 동안 외장 모니터 없이 뚜껑을 닫아도 맥이 잠들지 않게 해요. 깨어 있기가 끝나거나 맥이 많이 뜨거워지면 저절로 꺼져요. 처음 한 번 관리자 비밀번호가 필요해요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While Keep Awake is on, keeps your Mac awake with the lid closed, even without an external display. It turns off by itself when Keep Awake ends or your Mac gets too hot. You'll need your administrator password once."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있는 동안 외장 모니터 없이 뚜껑을 닫아도 맥이 잠들지 않게 해요. 깨어 있기가 끝나거나 맥이 많이 뜨거워지면 저절로 꺼져요. 처음 한 번 관리자 비밀번호가 필요해요."
+          }
+        }
+      }
+    },
+    "깨어 있는 동안만 켤 수 있어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available only while Keep Awake is on"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있는 동안만 켤 수 있어요"
+          }
+        }
+      }
+    },
+    "깨어 있는 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있는 중"
+          }
+        }
+      }
+    },
+    "깨어 있는 중 · %@ 남음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake · %@ left"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있는 중 · %@ 남음"
+          }
+        }
+      }
+    },
+    "깨어 있는 중 · 에이전트가 끝날 때까지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake · Until agents finish"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "깨어 있는 중 · 에이전트가 끝날 때까지"
+          }
+        }
+      }
+    },
+    "끄기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn Off"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끄기"
+          }
+        }
+      }
+    },
+    "끄지 못했어요. 설정 → 전원에서 권한을 확인하거나, 터미널에서 sudo pmset -a disablesleep 0 을 실행해 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't turn it off. Check the permission in Settings → Power, or run sudo pmset -a disablesleep 0 in Terminal."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끄지 못했어요. 설정 → 전원에서 권한을 확인하거나, 터미널에서 sudo pmset -a disablesleep 0 을 실행해 주세요."
+          }
+        }
+      }
+    },
+    "끌 때까지 깨어 있음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Awake until you turn it off"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끌 때까지 깨어 있음"
+          }
+        }
+      }
+    },
+    "끌어서 다른 모서리나 화면으로 옮길 수 있어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to move to another corner or display"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끌어서 다른 모서리나 화면으로 옮길 수 있어요"
+          }
+        }
+      }
+    },
+    "끝나면 %@ 설치": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Will update to %@ when done"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끝나면 %@ 설치"
+          }
+        }
+      }
+    },
+    "끝난 뒤 설치": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install Later"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끝난 뒤 설치"
+          }
+        }
+      }
+    },
+    "끝내기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as Done"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끝내기"
+          }
+        }
+      }
+    },
+    "끝낸 일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끝낸 일"
+          }
+        }
+      }
+    },
+    "끝낸 일 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld completed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끝낸 일 %lld"
+          }
+        }
+      }
+    },
+    "끝낸 할 일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed To-dos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끝낸 할 일"
+          }
+        }
+      }
+    },
+    "내일까지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "tomorrow"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내일까지"
+          }
+        }
+      }
+    },
+    "다시 켜기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 켜기"
+          }
+        }
+      }
+    },
+    "다음 달": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next Month"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 달"
+          }
+        }
+      }
+    },
+    "다음 해": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next Year"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 해"
+          }
+        }
+      }
+    },
+    "단축키": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shortcuts"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "단축키"
+          }
+        }
+      }
+    },
+    "되돌리기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mark as Not Done"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "되돌리기"
+          }
+        }
+      }
+    },
+    "디자인 QA 피드백 정리": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort out design QA feedback"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "디자인 QA 피드백 정리"
+          }
+        }
+      }
+    },
+    "뚜껑 닫아도 유지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed-Lid Mode"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뚜껑 닫아도 유지"
+          }
+        }
+      }
+    },
+    "뚜껑 닫아도 유지 (뚜껑 모드)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed-Lid Mode"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뚜껑 닫아도 유지 (뚜껑 모드)"
+          }
+        }
+      }
+    },
+    "뚜껑 닫아도 유지 · %@ 남음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed-Lid Mode · %@ left"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뚜껑 닫아도 유지 · %@ 남음"
+          }
+        }
+      }
+    },
+    "뚜껑 닫아도 유지 설정…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set Up Closed-Lid Mode…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뚜껑 닫아도 유지 설정…"
+          }
+        }
+      }
+    },
+    "뚜껑 닫아도 유지를 끄지 못했어요. 맥이 잠들지 않을 수 있어요. 설정 → 전원에서 권한을 확인해 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't turn off Closed-Lid Mode, so your Mac may not sleep. Check the permission in Settings → Power."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뚜껑 닫아도 유지를 끄지 못했어요. 맥이 잠들지 않을 수 있어요. 설정 → 전원에서 권한을 확인해 주세요."
+          }
+        }
+      }
+    },
+    "뚜껑 모드": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed-Lid Mode"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뚜껑 모드"
+          }
+        }
+      }
+    },
+    "랜턴": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴"
+          }
+        }
+      }
+    },
+    "랜턴 · 깨어 있는 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern · Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴 · 깨어 있는 중"
+          }
+        }
+      }
+    },
+    "랜턴 · 뚜껑 닫아도 유지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern · Closed-Lid Mode"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴 · 뚜껑 닫아도 유지"
+          }
+        }
+      }
+    },
+    "랜턴 기록": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern History"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴 기록"
+          }
+        }
+      }
+    },
+    "랜턴 설정": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴 설정"
+          }
+        }
+      }
+    },
+    "랜턴 종료": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit Lantern"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴 종료"
+          }
+        }
+      }
+    },
+    "랜턴: 깨어 있기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern: Keep Awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴: 깨어 있기"
+          }
+        }
+      }
+    },
+    "랜턴: 깨어 있기 끝 시각 확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern: checking Keep Awake end time"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴: 깨어 있기 끝 시각 확인"
+          }
+        }
+      }
+    },
+    "랜턴을 다시 켜면 바뀌어요. 깨어 있는 중이면 깨어 있기가 끝나요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restart Lantern to apply. This ends any Keep Awake session."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴을 다시 켜면 바뀌어요. 깨어 있는 중이면 깨어 있기가 끝나요."
+          }
+        }
+      }
+    },
+    "랜턴이 뚜껑 모드 권한을 바꾸려고 합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern wants to change the Closed-Lid Mode permission."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴이 뚜껑 모드 권한을 바꾸려고 합니다."
+          }
+        }
+      }
+    },
+    "랜턴이 켜져 있는 뚜껑 모드를 끄려고 합니다.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lantern wants to turn off Closed-Lid Mode."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "랜턴이 켜져 있는 뚜껑 모드를 끄려고 합니다."
+          }
+        }
+      }
+    },
+    "로그인 항목에 넣지 못했어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't add Lantern to Login Items."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인 항목에 넣지 못했어요."
+          }
+        }
+      }
+    },
+    "로그인 항목에서 빼지 못했어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't remove Lantern from Login Items."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인 항목에서 빼지 못했어요."
+          }
+        }
+      }
+    },
+    "로그인 화면 리팩터링": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refactor the login screen"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인 화면 리팩터링"
+          }
+        }
+      }
+    },
+    "로그인할 때 열기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open at login"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그인할 때 열기"
+          }
+        }
+      }
+    },
+    "릴리스 노트 쓰기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write release notes"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "릴리스 노트 쓰기"
+          }
+        }
+      }
+    },
+    "많음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "많음"
+          }
+        }
+      }
+    },
+    "맥이 뜨거워서 지금은 켤 수 없어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac is too hot to turn this on right now"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "맥이 뜨거워서 지금은 켤 수 없어요"
+          }
+        }
+      }
+    },
+    "맥이 많이 뜨거워서 뚜껑 닫아도 유지를 껐어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac got too hot, so Closed-Lid Mode was turned off."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "맥이 많이 뜨거워서 뚜껑 닫아도 유지를 껐어요."
+          }
+        }
+      }
+    },
+    "맥이 평소처럼 잠들어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Mac sleeps as usual"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "맥이 평소처럼 잠들어요"
+          }
+        }
+      }
+    },
+    "메모 보기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Note"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 보기"
+          }
+        }
+      }
+    },
+    "메모 접기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Note"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 접기"
+          }
+        }
+      }
+    },
+    "메모 추가…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add Note…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 추가…"
+          }
+        }
+      }
+    },
+    "메모 편집…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Note…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모 편집…"
+          }
+        }
+      }
+    },
+    "메모를 적어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write a note"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메모를 적어요"
+          }
+        }
+      }
+    },
+    "명령 실행 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running a command"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "명령 실행 중"
+          }
+        }
+      }
+    },
+    "모두 끝남 · 곧 꺼져요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All done · Turning off soon"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모두 끝남 · 곧 꺼져요"
+          }
+        }
+      }
+    },
+    "배터리": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "배터리"
+          }
+        }
+      }
+    },
+    "배터리 기준": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery threshold"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "배터리 기준"
+          }
+        }
+      }
+    },
+    "배터리가 %lld%% 이하라 켤 수 없어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can't turn on with the battery at %lld%% or below"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "배터리가 %lld%% 이하라 켤 수 없어요"
+          }
+        }
+      }
+    },
+    "배터리가 %lld%%라 깨어 있기를 껐어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Battery is at %lld%%, so Keep Awake was turned off."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "배터리가 %lld%%라 깨어 있기를 껐어요."
+          }
+        }
+      }
+    },
+    "버전 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "버전 %@"
+          }
+        }
+      }
+    },
+    "보기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "보기"
+          }
+        }
+      }
+    },
+    "복사했어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "복사했어요"
+          }
+        }
+      }
+    },
+    "사용자 이름에 쓸 수 없는 글자가 있어 설치할 수 없어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can't install because your user name contains unsupported characters."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 이름에 쓸 수 없는 글자가 있어 설치할 수 없어요."
+          }
+        }
+      }
+    },
+    "새 버전": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the new version"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 버전"
+          }
+        }
+      }
+    },
+    "새 버전 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@ available"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 버전 %@"
+          }
+        }
+      }
+    },
+    "새 버전에서 바뀐 내용을 보고 설치해요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See what's new and install"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새 버전에서 바뀐 내용을 보고 설치해요"
+          }
+        }
+      }
+    },
+    "설정": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정"
+          }
+        }
+      }
+    },
+    "설정…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정…"
+          }
+        }
+      }
+    },
+    "설치 안 됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not installed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치 안 됨"
+          }
+        }
+      }
+    },
+    "설치…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치…"
+          }
+        }
+      }
+    },
+    "설치됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치됨"
+          }
+        }
+      }
+    },
+    "설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요. \"끝난 뒤 설치\"를 고르면 깨어 있기가 끝날 때 저절로 설치해요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installing restarts Lantern and ends your Keep Awake session. Choose Install Later to install automatically when the session ends."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나요. \"끝난 뒤 설치\"를 고르면 깨어 있기가 끝날 때 저절로 설치해요."
+          }
+        }
+      }
+    },
+    "설치하면 아래 세 명령만 비밀번호 없이 실행할 수 있어요. 이 맥의 다른 프로그램도 같은 명령을 쓸 수 있지만, 할 수 있는 일은 잠들지 않게 하거나 재우는 것뿐이에요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installing lets only the three commands below run without a password. Other programs on this Mac can use them too, but all they can do is keep your Mac awake or put it to sleep."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설치하면 아래 세 명령만 비밀번호 없이 실행할 수 있어요. 이 맥의 다른 프로그램도 같은 명령을 쓸 수 있지만, 할 수 있는 일은 잠들지 않게 하거나 재우는 것뿐이에요."
+          }
+        }
+      }
+    },
+    "시각": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시각"
+          }
+        }
+      }
+    },
+    "시각…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시각…"
+          }
+        }
+      }
+    },
+    "시스템 설정 따르기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System Language"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 설정 따르기"
+          }
+        }
+      }
+    },
+    "시스템 설정 열기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 설정 열기"
+          }
+        }
+      }
+    },
+    "시스템 설정에서 랜턴을 허용해야 켜져요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow Lantern in System Settings to turn this on."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시스템 설정에서 랜턴을 허용해야 켜져요."
+          }
+        }
+      }
+    },
+    "시작": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시작"
+          }
+        }
+      }
+    },
+    "알 수 없는 오류": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown error"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "알 수 없는 오류"
+          }
+        }
+      }
+    },
+    "어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (Esc로 취소).\n⌃ 또는 ⌥가 들어간 조합만 쓸 수 있어요. ⌘ 조합은 대부분 앱이 이미 쓰고 있어서, 랜턴이 가져가면 모든 앱에서 그 기능이 막히기 때문이에요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "These work in any app. Opening or closing the window is the same as clicking the menu bar icon, and works even when the icon is hidden. To change a shortcut, click its button and press the new combination (Esc to cancel).\nShortcuts must include ⌃ or ⌥. Most apps already use ⌘ combinations, and taking them over would block those features in every app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (Esc로 취소).\n⌃ 또는 ⌥가 들어간 조합만 쓸 수 있어요. ⌘ 조합은 대부분 앱이 이미 쓰고 있어서, 랜턴이 가져가면 모든 앱에서 그 기능이 막히기 때문이에요."
+          }
+        }
+      }
+    },
+    "언어": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Language"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "언어"
+          }
+        }
+      }
+    },
+    "언제까지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "언제까지"
+          }
+        }
+      }
+    },
+    "업데이트": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트"
+          }
+        }
+      }
+    },
+    "업데이트 자동으로 확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically check for updates"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트 자동으로 확인"
+          }
+        }
+      }
+    },
+    "업데이트 확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트 확인"
+          }
+        }
+      }
+    },
+    "업데이트 확인…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트 확인…"
+          }
+        }
+      }
+    },
+    "없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "없음"
+          }
+        }
+      }
+    },
+    "에이전트": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agents"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "에이전트"
+          }
+        }
+      }
+    },
+    "에이전트 연결": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Agent connections"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "에이전트 연결"
+          }
+        }
+      }
+    },
+    "에이전트가 끝날 때까지": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Until agents finish"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "에이전트가 끝날 때까지"
+          }
+        }
+      }
+    },
+    "에이전트를 기다리는 중": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for agents"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "에이전트를 기다리는 중"
+          }
+        }
+      }
+    },
+    "에이전트에게 지시를 한 번 보내면 신호가 와요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A signal arrives after you send the agent a prompt"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "에이전트에게 지시를 한 번 보내면 신호가 와요"
+          }
+        }
+      }
+    },
+    "연결": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결"
+          }
+        }
+      }
+    },
+    "연결 안 됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결 안 됨"
+          }
+        }
+      }
+    },
+    "연결됨 · 마지막 신호": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · Last signal"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결됨 · 마지막 신호"
+          }
+        }
+      }
+    },
+    "연결됨 · 아직 신호 없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · No signals yet"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결됨 · 아직 신호 없음"
+          }
+        }
+      }
+    },
+    "연결하면 \"언제까지 · 에이전트\"를 골랐을 때 에이전트가 일하는 동안만 깨어 있어요. 에이전트 설정 파일에 랜턴 hook을 더하고, 다른 hook은 건드리지 않아요. 바꾸기 전 파일은 같은 폴더에 .lantern-backup으로 남겨요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Once connected, choosing Until → Agents keeps your Mac awake only while agents are working. Lantern adds its hook to the agent's settings file and leaves other hooks alone. The original file is saved in the same folder as .lantern-backup."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결하면 \"언제까지 · 에이전트\"를 골랐을 때 에이전트가 일하는 동안만 깨어 있어요. 에이전트 설정 파일에 랜턴 hook을 더하고, 다른 hook은 건드리지 않아요. 바꾸기 전 파일은 같은 폴더에 .lantern-backup으로 남겨요."
+          }
+        }
+      }
+    },
+    "연장": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extend"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연장"
+          }
+        }
+      }
+    },
+    "연장 ›": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extend ›"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연장 ›"
+          }
+        }
+      }
+    },
+    "오늘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘"
+          }
+        }
+      }
+    },
+    "온보딩 문구 다듬기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Polish onboarding copy"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "온보딩 문구 다듬기"
+          }
+        }
+      }
+    },
+    "완료 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done %lld"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료 %lld"
+          }
+        }
+      }
+    },
+    "외장 모니터 없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No external display"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "외장 모니터 없음"
+          }
+        }
+      }
+    },
+    "위젯 다크 모드 확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check widget dark mode"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "위젯 다크 모드 확인"
+          }
+        }
+      }
+    },
+    "유지됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "유지됨"
+          }
+        }
+      }
+    },
+    "이날은 기록이 없어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing recorded on this day"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이날은 기록이 없어요"
+          }
+        }
+      }
+    },
+    "이름 바꾸기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이름 바꾸기"
+          }
+        }
+      }
+    },
+    "이전 달": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous Month"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전 달"
+          }
+        }
+      }
+    },
+    "이전 해": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous Year"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이전 해"
+          }
+        }
+      }
+    },
+    "일반": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일반"
+          }
+        }
+      }
+    },
+    "일을 시작하면 끝날 때까지 깨어 있어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stays awake from when an agent starts until it's done"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일을 시작하면 끝날 때까지 깨어 있어요"
+          }
+        }
+      }
+    },
+    "작업 중 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld working"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "작업 중 %lld"
+          }
+        }
+      }
+    },
+    "잔디 기준": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color by"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잔디 기준"
+          }
+        }
+      }
+    },
+    "잠듦": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleeps"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠듦"
+          }
+        }
+      }
+    },
+    "저장": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장"
+          }
+        }
+      }
+    },
+    "적어 둔 할 일은 평소 창에 위에서 세 개까지 보여요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The top three to-dos show in the summary window"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "적어 둔 할 일은 평소 창에 위에서 세 개까지 보여요"
+          }
+        }
+      }
+    },
+    "적음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Less"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "적음"
+          }
+        }
+      }
+    },
+    "전원": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Power"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전원"
+          }
+        }
+      }
+    },
+    "전원 · 외장 모니터 연결됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plugged in · External display connected"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전원 · 외장 모니터 연결됨"
+          }
+        }
+      }
+    },
+    "전원 어댑터 · 외장 모니터 없음": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not plugged in · No external display"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전원 어댑터 · 외장 모니터 없음"
+          }
+        }
+      }
+    },
+    "전원 어댑터 연결 안 됨": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not plugged in"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전원 어댑터 연결 안 됨"
+          }
+        }
+      }
+    },
+    "전체": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체"
+          }
+        }
+      }
+    },
+    "정하기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정하기"
+          }
+        }
+      }
+    },
+    "제거…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "제거…"
+          }
+        }
+      }
+    },
+    "지금 끝 시각에 시간을 더해요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add time to the current end time"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 끝 시각에 시간을 더해요"
+          }
+        }
+      }
+    },
+    "지금 뚜껑을 닫으면": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you close the lid now"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 뚜껑을 닫으면"
+          }
+        }
+      }
+    },
+    "지금 설치": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install Now"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 설치"
+          }
+        }
+      }
+    },
+    "지금 설치할까요?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install now?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 설치할까요?"
+          }
+        }
+      }
+    },
+    "지금까지 끝낸 일 · 지운 일 · 깨어 있기를 날짜별로 봐요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See completed and removed to-dos and Keep Awake sessions by date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금까지 끝낸 일 · 지운 일 · 깨어 있기를 날짜별로 봐요"
+          }
+        }
+      }
+    },
+    "지난번에 켜져 있던 뚜껑 닫아도 유지를 껐어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed-Lid Mode was still on from last time, so Lantern turned it off."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지난번에 켜져 있던 뚜껑 닫아도 유지를 껐어요."
+          }
+        }
+      }
+    },
+    "지우기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지우기"
+          }
+        }
+      }
+    },
+    "지우기 (기록에는 남아요)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove (stays in History)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지우기 (기록에는 남아요)"
+          }
+        }
+      }
+    },
+    "지운 일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지운 일"
+          }
+        }
+      }
+    },
+    "지운 일 %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld removed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지운 일 %lld"
+          }
+        }
+      }
+    },
+    "창 보이기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Window"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "창 보이기"
+          }
+        }
+      }
+    },
+    "창 숨기기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Window"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "창 숨기기"
+          }
+        }
+      }
+    },
+    "창 숨기기·보이기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide or show window"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "창 숨기기·보이기"
+          }
+        }
+      }
+    },
+    "창 열기·닫기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open or close window"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "창 열기·닫기"
+          }
+        }
+      }
+    },
+    "처음 한 번 권한 설치가 필요해요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs a one-time setup"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "처음 한 번 권한 설치가 필요해요"
+          }
+        }
+      }
+    },
+    "충전기를 연결하지 않은 채 배터리가 이 아래로 내려가면 깨어 있기를 꺼요. 뚜껑을 닫아 둔 상태였다면 맥을 바로 재워요. 기준 아래에서는 뚜껑 닫아도 유지를 켤 수 없어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When you're on battery and it drops below this level, Keep Awake turns off. If the lid is closed, your Mac goes to sleep right away. Closed-Lid Mode can't be turned on below this level."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "충전기를 연결하지 않은 채 배터리가 이 아래로 내려가면 깨어 있기를 꺼요. 뚜껑을 닫아 둔 상태였다면 맥을 바로 재워요. 기준 아래에서는 뚜껑 닫아도 유지를 켤 수 없어요."
+          }
+        }
+      }
+    },
+    "취소": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        }
+      }
+    },
+    "켜지 못했어요. 설정에서 권한을 확인해 주세요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't turn it on. Check the permission in Settings."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜지 못했어요. 설정에서 권한을 확인해 주세요."
+          }
+        }
+      }
+    },
+    "크래시 로그 확인": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look into crash logs"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "크래시 로그 확인"
+          }
+        }
+      }
+    },
+    "키를 누르세요…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press a shortcut…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "키를 누르세요…"
+          }
+        }
+      }
+    },
+    "토큰 갱신 로직은 그대로 두고\nUI만 먼저 나누기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep the token refresh logic as is\nSplit up the UI first"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "토큰 갱신 로직은 그대로 두고\nUI만 먼저 나누기"
+          }
+        }
+      }
+    },
+    "편집": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "편집"
+          }
+        }
+      }
+    },
+    "평소 창을 한 줄로 보기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show summary window in a single line"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "평소 창을 한 줄로 보기"
+          }
+        }
+      }
+    },
+    "하루 한 번 새 버전이 있는지 확인해요. 설치는 직접 눌러야 해요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checks for a new version once a day. Nothing is installed until you click Install."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "하루 한 번 새 버전이 있는지 확인해요. 설치는 직접 눌러야 해요."
+          }
+        }
+      }
+    },
+    "한 줄로 보기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Single-Line View"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 줄로 보기"
+          }
+        }
+      }
+    },
+    "할 일": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To-dos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일"
+          }
+        }
+      }
+    },
+    "할 일 %lld": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld to-do"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld to-dos"
+                }
+              }
+            }
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일 %lld"
+          }
+        }
+      }
+    },
+    "할 일 검색": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search To-dos"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일 검색"
+          }
+        }
+      }
+    },
+    "할 일 저장 파일을 열 수 없어서 새로 만들었어요. 원래 파일은 Application Support/Lantern 폴더에 \"%@\"로 보관했어요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your to-do file, so Lantern created a new one. The original was kept as \"%@\" in the Application Support/Lantern folder."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일 저장 파일을 열 수 없어서 새로 만들었어요. 원래 파일은 Application Support/Lantern 폴더에 \"%@\"로 보관했어요."
+          }
+        }
+      }
+    },
+    "할 일 저장 파일을 열 수 없어요. 이번에 적는 할 일은 랜턴을 끄면 사라져요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your to-do file. To-dos you add now will be lost when you quit Lantern."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일 저장 파일을 열 수 없어요. 이번에 적는 할 일은 랜턴을 끄면 사라져요."
+          }
+        }
+      }
+    },
+    "할 일 추가": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a to-do"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "할 일 추가"
+          }
+        }
+      }
+    },
+    "해제": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "해제"
+          }
+        }
+      }
+    },
+    "허락을 기다리는 에이전트가 있어요": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An agent is waiting for your approval"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "허락을 기다리는 에이전트가 있어요"
+          }
+        }
+      }
+    },
+    "화면 끄기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn Display Off"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면 끄기"
+          }
+        }
+      }
+    },
+    "확인 중…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인 중…"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
