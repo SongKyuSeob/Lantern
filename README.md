@@ -1,230 +1,233 @@
 <p align="center">
-  <img src="docs/design/app-icon.svg" width="128" alt="Lantern icon">
+  <img src="docs/design/app-icon.svg" width="128" alt="랜턴 아이콘">
 </p>
 
-<h1 align="center">Lantern</h1>
+<h1 align="center">랜턴 (Lantern)</h1>
 
-<p align="center"><b>English</b> · <a href="README.ko.md">한국어</a></p>
+<p align="center"><a href="README.en.md">English</a> · <b>한국어</b></p>
 
 <p align="center">
-  Keep your to-dos in sight, and your Mac awake until the work is done.<br>
-  A macOS utility that floats your to-do list in a corner of the screen and keeps your Mac awake while Claude Code or Codex is working (or until a time you choose).
+  <i>Keeps your Mac awake while Claude Code or Codex is working, with a to-do list floating in the corner of your screen.<br>
+  → <a href="README.en.md">Read in English</a></i>
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/hero.jpg" width="560" alt="Lantern floating in the top-right corner of the desktop">
+  할 일은 늘 보이게, 맥은 일이 끝날 때까지 깨어 있게.<br>
+  화면 구석에 할 일을 늘 띄워 두고, Claude Code·Codex가 일하는 동안(또는 정한 시간까지) 맥을 깨워 두는 macOS 유틸리티입니다.
 </p>
 
-> **Note:** The app is currently in Korean only. English support is coming in the next version ([#2](https://github.com/SongKyuSeob/Lantern/issues/2)).
+<p align="center">
+  <img src="docs/screenshots/hero.jpg" width="560" alt="바탕화면 오른쪽 위에 떠 있는 랜턴 창">
+</p>
 
 ---
 
-## What it does
+## 할 수 있는 일
 
-- **Stay awake**: Keeps your Mac from sleeping for a set time, or until agents like Claude Code and Codex finish their work.
-- **Stay awake with the lid closed**: Keeps your Mac awake even when you close the lid without an external display. Turns itself off when the battery runs low or the Mac gets hot.
-- **What happens if I close the lid now**: Tells you ahead of time whether your Mac will sleep or stay awake if you close the lid right now.
-- **To-dos**: Floats your to-do list in a small window in the top-right corner. It's translucent so it doesn't cover your work, and clicks pass through to whatever is behind it.
+- **깨어 있기**: 정해 둔 시간 동안, 또는 Claude Code·Codex 같은 에이전트가 일을 마칠 때까지 맥이 잠들지 않게 합니다.
+- **뚜껑 닫아도 유지**: 외장 모니터 없이 뚜껑을 닫아도 맥이 잠들지 않게 합니다. 배터리가 부족하거나 맥이 뜨거워지면 저절로 꺼집니다.
+- **지금 닫으면 어떻게 되는지**: 지금 뚜껑을 닫으면 맥이 잠드는지 그대로 깨어 있는지 미리 알려 줍니다.
+- **할 일**: 화면 오른쪽 위 작은 창에 할 일을 띄워 둡니다. 반투명해서 작업을 가리지 않고, 클릭은 뒤로 통과합니다.
 
 <p align="center">
-  <img src="docs/screenshots/todo.png" width="300" alt="To-dos tab">
+  <img src="docs/screenshots/todo.png" width="300" alt="할 일 탭">
   &nbsp;
-  <img src="docs/screenshots/awake.png" width="300" alt="Awake tab: 1 Claude Code task running">
+  <img src="docs/screenshots/awake.png" width="300" alt="깨어 있기 탭: Claude Code 1개 작업 중">
 </p>
 
-## Requirements
+## 필요한 것
 
-- macOS 26 or later
-- A Mac with Apple silicon (M1 or later). Intel Macs are not supported.
-- The internet is used only to check for updates. Once a day, Lantern fetches the latest version info from this repository's GitHub releases. Your to-dos, history and usage are never sent anywhere. You can turn update checks off in Settings.
+- macOS 26 이상
+- Apple 실리콘(M1 이후) 맥. 인텔 맥은 지원하지 않습니다.
+- 인터넷은 업데이트 확인에만 씁니다. 하루 한 번 이 저장소의 GitHub 릴리스에서 새 버전 정보를 받아 올 뿐, 할 일·기록·사용 정보는 밖으로 보내지 않습니다. 설정에서 끌 수 있습니다.
 
-## Install
+## 설치
 
-1. Download the latest `Lantern-x.y.z.dmg` from the [Releases](../../releases) page.
-2. Open the dmg and drag **Lantern** into your **Applications** folder.
-3. Open Lantern from the Applications folder.
+1. [Releases](../../releases) 페이지에서 가장 최근 `Lantern-x.y.z.dmg`를 받습니다.
+2. dmg를 열고 **랜턴**을 **응용 프로그램** 폴더로 끌어 놓습니다.
+3. 응용 프로그램 폴더에서 랜턴을 엽니다.
 
-### If macOS says it "can't be opened"
+### 처음 열 때 "열 수 없음"이 나오면
 
-Lantern is a personal project that isn't signed with an Apple developer certificate yet, so macOS blocks it the first time. Allow it once as below, and it will open normally from then on.
+랜턴은 아직 Apple 개발자 서명을 받지 않은 개인 프로젝트라서, 처음 열 때 macOS가 막습니다. 아래처럼 한 번만 허용하면 그다음부터는 바로 열립니다.
 
-1. Try opening Lantern. When you see "unidentified developer" or "can't be opened", click **Done** (or **Cancel**).
-2. Go to **System Settings → Privacy & Security**.
-3. Under **Security** near the bottom, you'll see "Lantern was blocked". Click **Open Anyway**.
-4. Enter your Mac password, then click **Open** in the dialog that follows.
+1. 랜턴을 한 번 열어 봅니다. "확인되지 않은 개발자" 또는 "열 수 없음" 안내가 뜨면 **완료**(또는 **취소**)를 누릅니다.
+2. **시스템 설정 → 개인정보 보호 및 보안**으로 갑니다.
+3. 아래쪽 **보안** 항목에 "랜턴이(가) 차단되었습니다"가 보이면 **그래도 열기**를 누릅니다.
+4. 맥 암호를 입력하고, 다시 뜨는 안내에서 **열기**를 누릅니다.
 
-> If you're not comfortable with this, you can read the code in this repository and build it yourself with Xcode.
+> 이 과정이 불안하다면 이 저장소의 코드를 직접 확인하고 Xcode로 빌드해서 써도 됩니다.
 
-> **Before uninstalling, please read [Uninstall](#uninstall) instead of just moving the app to the Trash.** The lid-closed permission (a system rule file) and agent connections stay behind after the app is deleted, so remove them in Settings first.
+> **지울 때는 앱만 휴지통에 넣지 말고 [지우기](#지우기)를 먼저 봐 주세요.** 뚜껑 닫아도 유지 권한(시스템 규칙 파일)과 에이전트 연결은 앱을 지워도 남기 때문에, 설정에서 먼저 정리해야 깔끔하게 지워집니다.
 
-### Updates
+### 업데이트
 
-Since 0.3.0, when a new version is out, a small **● New version x.y.z** appears in the top-right window (just a blue dot in single-line view). Open the window and click **Update to x.y.z** at the top to see what's new and install it. You can also check yourself from the menu bar icon's right-click menu → **Check for Updates…** or **Settings → General → Check for Updates**.
+0.3.0부터는 새 버전이 나오면 오른쪽 위 창에 작게 **● 새 버전 x.y.z**가 보입니다(한 줄 보기에서는 파란 점만). 창을 펼쳐 위쪽의 **x.y.z 업데이트**를 누르면 바뀐 내용을 보고 설치할 수 있습니다. 메뉴바 아이콘 오른쪽 클릭 → <b>업데이트 확인…</b>이나 **설정 → 일반 → 업데이트 확인**으로 직접 확인해도 됩니다.
 
-- Nothing is installed behind your back. You always click to install.
-- Installing restarts Lantern, which ends the current awake session, so Lantern asks first if you're awake. Choose **Install after it ends** to install automatically when the session is over.
-- Updates are installed only after their signature is verified.
-- **If you're on 0.2.x**, that version has no auto-update. Download the new dmg once and replace the app in your Applications folder. Your to-dos, history and settings are kept.
+- 몰래 설치하지 않습니다. 설치는 늘 직접 눌러야 합니다.
+- 깨어 있는 동안 설치하면 랜턴이 다시 켜지면서 깨어 있기가 끝나므로 한 번 더 묻습니다. **끝난 뒤 설치**를 고르면 깨어 있기가 끝날 때 저절로 설치합니다.
+- 업데이트 파일은 서명을 확인한 뒤에만 설치합니다.
+- **0.2.x를 쓰고 있다면** 자동 업데이트가 없는 버전이라, 한 번만 새 dmg를 받아 응용 프로그램 폴더에 덮어 설치해 주세요. 할 일·기록·설정은 그대로 남습니다.
 
-## Usage
+## 사용법
 
-### Menu bar icon
+### 메뉴바 아이콘
 
-| Icon | Meaning |
+| 아이콘 | 뜻 |
 |---|---|
-| Hollow flame | Awake is off |
-| Filled flame | Staying awake |
-| Flame with pillars on both sides | Staying awake with the lid closed |
+| 속이 빈 불꽃 | 깨어 있기 꺼짐 |
+| 채운 불꽃 | 깨어 있는 중 |
+| 양옆에 기둥이 있는 불꽃 | 뚜껑 닫아도 유지 중 |
 
-- **Left-click**: Opens or closes the top-right window.
-- **Right-click**: Opens the menu, with start/stop awake, Until, Extend, Hide Window, Single-Line View, History, Check for Updates, Settings and Quit.
+- **왼쪽 클릭**: 오른쪽 위 창을 열고 닫습니다.
+- **오른쪽 클릭**: 메뉴가 열립니다. 깨어 있기 시작·끄기, 언제까지, 연장, 창 숨기기, 기록 보기, 업데이트 확인, 설정, 종료가 있습니다.
 
-> On MacBooks, the notch leaves less room in the menu bar, so the Lantern icon can get hidden when you have many icons. **Hold ⌘ and drag the icon to the right**, near the clock, to keep it visible. Even when it's hidden, you can open the window with the shortcut below.
+> MacBook은 화면 위 가운데(노치) 때문에 메뉴바 공간이 좁아서, 아이콘이 많으면 랜턴 아이콘이 가려질 수 있습니다. **⌘를 누른 채 아이콘을 오른쪽으로 끌어** 시계 가까이에 두면 잘 보입니다. 가려져 있어도 아래 단축키로 창을 열 수 있습니다.
 
-### The top-right window
+### 오른쪽 위 창
 
-The window has three looks.
+창은 세 가지 모양으로 보입니다.
 
-- **Active window**: When you open it with the icon or the shortcut. You can work with your to-dos and awake settings here. It closes when you click outside, or 10 seconds after your mouse leaves it.
-- **Resting window**: When the active window closes, it stays as a translucent window showing your awake status and the top three to-dos.
-- **Single-line view**: The resting window shrunk to one line, showing only your awake status and the number of to-dos.
+- **활성 창**: 아이콘을 누르거나 단축키로 열었을 때입니다. 할 일과 깨어 있기를 조작할 수 있습니다. 창 밖을 누르거나, 마우스를 창 밖으로 뺀 뒤 10초가 지나면 닫힙니다.
+- **평소 창**: 활성 창을 닫으면 반투명한 창으로 남아, 깨어 있기 상태와 할 일 위에서 세 개를 보여 줍니다.
+- **한 줄 보기**: 평소 창을 한 줄로 줄인 모양입니다. 깨어 있기 상태와 할 일 개수만 보여 줍니다.
 
 <p align="center">
-  <img src="docs/screenshots/passive.png" width="300" alt="Resting window">
+  <img src="docs/screenshots/passive.png" width="300" alt="평소 창">
 </p>
 
-Turn single-line view on or off from the menu bar icon's right-click menu → **Single-Line View** (checkmark), or **Settings → General → Show resting window in a single line**. To move the window, **drag the tab row at the top** of the active window to another corner or display; it snaps to the nearest corner when you let go. In a bottom corner, it opens upward. Hovering over the resting window fades it so you can see behind it, and clicks pass through.
+한 줄 보기는 메뉴바 아이콘 오른쪽 클릭 → **한 줄로 보기**(체크 표시) 또는 **설정 → 일반 → 평소 창을 한 줄로 보기**로 켜고 끕니다. 창은 활성 창의 **위쪽 탭 줄을 끌어** 다른 모서리나 다른 모니터로 옮길 수 있고, 놓으면 가장 가까운 모서리에 붙습니다. 아래쪽 모서리에 두면 위로 펼쳐집니다. 평소 창 위에 마우스를 올리면 흐려져서 뒤가 보이고, 클릭은 뒤로 통과합니다.
 
-### Shortcuts
+### 단축키
 
-| Shortcut | Action |
+| 단축키 | 하는 일 |
 |---|---|
-| ⌃⌥L | Open/close the window (same as left-clicking the icon) |
-| ⌃⌥⇧L | Hide/show the window |
-| Esc | Close the open window |
+| ⌃⌥L | 창 열기·닫기 (아이콘 왼쪽 클릭과 같음) |
+| ⌃⌥⇧L | 창 숨기기·보이기 |
+| Esc | 열린 창 닫기 |
 
-You can change or turn off shortcuts in **Settings → General → Shortcuts**. Only **combinations with ⌃ or ⌥** are allowed. ⌘ combinations like ⌘W and ⌘C are already used by most apps, and taking them as global shortcuts would block those features in every app.
+단축키는 **설정 → 일반 → 단축키**에서 바꾸거나 끌 수 있습니다. 단, **⌃ 또는 ⌥가 들어간 조합만** 쓸 수 있습니다. ⌘W·⌘C 같은 ⌘ 조합은 대부분 앱이 이미 쓰고 있어서, 랜턴이 전역 단축키로 가져가면 모든 앱에서 그 기능이 막히기 때문입니다.
 
-### Staying awake
+### 깨어 있기
 
-In the **Awake** tab of the active window, pick an option under **Until** to start right away.
+활성 창의 **깨어 있기** 탭에서 **언제까지**를 고르면 바로 시작합니다.
 
-| Until | Meaning |
+| 언제까지 | 뜻 |
 |---|---|
-| Always | Until you turn it off |
-| 1 hour / 2 hours | For that long from now |
-| Time | Until the time you pick (tomorrow, if that time has already passed today) |
-| Agents | Until your connected agents finish all their work (see [Connecting agents](#connecting-agents)) |
+| 계속 | 직접 끌 때까지 |
+| 1시간 / 2시간 | 지금부터 그 시간 동안 |
+| 시각 | 고른 시각까지 (이미 지난 시각이면 내일 그 시각) |
+| 에이전트 | 연결한 에이전트가 일을 모두 마칠 때까지 ([에이전트 연결](#에이전트-연결) 참고) |
 
-- **Extend ›**: For a timed session, add 30 minutes, 1 hour or 2 hours without restarting.
-- **Turn off display**: Turns off the screen right away while keeping the Mac awake.
-- Staying awake only prevents sleep when the Mac is left idle. Closing the lid still puts it to sleep. To stay awake with the lid closed, turn on **Stay awake with the lid closed** below.
-- When running on battery, awake turns off if the battery drops below the **battery threshold in Settings (20% by default)**.
+- **연장 ›**: 시간이 정해진 세션이면 끊지 않고 30분·1시간·2시간을 더할 수 있습니다.
+- **화면 끄기**: 맥은 깨워 둔 채 화면만 바로 끕니다.
+- 깨어 있기는 "가만히 두면 잠드는 것"만 막습니다. 뚜껑을 닫으면 원래대로 잠듭니다. 뚜껑을 닫아도 깨어 있게 하려면 아래 **뚜껑 닫아도 유지**를 켜세요.
+- 충전기 없이 배터리가 **설정의 배터리 기준(기본 20%)** 아래로 내려가면 깨어 있기를 끕니다.
 
-### Stay awake with the lid closed
+### 뚜껑 닫아도 유지
 
-Keeps your Mac awake when you close the lid without an external display. Available only while awake is on.
+외장 모니터 없이 뚜껑을 닫아도 맥이 잠들지 않게 합니다. 깨어 있기가 켜져 있을 때만 켤 수 있습니다.
 
-**It needs a one-time permission install.** Go to **Settings → Power → Stay awake with the lid closed**, click **Install…**, and enter your Mac password.
+**처음 한 번 권한 설치가 필요합니다.** **설정 → 전원 → 뚜껑 닫아도 유지**에서 <b>설치…</b>를 누르고 맥 암호를 입력하세요.
 
-This adds one rule file to your Mac (`/etc/sudoers.d/lantern`) that lets only the three commands below run without a password.
+설치하면 맥에 규칙 파일(`/etc/sudoers.d/lantern`)이 하나 생기고, 아래 세 명령만 암호 없이 실행할 수 있게 됩니다.
 
 ```
-sudo /usr/bin/pmset -a disablesleep 1   # prevent sleep
-sudo /usr/bin/pmset -a disablesleep 0   # restore sleep
-sudo /usr/bin/pmset sleepnow            # sleep now
+sudo /usr/bin/pmset -a disablesleep 1   # 잠자기 막기
+sudo /usr/bin/pmset -a disablesleep 0   # 잠자기 되돌리기
+sudo /usr/bin/pmset sleepnow            # 지금 재우기
 ```
 
-- **Other programs on this Mac can use this rule too.** But all they can do is the three things above: keep the Mac from sleeping, or put it to sleep. Any other command still needs a password.
-- You can remove it at any time with **Remove…** in the same place. **The rule file is not deleted along with the app, so please click Remove… before uninstalling Lantern.**
+- 이 규칙은 **이 맥의 다른 프로그램도 쓸 수 있습니다.** 다만 할 수 있는 일은 위 세 가지, 즉 잠들지 않게 하거나 재우는 것뿐입니다. 다른 명령은 여전히 암호가 필요합니다.
+- 원치 않으면 같은 곳의 <b>제거…</b>로 언제든 지울 수 있습니다. **랜턴을 지울 때도 이 규칙 파일은 앱과 함께 사라지지 않으니, 먼저 제거…를 눌러 주세요.**
 
-**It turns itself off when**
-- the awake session ends (if the lid was closed, the Mac goes to sleep right away)
-- the battery drops below the threshold while unplugged
-- the Mac gets very hot
-- you quit Lantern. Even if Lantern quits unexpectedly, a small watchdog restores the setting within 5 seconds.
+**저절로 꺼지는 경우**
+- 깨어 있기가 끝날 때 (뚜껑이 닫혀 있었다면 맥을 바로 재웁니다)
+- 충전기 없이 배터리가 기준 아래로 내려갈 때
+- 맥이 많이 뜨거워질 때
+- 랜턴을 종료할 때. 랜턴이 갑자기 꺼져도 작은 감시 작업이 5초 안에 원래대로 돌려 놓습니다.
 
-> The watchdog shows up as "랜턴 뚜껑 모드 감시" (Lantern lid mode watchdog) under **Login Items & Extensions → App Background Activity** in System Settings. It exists only while staying awake with the lid closed is on.
+> 감시 작업은 시스템 설정의 **로그인 항목 및 확장 프로그램 → 앱 백그라운드 활동**에 "랜턴 뚜껑 모드 감시"로 보입니다. 뚜껑 닫아도 유지가 켜져 있는 동안에만 생깁니다.
 
-### Connecting agents
+### 에이전트 연결
 
-Connect Claude Code and Codex in **Settings → Agents**, and choosing **Agents** under Until keeps your Mac awake only while they're working.
+**설정 → 에이전트**에서 Claude Code와 Codex를 연결하면, 언제까지를 **에이전트**로 골랐을 때 에이전트가 일하는 동안만 깨어 있습니다.
 
-- Connecting adds a Lantern hook to each agent's settings file (Claude Code `~/.claude/settings.json`, Codex `~/.codex/hooks.json`). Nothing else is changed, and the file before the change is kept in the same folder as `.lantern-backup`.
-- For **Codex**, reopen Codex after connecting and allow the Lantern entry in the **hook review** that appears (or `/hooks`).
-- For **Claude Code**, signals arrive only after you trust the folder you open.
-- You can confirm the connection works with "Last signal" in Settings.
+- 연결하면 각 에이전트의 설정 파일(Claude Code `~/.claude/settings.json`, Codex `~/.codex/hooks.json`)에 랜턴 신호가 더해집니다. 다른 설정은 건드리지 않고, 바꾸기 전 파일을 같은 폴더에 `.lantern-backup`으로 남깁니다.
+- **Codex**는 연결한 뒤 Codex를 다시 열고, 뜨는 **훅 검토**(또는 `/hooks`)에서 랜턴 항목을 허용해야 동작합니다.
+- **Claude Code**는 처음 여는 폴더를 신뢰해야 신호가 옵니다.
+- 연결이 잘 됐는지는 설정의 "마지막 신호"로 확인할 수 있습니다.
 
-**When does Lantern consider the work done?**
-- When every working agent has finished, awake turns off after 1 minute. If you give the next instruction in the meantime, it keeps going.
-- While a command is running, it waits up to 3 hours even without signals.
-- Otherwise, 30 minutes without a signal counts as done. For example, when you stop a task with Esc.
-- Closing the agent program counts as done right away.
-- If you chose Agents but no agent starts working within 30 minutes, awake turns off.
+**언제 끝난 것으로 보나요?**
+- 일하는 에이전트가 모두 끝나면 1분 뒤 깨어 있기를 끕니다. 그 사이 다음 지시를 내리면 이어집니다.
+- 명령이 실행 중이면 신호가 없어도 최대 3시간까지 기다립니다.
+- 그 밖에 30분 동안 신호가 없으면 끝난 것으로 봅니다. 예: Esc로 작업을 중단한 경우
+- 에이전트 프로그램을 닫으면 바로 끝난 것으로 봅니다.
+- 에이전트를 골랐는데 30분 동안 아무 에이전트도 일을 시작하지 않으면 끕니다.
 
-### To-dos
+### 할 일
 
-- In the **To-dos** tab of the active window, type in **Add to-do** and press Enter to add it to the bottom of the list.
-- Click the circle to mark it done; it moves to the **Done** group. Click again to bring it back. **Clear** removes only the done items. Cleared to-dos stay in your history.
-- Drag to reorder. The top three show in the resting window.
-- Double-click to rename, or use the × that appears on hover to remove.
-- **Right-click** a to-do for Add Note, Set Due Date, Rename and Remove. Notes and due dates are edited in a small window that pops out to the side (for notes, ⌘Enter saves and Esc cancels).
-- To-dos with a note show a small icon next to the title. Click it to expand the full title and the note. Notes are also included in the history window and Markdown copy.
-- When you set a **due date**, the date shows on the right side of the row. To-dos that are due soon or overdue turn orange and move to the top of the list. Choose how many days ahead counts as "soon" in **Settings → General → Due soon** (1 day before by default).
-- To-dos are stored only on this Mac.
+- 활성 창의 **할 일** 탭에서 **할 일 추가**에 적고 Enter를 누르면 목록 맨 아래에 붙습니다.
+- 동그라미를 누르면 끝낸 것으로 표시되어 **완료** 묶음으로 내려갑니다. 다시 누르면 되돌아옵니다. **지우기**를 누르면 완료한 것만 지워집니다. 지운 할 일도 기록에는 남습니다.
+- 끌어서 순서를 바꿀 수 있습니다. 위에서 세 개가 평소 창에 보입니다.
+- 더블클릭하면 이름을 고칠 수 있고, 마우스를 올리면 나오는 ×로 지울 수 있습니다.
+- 할 일을 **오른쪽 클릭**하면 메모 추가, 기한 정하기, 이름 바꾸기, 지우기 메뉴가 나옵니다. 메모와 기한은 옆에 뜨는 작은 창에서 적습니다(메모는 ⌘Enter로 저장, Esc로 취소).
+- 메모가 있는 할 일은 제목 옆에 작은 아이콘이 보이고, 누르면 긴 제목 전체와 메모가 펼쳐집니다. 메모는 기록 창과 Markdown 복사에도 함께 나옵니다.
+- **기한**을 정하면 줄 오른쪽에 날짜가 보입니다. 기한이 다가왔거나 지난 할 일은 주황색으로 표시되고 목록 맨 위로 올라옵니다. 며칠 전부터 표시할지는 **설정 → 일반 → 기한 임박 표시**에서 고릅니다(기본 1일 전).
+- 할 일은 이 맥에만 저장됩니다.
 
-### History
+### 기록
 
-Menu bar icon right-click → **History…**, or **History ›** at the bottom of the To-dos tab.
+메뉴바 아이콘 오른쪽 클릭 → **기록 보기…**, 또는 할 일 탭 아래의 **기록 ›**
 
 <p align="center">
-  <img src="docs/screenshots/history.png" width="560" alt="History window: a year of activity and records by date">
+  <img src="docs/screenshots/history.png" width="560" alt="기록 창: 한 해 잔디와 날짜별 기록">
 </p>
 
-- The **activity grid** at the top shows how much you did each day over the year. Use <b>‹ ›</b> to browse previous years. Color it by **completed to-dos** or **awake time**.
-- Click a day to see its **completed, removed and awake** records below.
-- Filter by **All / Completed / Removed**, or search by to-do title and note.
-- **Copy as Markdown** copies that day as a checklist you can paste straight into Obsidian or Notion.
+- 위쪽 **잔디**에서 한 해 동안 날짜별로 얼마나 했는지 한눈에 봅니다. <b>‹ ›</b>로 지난해를 넘겨 볼 수 있습니다. 색 기준은 **끝낸 할 일** 또는 **깨어 있기**(깨어 있던 시간) 중에서 고릅니다.
+- 칸을 누르면 아래에 그날의 **끝낸 일 · 지운 일 · 깨어 있기**가 나옵니다.
+- **전체 / 끝낸 일 / 지운 일**로 거르거나, 할 일 제목으로 검색할 수 있습니다.
+- **Markdown 복사**를 누르면 그날 기록이 체크리스트 모양으로 복사됩니다. Obsidian이나 Notion에 그대로 붙여 넣을 수 있습니다.
 
-### Settings
+### 설정
 
-Menu bar icon right-click → **Settings…**
+메뉴바 아이콘 오른쪽 클릭 → **설정…**
 
-| Tab | Contents |
+| 탭 | 내용 |
 |---|---|
-| General | Open at login, single-line view, due soon, updates (auto-check, check now), shortcuts |
-| Agents | Connect Claude Code and Codex |
-| Power | Battery threshold, lid-closed permission |
+| 일반 | 로그인할 때 열기, 기한 임박 표시, 업데이트(자동 확인, 직접 확인), 단축키 |
+| 에이전트 | Claude Code·Codex 연결 |
+| 전원 | 배터리 기준, 뚜껑 닫아도 유지 권한 |
 
-## Uninstall
+## 지우기
 
-To uninstall cleanly, **before deleting the app**, do these two things in Settings first.
+깔끔하게 지우려면 **앱을 지우기 전에** 설정에서 아래 두 가지를 먼저 해 주세요.
 
-1. **Settings → Power → Stay awake with the lid closed → Remove…** (deletes the permission rule file)
-2. **Settings → Agents → Disconnect** (for each connected agent)
+1. **설정 → 전원 → 뚜껑 닫아도 유지 → 제거…** (권한 규칙 파일 삭제)
+2. **설정 → 에이전트 → 해제** (연결한 에이전트마다)
 
-Then move Lantern from the Applications folder to the Trash.
+그다음 응용 프로그램 폴더에서 랜턴을 휴지통으로 옮기면 됩니다.
 
-### If you already deleted the app
+### 앱을 먼저 지웠다면
 
-You can clean up manually in Terminal.
+터미널에서 아래 명령으로 직접 정리할 수 있습니다.
 
 ```bash
-# Remove the lid-closed permission rule (needs your Mac password)
+# 뚜껑 닫아도 유지 권한 규칙 지우기 (맥 암호 필요)
 sudo rm /etc/sudoers.d/lantern
-# Restore sleep, in case it's still turned off
+# 혹시 켜져 있다면 잠자기 되돌리기
 sudo pmset -a disablesleep 0
-# Remove files Lantern left behind (to-dos, signal logs, etc.)
+# 랜턴이 남긴 파일(할 일, 신호 기록 등) 지우기
 rm -rf ~/Library/Application\ Support/Lantern
 rm -f ~/Library/LaunchAgents/com.songkyuseob.lantern.watchdog.plist
 ```
 
-Lantern hooks left in your agent settings keep writing a small log file every time an agent works, even after the app is deleted (they only record what happened, never conversation content, and stop after 2,000 files). If you removed the folder with `rm -rf ~/Library/Application\ Support/Lantern` above, they do nothing. To remove them from the settings too, delete the entries containing `lantern-agent-hook` from `~/.claude/settings.json` and `~/.codex/hooks.json`, or restore the `.lantern-backup` file in the same folder. Note that the backup is from before connecting, so any settings you changed afterward will be lost.
+에이전트 설정에 남은 랜턴 신호는 앱을 지운 뒤에도 에이전트가 일할 때마다 작은 기록 파일을 남깁니다(무슨 일이 일어났는지만 적고, 대화 내용은 적지 않으며, 2,000개가 넘으면 더 쓰지 않습니다). 위의 `rm -rf ~/Library/Application\ Support/Lantern`으로 폴더를 지웠다면 아무 일도 하지 않습니다. 설정에서도 깔끔하게 빼고 싶다면 `~/.claude/settings.json`, `~/.codex/hooks.json`에서 `lantern-agent-hook`이 들어 있는 항목을 지우거나, 같은 폴더의 `.lantern-backup` 파일로 되돌리면 됩니다. 단, 백업 파일은 연결하기 전 내용이라 그 뒤에 바꾼 설정은 사라집니다.
 
-## Contact
+## 문의
 
-Please report problems or ideas in [Issues](https://github.com/SongKyuSeob/Lantern/issues). For security issues, please use [Security → "Report a vulnerability"](https://github.com/SongKyuSeob/Lantern/security/advisories/new) instead of public Issues.
+문제나 제안은 [Issues](https://github.com/SongKyuSeob/Lantern/issues)에 남겨 주세요. 보안 문제는 공개 Issues 대신 [Security 탭의 "Report a vulnerability"](https://github.com/SongKyuSeob/Lantern/security/advisories/new)로 알려 주세요.
 
-## License
+## 라이선스
 
 [MIT](LICENSE)
