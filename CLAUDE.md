@@ -18,4 +18,9 @@
 ```bash
 xcodebuild -project Lantern.xcodeproj -scheme Lantern -configuration Debug build
 swift test --package-path LanternKit
+scripts/check-localization.sh   # 화면 문구를 바꿨다면: 영어 번역 누락 점검
+scripts/render-screens.sh       # 화면 확인: 한국어·영어 그림 저장(마우스·키보드 안 씀)
 ```
+
+## 화면 문구
+- 원본은 한국어, 번역은 String Catalog(`Lantern/Localizable.xcstrings`, `LanternKit/Sources/LanternKit/Localizable.xcstrings`). 코드에서는 `String(localized: "한국어")`로 쓰고, 영어는 `docs/localization.md`의 용어집·말투를 따른다
