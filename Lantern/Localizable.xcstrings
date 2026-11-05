@@ -112,7 +112,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ %lld"
+            "value": "%1$@ ×%2$lld"
           }
         },
         "ko": {
@@ -219,7 +219,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Working: %@"
+            "value": "%@ working"
           }
         },
         "ko": {
@@ -252,6 +252,22 @@
       },
       "shouldTranslate": false
     },
+    "%@년 · 끝낸 일 %lld개 · 깨어 있기 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ · %2$lld completed · %3$@ awake"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@년 · 끝낸 일 %2$lld개 · 깨어 있기 %3$@"
+          }
+        }
+      }
+    },
     "%@는 이미 %@에 쓰고 있어요.": {
       "localizations": {
         "en": {
@@ -276,22 +292,6 @@
     },
     "%lld%%": {
       "shouldTranslate": false
-    },
-    "%lld년 · 끝낸 일 %lld개 · 깨어 있기 %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld · %lld completed · %@ awake"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "new",
-            "value": "%1$lld년 · 끝낸 일 %2$lld개 · 깨어 있기 %3$@"
-          }
-        }
-      }
     },
     "%lld시간": {
       "localizations": {
@@ -511,6 +511,42 @@
           "stringUnit": {
             "state": "new",
             "value": "깨어 있기"
+          }
+        }
+      }
+    },
+    "history.section.completed": {
+      "comment": "기록 창 날짜 아래 묶음 제목",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed %lld"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "끝낸 일 %lld"
+          }
+        }
+      }
+    },
+    "history.section.removed": {
+      "comment": "기록 창 날짜 아래 묶음 제목",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removed %lld"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "new",
+            "value": "지운 일 %lld"
           }
         }
       }

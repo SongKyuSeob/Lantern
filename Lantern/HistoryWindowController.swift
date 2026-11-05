@@ -122,7 +122,8 @@ struct HistoryView: View {
         let completed = inRange.reduce(0) { $0 + $1.completed.count }
         let awake = inRange.reduce(0) { $0 + $1.awakeDuration }
         return HStack(spacing: 6) {
-            Text(verbatim: String(localized: "\(year)년 · 끝낸 일 \(completed)개 · 깨어 있기 \(History.durationText(awake))"))
+            // 연도는 숫자로 넣으면 "2,026"처럼 자릿수 쉼표가 붙어서 글자로 넣는다
+            Text(verbatim: String(localized: "\(String(year))년 · 끝낸 일 \(completed)개 · 깨어 있기 \(History.durationText(awake))"))
             Spacer()
             Text(String(localized: "적음"))
             ForEach(0..<5) { level in
@@ -151,6 +152,14 @@ struct HistoryView: View {
             .fixedSize()
             TextField(String(localized: "할 일 검색"), text: $search)
                 .textFieldStyle(.roundedBorder)
+                #if DEBUG
+                // 그림 저장 모드에서는 시스템 입력 칸 테두리가 모서리만 그려져서, 실제 모습처럼 테두리를 덧그린다
+                .overlay {
+                    if DemoData.rendersFlatBackground {
+                        RoundedRectangle(cornerRadius: 6).strokeBorder(.white.opacity(0.18), lineWidth: 1)
+                    }
+                }
+                #endif
                 // 영어는 버튼 글자가 길어서, 자리가 모자라면 검색 칸이 먼저 줄어든다
                 .frame(minWidth: 110, maxWidth: 150)
             Button(copied ? String(localized: "복사했어요") : String(localized: "Markdown 복사")) {
@@ -307,14 +316,14 @@ private struct HistoryDayDetail: View {
         VStack(alignment: .leading, spacing: 14) {
             if let day, !isEmpty(day) {
                 if filter != .removed, !day.completed.isEmpty {
-                    section(String(localized: "끝낸 일 \(day.completed.count)")) {
+                    section(String(localized: "history.section.completed", defaultValue: "끝낸 일 \(day.completed.count)", comment: "기록 창 날짜 아래 묶음 제목")) {
                         ForEach(Array(day.completed.enumerated()), id: \.offset) { _, todo in
                             row(icon: "checkmark.circle.fill", tint: .accentColor, todo: todo, strike: false, time: todo.completedAt)
                         }
                     }
                 }
                 if filter != .completed, !day.removed.isEmpty {
-                    section(String(localized: "지운 일 \(day.removed.count)")) {
+                    section(String(localized: "history.section.removed", defaultValue: "지운 일 \(day.removed.count)", comment: "기록 창 날짜 아래 묶음 제목")) {
                         ForEach(Array(day.removed.enumerated()), id: \.offset) { _, todo in
                             row(icon: "xmark.circle", tint: .secondary, todo: todo, strike: true, time: todo.hiddenAt)
                         }

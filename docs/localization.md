@@ -34,7 +34,7 @@
 |---|---|---|
 | 랜턴 | Lantern | |
 | 깨어 있기 (기능) | Keep Awake | 기능 이름. 탭 이름은 **Awake** |
-| 깨어 있는 중 | Awake | 상태: "Awake until 4:30 PM", "Awake · 1:42 left" |
+| 깨어 있는 중 | Awake | 상태: "Awake until 4:30 PM", "Awake · 1:42 left". 에이전트 작업 수는 "Claude Code ×2 · Codex ×1 working" |
 | 깨어 있기 꺼짐 | Keep Awake off | |
 | 뚜껑 닫아도 유지 / 뚜껑 모드 | Closed-Lid Mode | 하나로 통일. 설명은 "keeps your Mac awake with the lid closed" |
 | 지금 뚜껑을 닫으면 | If you close the lid now | 값: **Stays awake** / **Sleeps** |
@@ -137,7 +137,7 @@
 
 - **String Catalog**: 앱은 `Lantern/Localizable.xcstrings`, LanternKit은 `LanternKit/Sources/LanternKit/Localizable.xcstrings`(패키지 `defaultLocalization: "ko"`). 원본 언어는 한국어이고, 열쇠는 한국어 문장 그대로다
 - 코드에서는 `Text(String(localized: "할 일 추가"))`, `String(localized: "깨어 있는 중 · \(label)")`처럼 쓴다. 보간은 열쇠에서 `%@`·`%lld`가 된다. 개수가 들어간 문구("%lld일 남음")는 카탈로그의 영어 복수형(one/other)으로 처리한다
-- 같은 한국어가 자리마다 다른 영어가 돼야 하면 따로 열쇠를 둔다: `String(localized: "tab.awake", defaultValue: "깨어 있기", comment: …)` (지금: `tab.awake`, `history.metric.awake`, `update.pill.pending`, `todo.clearDone`, LanternKit `time.range`)
+- 같은 한국어가 자리마다 다른 영어가 돼야 하면 따로 열쇠를 둔다: `String(localized: "tab.awake", defaultValue: "깨어 있기", comment: …)` (지금: `tab.awake`, `history.metric.awake`, `history.section.completed`, `history.section.removed`, `update.pill.pending`, `todo.clearDone`, LanternKit `time.range`). 보간만 다르고 한국어가 같은 문구("끝낸 일 \(a)"와 "끝낸 일 \(b)")도 열쇠가 같아지니 주의
 - LanternKit에서 언어를 직접 정해야 하는 곳(Markdown, 남은 날, 기간 — 테스트용)은 `localized(_:_:)`가 그 언어의 `.lproj` 묶음에서 가져온다. 그래서 카탈로그에 한국어 값도 적어 둔다(`scripts/l10n-fill-source.py`)
 - 시각·날짜·기간·요일·달 이름은 문장으로 번역하지 않고 시스템 형식(`Date.FormatStyle`, `Duration` 형식, `Calendar.shortWeekdaySymbols`)을 쓴다. 영어 시각은 "4:30 PM"의 공백이 좁은 공백(U+202F)이다
 - 화면 언어(`Localization.language`)는 앱이 실제로 고른 번역(`Bundle.main.preferredLocalizations`)이다. 설정 → 일반 → 언어(시스템 설정 따르기 / 한국어 / English, UserDefaults `app.language`)를 바꾸면 앱 선호 언어(`AppleLanguages`)를 바꾸고 "다시 켜기"로 재시작한다
