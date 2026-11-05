@@ -41,6 +41,13 @@ final class AgentMonitor {
 
     var anyWorking: Bool { !activeSessions.isEmpty }
 
+    #if DEBUG
+    /// 디버그 빌드에서만: 화면 그림용으로 일하는 에이전트를 정해 둔다
+    func overrideSessions(_ sessions: [ActiveSession]) {
+        activeSessions = sessions
+    }
+    #endif
+
     func count(of agent: AgentKind) -> Int {
         activeSessions.filter { $0.agent == agent }.count
     }

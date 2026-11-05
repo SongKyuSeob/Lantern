@@ -27,9 +27,9 @@
 - **To-dos**: Keeps your to-do list in a small window in the top-right corner. It's translucent, so it won't block your work, and clicks pass right through it.
 
 <p align="center">
-  <img src="docs/screenshots/todo.png" width="300" alt="To-dos tab">
+  <img src="docs/screenshots/todo.en.png" width="300" alt="To-dos tab">
   &nbsp;
-  <img src="docs/screenshots/awake.png" width="300" alt="Awake tab with one Claude Code task running">
+  <img src="docs/screenshots/awake.en.png" width="300" alt="Awake tab with one Claude Code task running">
 </p>
 
 ## Requirements
@@ -90,7 +90,7 @@ The window comes in three forms:
 - **Single-line view**: A one-line version of the summary window with just your Keep Awake status and how many to-dos you have.
 
 <p align="center">
-  <img src="docs/screenshots/passive.png" width="300" alt="Summary window">
+  <img src="docs/screenshots/passive.en.png" width="300" alt="Summary window">
 </p>
 
 To switch single-line view on or off, right-click the menu bar icon and choose **Single-Line View**, or go to **Settings → General → Show summary window in a single line**. To move the window, **drag the tab bar** at the top of the expanded window to another corner or display; it snaps to the nearest corner when you let go, and opens upward from a bottom corner. Hover over the summary window and it fades so you can see what's behind it; clicks go straight through.
@@ -178,7 +178,7 @@ Connect Claude Code and Codex in **Settings → Agents**. Then, when you choose 
 Right-click the menu bar icon and choose **Show History…**, or click **History ›** at the bottom of the To-dos tab.
 
 <p align="center">
-  <img src="docs/screenshots/history.png" width="560" alt="History window showing a year of activity and the records for one day">
+  <img src="docs/screenshots/history.en.png" width="560" alt="History window showing a year of activity and the records for one day">
 </p>
 
 - The **activity grid** at the top shows each day of the year at a glance. Use <b>‹ ›</b> to look at previous years, and color the grid by **completed to-dos** or **time awake**.

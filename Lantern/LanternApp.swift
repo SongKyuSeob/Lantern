@@ -134,19 +134,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let scratchDomain = "com.songkyuseob.lantern.render"
         let scratch = UserDefaults(suiteName: scratchDomain) ?? .standard
         // 문구는 앱을 켤 때 고른 언어로 정해지므로, 언어마다 따로 실행한다 (`-AppleLanguages "(en)"`)
+        // 맥 상태와 상관없이 같은 그림이 나오게: 전원 연결 + 외장 모니터 (뚜껑을 닫아도 유지되는 상태)
+        power.overrideSnapshot(PowerSnapshot(isOnACPower: true, hasBuiltInDisplay: true, hasExternalDisplay: true, batteryPercent: 80))
         for language in [Localization.language] {
             let folder = URL(fileURLWithPath: directory).appending(path: language.rawValue)
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let store = DemoData.makeStore()
             let state = PanelState(defaults: scratch)
 
-            func render(_ name: String, width: CGFloat, background: NSColor = .black, @ViewBuilder _ content: () -> some View) {
+            // 창 둘레(둥근 모서리 밖)는 투명하게 둔다
+            func render(_ name: String, width: CGFloat, background: NSColor = .clear, @ViewBuilder _ content: () -> some View) {
                 let host = NSHostingView(rootView: content().frame(width: width).background(Color(nsColor: background)).environment(\.colorScheme, .dark))
                 let size = host.fittingSize
                 host.frame = NSRect(origin: .zero, size: size)
                 let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
                 window.appearance = NSAppearance(named: .darkAqua)
                 window.backgroundColor = background
+                window.isOpaque = false
                 window.contentView = host
                 // 화면 밖 먼 곳에 올려야 그려진다. 키 창이 되지 않는 창이라 포커스는 가져가지 않는다
                 window.setFrameOrigin(NSPoint(x: -30_000, y: -30_000))
@@ -176,9 +180,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             panel("passive-off")
             state.isCollapsed = true
             panel("compact-off")
-            awake.start(.hours(2))
+            awake.start(.indefinite)
             state.isCollapsed = false
             panel("passive-on")
+            awake.stop()
+            awake.start(.hours(2))
+            state.isCollapsed = false
+            panel("passive-timed")
             state.isCollapsed = true
             panel("compact-on")
             state.isCollapsed = false
@@ -189,7 +197,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             state.isPickingTime = false
             awake.stop()
             awake.start(.untilAgentsFinish)
+            agentMonitor.overrideSessions([.init(id: "demo", agent: .claude, status: .working, lastEventAt: Date())])
+            agentAwake.update()
             panel("panel-awake-agents")
+            agentMonitor.overrideSessions([])
             awake.stop()
 
             let item = store.openItems().first

@@ -21,6 +21,13 @@ public final class PowerStateMonitor {
         snapshot = Self.readSnapshot()
     }
 
+    #if DEBUG
+    /// 디버그 빌드에서만: 화면 그림을 맥 상태와 상관없이 같게 그리려고 전원 상태를 정해 둔다
+    public func overrideSnapshot(_ snapshot: PowerSnapshot) {
+        self.snapshot = snapshot
+    }
+    #endif
+
     public func start() {
         let context = Unmanaged.passUnretained(self).toOpaque()
 
