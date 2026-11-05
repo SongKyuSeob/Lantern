@@ -33,7 +33,6 @@ struct PanelView: View {
         }
         .frame(width: 300)
         .fixedSize(horizontal: false, vertical: true)
-        .environment(\.colorScheme, .dark)
         .modelContainer(todoStore.container)
     }
 }
@@ -124,7 +123,7 @@ private struct AwakeTab: View {
                 HStack {
                     Button(String(localized: "화면 끄기")) { awake.turnOffDisplay() }
                         .font(.system(size: 12))
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Theme.ink.opacity(0.6))
                     Spacer()
                     Button(String(localized: "깨어 있기 끄기")) { awake.stop() }
                         .font(.system(size: 12, weight: .semibold))
@@ -152,7 +151,7 @@ private struct AwakeTab: View {
         return VStack(alignment: .leading, spacing: 6) {
             Text(String(localized: "언제까지"))
                 .font(.system(size: 12))
-                .foregroundStyle(.white.opacity(0.5))
+                .foregroundStyle(Theme.ink.opacity(0.5))
             SegmentedPicker(
                 items: [
                     (Choice.option(.indefinite), String(localized: "계속")),
@@ -182,7 +181,7 @@ private struct AwakeTab: View {
             HStack {
                 Text(String(localized: "지금 뚜껑을 닫으면"))
                     .font(.system(size: 12.5))
-                    .foregroundStyle(.white.opacity(0.85))
+                    .foregroundStyle(Theme.ink.opacity(0.85))
                 Spacer()
                 HStack(spacing: 5) {
                     Circle().fill(lid.staysAwake ? Theme.goodDot : Theme.bad).frame(width: 5, height: 5)
@@ -193,7 +192,7 @@ private struct AwakeTab: View {
             }
             Text(lid.detail)
                 .font(.system(size: 11.5))
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Theme.ink.opacity(0.4))
         }
         .padding(.horizontal, 2)
     }
@@ -211,11 +210,11 @@ private struct LidModeRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(String(localized: "뚜껑 닫아도 유지"))
                     .font(.system(size: 12.5))
-                    .foregroundStyle(.white.opacity(canToggle ? 0.85 : 0.45))
+                    .foregroundStyle(Theme.ink.opacity(canToggle ? 0.85 : 0.45))
                 if let note {
                     Text(note.text)
                         .font(.system(size: 11))
-                        .foregroundStyle(note.isError ? Theme.bad : .white.opacity(0.4))
+                        .foregroundStyle(note.isError ? Theme.bad : Theme.ink.opacity(0.4))
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -278,11 +277,11 @@ private struct StatusCard: View {
                     }
                     Text(agents.headline)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Theme.ink)
                     if let detail = agents.detail {
                         Text(detail)
                             .font(.system(size: 11))
-                            .foregroundStyle(.white.opacity(0.5))
+                            .foregroundStyle(Theme.ink.opacity(0.5))
                     }
                 }
                 .help(AgentStatusText.rulesHelp)
@@ -296,13 +295,13 @@ private struct StatusCard: View {
                             .foregroundStyle(Theme.flameText)
                     }
                     if let remaining = awake.remaining {
-                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 20, weight: .semibold)).foregroundStyle(.white))\(Text(String(localized: " 남음")).font(.system(size: 13, weight: .medium)).foregroundStyle(.white.opacity(0.5)))")
+                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.ink))\(Text(String(localized: " 남음")).font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.5)))")
                             .tracking(-0.3)
                             .monospacedDigit()
                     } else {
                         Text(String(localized: "끌 때까지 깨어 있음"))
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Theme.ink)
                     }
                 }
                 Spacer()
@@ -330,11 +329,11 @@ private struct StatusCard: View {
                         HollowDot(size: 6)
                         Text(String(localized: "깨어 있기 꺼짐"))
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(Theme.ink.opacity(0.6))
                     }
                     Text(String(localized: "맥이 평소처럼 잠들어요"))
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(Theme.ink.opacity(0.5))
                 }
                 Spacer()
                 Button(String(localized: "\(AwakeText.shortLabel(for: awake.lastOption)) 시작 ›")) { awake.startWithLastOption() }
@@ -375,7 +374,7 @@ private struct TimePickerRow: View {
             }
             Text(preview)
                 .font(.system(size: 11.5))
-                .foregroundStyle(.white.opacity(0.55))
+                .foregroundStyle(Theme.ink.opacity(0.55))
                 .lineLimit(1)
             Spacer(minLength: 0)
             Button(String(localized: "시작")) {
@@ -416,16 +415,16 @@ private struct ChipMenu<Content: View>: View {
             HStack(spacing: 4) {
                 Text(title)
                     .font(.system(size: 12.5, weight: .medium))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Theme.ink)
                     .lineLimit(1)
                     .fixedSize()
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.system(size: 8, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(Theme.ink.opacity(0.5))
             }
             .padding(.horizontal, 9)
             .padding(.vertical, 5)
-            .background(RoundedRectangle(cornerRadius: 6).fill(Color.white.opacity(0.08)))
+            .background(RoundedRectangle(cornerRadius: 6).fill(Theme.ink.opacity(0.08)))
             .contentShape(Rectangle())
         }
         .menuStyle(.button)
@@ -456,12 +455,12 @@ private struct PassiveSummary: View {
                     }
                     Spacer()
                     if let remaining = awake.remaining {
-                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 14, weight: .semibold)).foregroundStyle(.white))\(Text(String(localized: " 남음")).font(.system(size: 11, weight: .medium)).foregroundStyle(.white.opacity(0.6)))")
+                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 14, weight: .semibold)).foregroundStyle(Theme.ink))\(Text(String(localized: " 남음")).font(.system(size: 11, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.6)))")
                             .monospacedDigit()
                     } else if session.option == .untilAgentsFinish {
                         Text(agents.short)
                             .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(Theme.ink)
                     }
                 }
                 // 새 버전 표시는 위쪽 줄 오른편이 남은 시간으로 차 있어서 설명 줄 오른편에 둔다
@@ -476,7 +475,7 @@ private struct PassiveSummary: View {
                         HollowDot(size: 7)
                         Text(String(localized: "깨어 있기 꺼짐"))
                             .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.7))
+                            .foregroundStyle(Theme.ink.opacity(0.7))
                     }
                     Spacer(minLength: 8)
                     updateNote
@@ -484,7 +483,7 @@ private struct PassiveSummary: View {
             }
             PassiveTodoList()
         }
-        .shadow(color: .black.opacity(0.5), radius: 1.5, y: 1)
+        .shadow(color: Theme.textShadow, radius: 1.5, y: 1)
         .padding(.horizontal, 12)
         .padding(.top, 10)
         .padding(.bottom, 12)
@@ -500,7 +499,7 @@ private struct PassiveSummary: View {
                 Circle().fill(Theme.primary).frame(width: 5, height: 5)
                 Text(updates.installsAfterAwake ? String(localized: "끝나면 \(version) 설치") : String(localized: "새 버전 \(version)"))
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.6))
+                    .foregroundStyle(Theme.ink.opacity(0.6))
                     .lineLimit(1)
                     .fixedSize()
             }
@@ -510,14 +509,14 @@ private struct PassiveSummary: View {
     /// "오후 4:30까지 · 지금 닫아도 유지됨"
     private func detailLine(_ session: AwakeSession) -> some View {
         let until = AwakeText.until(session) ?? AwakeText.label(for: session.option)
-        let base = Text(until).foregroundStyle(.white.opacity(0.65))
+        let base = Text(until).foregroundStyle(Theme.ink.opacity(0.65))
         let line: Text
         if let lid = AwakeText.lidClose(LidClosePrediction.outcome(for: power.snapshot)) {
             let lead = lid.staysAwake ? String(localized: " · 지금 닫아도 ") : String(localized: " · 지금 닫으면 ")
             let value = Text(lid.value)
                 .fontWeight(.medium)
                 .foregroundStyle(lid.staysAwake ? Theme.goodPassive : Theme.bad)
-            line = Text("\(base)\(Text(lead).foregroundStyle(.white.opacity(0.65)))\(value)")
+            line = Text("\(base)\(Text(lead).foregroundStyle(Theme.ink.opacity(0.65)))\(value)")
         } else {
             line = base
         }
@@ -538,7 +537,7 @@ private struct CollapsedBar: View {
             if awake.isAwake {
                 HStack(spacing: 7) {
                     FlameDot(size: 7)
-                    Text("\(Text(String(localized: "깨어 있는 중")).foregroundStyle(Theme.flameTextPassive))\(Text(" · \(shortStatus)").foregroundStyle(.white))")
+                    Text("\(Text(String(localized: "깨어 있는 중")).foregroundStyle(Theme.flameTextPassive))\(Text(" · \(shortStatus)").foregroundStyle(Theme.ink))")
                         .font(.system(size: 12, weight: .semibold))
                         .monospacedDigit()
                 }
@@ -547,7 +546,7 @@ private struct CollapsedBar: View {
                     HollowDot(size: 7)
                     Text(String(localized: "깨어 있기 꺼짐"))
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(Theme.ink.opacity(0.7))
                 }
             }
             Spacer()
@@ -557,7 +556,7 @@ private struct CollapsedBar: View {
                 Circle().fill(Theme.primary).frame(width: 6, height: 6)
             }
         }
-        .shadow(color: .black.opacity(0.5), radius: 1.5, y: 1)
+        .shadow(color: Theme.textShadow, radius: 1.5, y: 1)
         .padding(.leading, 12)
         .padding(.trailing, 12)
         .padding(.vertical, 7)
@@ -610,9 +609,9 @@ private struct SegmentedPicker<Value: Hashable>: View {
     private func foreground(_ isSelected: Bool) -> Color {
         switch (style, isSelected) {
         case (.tab, true): Theme.primaryTabText
-        case (.tab, false): .white.opacity(0.45)
-        case (.segment, true): .white
-        case (.segment, false): .white.opacity(0.6)
+        case (.tab, false): Theme.ink.opacity(0.45)
+        case (.segment, true): Theme.ink
+        case (.segment, false): Theme.ink.opacity(0.6)
         }
     }
 
@@ -665,7 +664,7 @@ private struct HollowDot: View {
 
     var body: some View {
         Circle()
-            .strokeBorder(.white.opacity(0.5), lineWidth: 1.1)
+            .strokeBorder(Theme.ink.opacity(0.5), lineWidth: 1.1)
             .frame(width: size, height: size)
     }
 }
@@ -687,7 +686,7 @@ private struct PanelBackground<S: InsettableShape>: ViewModifier {
         #if DEBUG
         // 그림 저장 모드: 유리 효과는 화면에 합성될 때 그려져 그림에 잡히지 않으므로 단색 바탕으로 그린다
         if DemoData.rendersFlatBackground {
-            content.background(shape.fill(Color(white: 0.13)))
+            content.background(shape.fill(Color(light: Color(white: 0.96), dark: Color(white: 0.13))))
         } else {
             content.glassEffect(.regular.tint(Theme.background.opacity(tint)), in: shape)
         }

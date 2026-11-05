@@ -41,7 +41,7 @@ struct TodoTab: View {
             if openItems.isEmpty && doneItems.isEmpty {
                 Text(String(localized: "적어 둔 할 일은 평소 창에 위에서 세 개까지 보여요"))
                     .font(.system(size: 11.5))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .foregroundStyle(Theme.ink.opacity(0.4))
                     .padding(.horizontal, 2)
                     .padding(.vertical, 4)
             } else {
@@ -52,7 +52,7 @@ struct TodoTab: View {
                 Button(String(localized: "기록 ›"), action: openHistory)
                     .buttonStyle(.plain)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(Theme.ink.opacity(0.5))
                     .help(String(localized: "지금까지 끝낸 일 · 지운 일 · 깨어 있기를 날짜별로 봐요"))
             }
             .padding(.horizontal, 2)
@@ -70,7 +70,7 @@ struct TodoTab: View {
         HStack(spacing: 7) {
             Image(systemName: "plus")
                 .font(.system(size: 10, weight: .semibold))
-                .foregroundStyle(.white.opacity(0.45))
+                .foregroundStyle(Theme.ink.opacity(0.45))
             TextField(String(localized: "할 일 추가"), text: $state.todoDraft)
                 .textFieldStyle(.plain)
                 .font(.system(size: 12.5))
@@ -138,7 +138,7 @@ struct TodoTab: View {
         HStack {
             Text(String(localized: "완료 \(doneItems.count)"))
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.white.opacity(0.4))
+                .foregroundStyle(Theme.ink.opacity(0.4))
             Spacer()
             Button(String(localized: "todo.clearDone", defaultValue: "지우기", comment: "완료 묶음을 치우는 버튼")) { store.clearDone() }
                 .buttonStyle(.plain)
@@ -260,7 +260,7 @@ private struct TodoRow: View {
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 9, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.45))
+                            .foregroundStyle(Theme.ink.opacity(0.45))
                             .frame(width: 16, height: TodoTab.rowHeight)
                             .contentShape(Rectangle())
                     }
@@ -299,7 +299,7 @@ private struct TodoRow: View {
             if isDragged || isExpanded {
                 RoundedRectangle(cornerRadius: 6)
                     .fill(isDragged ? Theme.background.opacity(0.55) : .clear)
-                    .overlay(RoundedRectangle(cornerRadius: 6).fill(isDragged ? Theme.fillTrack : .white.opacity(0.04)))
+                    .overlay(RoundedRectangle(cornerRadius: 6).fill(isDragged ? Theme.fillTrack : Theme.ink.opacity(0.04)))
                     .padding(.horizontal, -4)
             }
         }
@@ -341,8 +341,8 @@ private struct TodoRow: View {
             // 펼치면 잘린 제목도 끝까지 보여 준다
             Text(item.title)
                 .font(.system(size: 12.5))
-                .strikethrough(item.isDone, color: .white.opacity(0.35))
-                .foregroundStyle(.white.opacity(item.isDone ? 0.35 : 0.88))
+                .strikethrough(item.isDone, color: Theme.ink.opacity(0.35))
+                .foregroundStyle(Theme.ink.opacity(item.isDone ? 0.35 : 0.88))
                 .lineLimit(isExpanded ? nil : 1)
                 .truncationMode(.tail)
                 .fixedSize(horizontal: false, vertical: isExpanded)
@@ -363,7 +363,7 @@ private struct TodoRow: View {
         } label: {
             Image(systemName: "text.alignleft")
                 .font(.system(size: 9, weight: .medium))
-                .foregroundStyle(.white.opacity(isExpanded ? 0.6 : 0.3))
+                .foregroundStyle(Theme.ink.opacity(isExpanded ? 0.6 : 0.3))
                 .frame(width: 16, height: TodoTab.rowHeight)
                 .contentShape(Rectangle())
         }
@@ -376,7 +376,7 @@ private struct TodoRow: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(item.note)
                 .font(.system(size: 11.5))
-                .foregroundStyle(.white.opacity(0.62))
+                .foregroundStyle(Theme.ink.opacity(0.62))
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
             Button(String(localized: "편집")) { noteEditingID = item.id }
@@ -393,7 +393,7 @@ private struct TodoRow: View {
         return Text(TodoDue.label(dueDate, now: now))
             .font(.system(size: 10.5, weight: isSoon ? .semibold : .regular))
             .monospacedDigit()
-            .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flame) : AnyShapeStyle(.white.opacity(item.isDone ? 0.25 : 0.4)))
+            .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flame) : AnyShapeStyle(Theme.ink.opacity(item.isDone ? 0.25 : 0.4)))
             .frame(height: TodoTab.rowHeight)
             .help(String(localized: "기한 ") + History.dateTitle(dueDate))
     }
@@ -406,7 +406,7 @@ private struct TodoRow: View {
                 .foregroundStyle(Theme.primary.opacity(0.7))
         } else {
             Circle()
-                .strokeBorder(.white.opacity(0.45), lineWidth: 1.2)
+                .strokeBorder(Theme.ink.opacity(0.45), lineWidth: 1.2)
                 .frame(width: 13, height: 13)
         }
     }
@@ -462,11 +462,11 @@ struct PassiveTodoList: View {
             ForEach(items.prefix(Self.visibleCount)) { item in
                 HStack(spacing: 7) {
                     Circle()
-                        .strokeBorder(.white.opacity(0.5), lineWidth: 1.1)
+                        .strokeBorder(Theme.ink.opacity(0.5), lineWidth: 1.1)
                         .frame(width: 9, height: 9)
                     Text(item.title)
                         .font(.system(size: 11.5))
-                        .foregroundStyle(.white.opacity(0.85))
+                        .foregroundStyle(Theme.ink.opacity(0.85))
                         .lineLimit(1)
                         .truncationMode(.tail)
                     if let dueDate = item.dueDate {
@@ -475,7 +475,7 @@ struct PassiveTodoList: View {
                         Text(TodoDue.label(dueDate, now: now))
                             .font(.system(size: 10.5, weight: isSoon ? .semibold : .regular))
                             .monospacedDigit()
-                            .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flameTextPassive) : AnyShapeStyle(.white.opacity(0.4)))
+                            .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flameTextPassive) : AnyShapeStyle(Theme.ink.opacity(0.4)))
                     }
                 }
             }
@@ -484,11 +484,11 @@ struct PassiveTodoList: View {
                 HStack(spacing: 7) {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(.white.opacity(0.4))
+                        .foregroundStyle(Theme.ink.opacity(0.4))
                         .frame(width: 9)
                     Text("\(openItems.count - Self.visibleCount) more")
                         .font(.system(size: 11))
-                        .foregroundStyle(.white.opacity(0.45))
+                        .foregroundStyle(Theme.ink.opacity(0.45))
                 }
             }
         }
@@ -503,7 +503,7 @@ struct CollapsedTodoCount: View {
         if !openItems.isEmpty {
             Text(String(localized: "할 일 \(openItems.count)"))
                 .font(.system(size: 11.5, weight: .medium))
-                .foregroundStyle(.white.opacity(0.6))
+                .foregroundStyle(Theme.ink.opacity(0.6))
                 .monospacedDigit()
         }
     }

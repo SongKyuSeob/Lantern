@@ -134,21 +134,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let scratchDomain = "com.songkyuseob.lantern.render"
         let scratch = UserDefaults(suiteName: scratchDomain) ?? .standard
         // 문구는 앱을 켤 때 고른 언어로 정해지므로, 언어마다 따로 실행한다 (`-AppleLanguages "(en)"`)
+        // 라이트·다크는 LANTERN_RENDER_APPEARANCE=light|dark (기본 다크). 폴더 이름에 붙는다 (ko, ko-light)
+        let isLight = ProcessInfo.processInfo.environment["LANTERN_RENDER_APPEARANCE"] == "light"
+        NSApp.appearance = NSAppearance(named: isLight ? .aqua : .darkAqua)
         // 맥 상태와 상관없이 같은 그림이 나오게: 전원 연결 + 외장 모니터 (뚜껑을 닫아도 유지되는 상태)
         power.overrideSnapshot(PowerSnapshot(isOnACPower: true, hasBuiltInDisplay: true, hasExternalDisplay: true, batteryPercent: 80))
         for language in [Localization.language] {
-            let folder = URL(fileURLWithPath: directory).appending(path: language.rawValue)
+            let folder = URL(fileURLWithPath: directory).appending(path: language.rawValue + (isLight ? "-light" : ""))
             try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let store = DemoData.makeStore()
             let state = PanelState(defaults: scratch)
 
             // 창 둘레(둥근 모서리 밖)는 투명하게 둔다
             func render(_ name: String, width: CGFloat, background: NSColor = .clear, @ViewBuilder _ content: () -> some View) {
-                let host = NSHostingView(rootView: content().frame(width: width).background(Color(nsColor: background)).environment(\.colorScheme, .dark))
+                let host = NSHostingView(rootView: content().frame(width: width).background(Color(nsColor: background)).environment(\.colorScheme, isLight ? .light : .dark))
                 let size = host.fittingSize
                 host.frame = NSRect(origin: .zero, size: size)
                 let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
-                window.appearance = NSAppearance(named: .darkAqua)
+                window.appearance = NSAppearance(named: isLight ? .aqua : .darkAqua)
                 window.backgroundColor = background
                 window.isOpaque = false
                 window.contentView = host
@@ -204,10 +207,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             awake.stop()
 
             let item = store.openItems().first
-            render("editor-note", width: 280, background: .darkGray) {
+            render("editor-note", width: 280, background: .windowBackgroundColor) {
                 TodoNoteEditor(title: item?.title ?? "", note: item?.note ?? "", onSave: { _ in }, onCancel: {})
             }
-            render("editor-due", width: 260, background: .darkGray) {
+            render("editor-due", width: 260, background: .windowBackgroundColor) {
                 TodoDueEditor(title: item?.title ?? "", current: nil, onSave: { _ in }, onCancel: {})
             }
             render("history", width: 740, background: .windowBackgroundColor) {

@@ -10,7 +10,8 @@ for path in CommandLine.arguments.dropFirst() {
     request.recognitionLevel = .accurate
     try? VNImageRequestHandler(cgImage: cg).perform([request])
     let lines = (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }
-    let hangul = lines.filter { $0.range(of: "[가-힣]", options: .regularExpression) != nil }
+    // 언어 고르기의 "한국어"는 그 언어로 쓰는 게 맞아서 뺀다
+    let hangul = lines.filter { $0.range(of: "[가-힣]", options: .regularExpression) != nil && !$0.contains("한국어") }
     if !hangul.isEmpty { found = true }
     print((path as NSString).lastPathComponent, "줄 \(lines.count)", hangul.isEmpty ? "한글 없음" : "한글: \(hangul)")
 }

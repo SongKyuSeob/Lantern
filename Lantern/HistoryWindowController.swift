@@ -156,7 +156,7 @@ struct HistoryView: View {
                 // 그림 저장 모드에서는 시스템 입력 칸 테두리가 모서리만 그려져서, 실제 모습처럼 테두리를 덧그린다
                 .overlay {
                     if DemoData.rendersFlatBackground {
-                        RoundedRectangle(cornerRadius: 6).strokeBorder(.white.opacity(0.18), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.ink.opacity(0.18), lineWidth: 1)
                     }
                 }
                 #endif
@@ -288,7 +288,7 @@ private struct HistoryGrid: View {
             .fill(Self.color(level: level))
             .overlay {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: 3).strokeBorder(Color.primary.opacity(0.8), lineWidth: 1.5)
+                    RoundedRectangle(cornerRadius: 3).strokeBorder(Theme.ink.opacity(0.8), lineWidth: 1.5)
                 }
             }
             .frame(width: Self.cell, height: Self.cell)

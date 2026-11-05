@@ -53,8 +53,7 @@ final class FloatingPanelController {
         panel.isMovable = false
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        // 창은 어두운 테마 하나로 고정한다. 시스템이 라이트 모드여도 유리 배경이 밝아지지 않게 창 자체를 어둡게 둔다
-        panel.appearance = NSAppearance(named: .darkAqua)
+        // 창은 시스템 라이트·다크 모드를 따른다 (0.5까지는 어두운 테마로 고정했었다). 색은 Theme.swift
         panel.acceptsMouseMovedEvents = true
         // 키 입력을 돌려줄 때 창을 잠깐 내렸다 올리는데, 기본 페이드(0.3초)가 재생되면 창이 꺼졌다 뜨는 것처럼 보인다
         panel.animationBehavior = .none
