@@ -44,7 +44,7 @@ final class SettingsWindowController {
                 shortcuts: shortcuts, loginItem: loginItem, updates: updates, panelState: panelState
             ))
             let window = NSWindow(contentViewController: host)
-            window.title = "랜턴 설정"
+            window.title = L("랜턴 설정", "Lantern Settings")
             window.identifier = SettingsWindowController.windowIdentifier
             // 높이는 사용자가 조절할 수 있다. 폭은 내용에 맞춰 고정
             window.styleMask = [.titled, .closable, .resizable]
@@ -110,9 +110,9 @@ struct SettingsView: View {
 
         var title: String {
             switch self {
-            case .general: "일반"
-            case .agents: "에이전트"
-            case .power: "전원"
+            case .general: L("일반", "General")
+            case .agents: L("에이전트", "Agents")
+            case .power: L("전원", "Power")
             }
         }
     }
@@ -157,7 +157,7 @@ struct SettingsView: View {
         Form {
             Section {
                 // 값은 오른쪽 끝, 다른 줄("권한 · 설치됨")과 같은 자리에 둔다
-                LabeledContent("배터리 기준") {
+                LabeledContent(L("배터리 기준", "Battery threshold")) {
                     HStack(spacing: 6) {
                         Text("\(safety.batteryThreshold)%")
                             .monospacedDigit()
@@ -166,25 +166,25 @@ struct SettingsView: View {
                     }
                 }
             } header: {
-                Text("배터리")
+                Text(L("배터리", "Battery"))
             } footer: {
-                Text("충전기를 연결하지 않은 채 배터리가 이 아래로 내려가면 깨어 있기를 꺼요. 뚜껑을 닫아 둔 상태였다면 맥을 바로 재워요. 기준 아래에서는 뚜껑 닫아도 유지를 켤 수 없어요.")
+                Text(L("충전기를 연결하지 않은 채 배터리가 이 아래로 내려가면 깨어 있기를 꺼요. 뚜껑을 닫아 둔 상태였다면 맥을 바로 재워요. 기준 아래에서는 뚜껑 닫아도 유지를 켤 수 없어요.", "When you're on battery and it drops below this level, Keep Awake turns off. If the lid is closed, your Mac goes to sleep right away. Closed-Lid Mode can't be turned on below this level."))
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                LabeledContent("권한") {
+                LabeledContent(L("권한", "Permission")) {
                     HStack(spacing: 8) {
                         statusLabel
                         switch lidModeSetup.status {
                         case .installed:
-                            Button("제거…") {
+                            Button(L("제거…", "Remove…")) {
                                 lidModeSetup.uninstall()
                                 lidMode.refresh()
                             }
                         case .notInstalled:
-                            Button("설치…") { lidModeSetup.install() }
+                            Button(L("설치…", "Install…")) { lidModeSetup.install() }
                         case .unknown:
                             EmptyView()
                         }
@@ -196,11 +196,11 @@ struct SettingsView: View {
                         .foregroundStyle(.red)
                 }
             } header: {
-                Text("뚜껑 닫아도 유지 (뚜껑 모드)")
+                Text(L("뚜껑 닫아도 유지 (뚜껑 모드)", "Closed-Lid Mode"))
             } footer: {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("깨어 있는 동안 외장 모니터 없이 뚜껑을 닫아도 맥이 잠들지 않게 해요. 깨어 있기가 끝나거나 맥이 많이 뜨거워지면 저절로 꺼져요. 처음 한 번 관리자 비밀번호가 필요해요.")
-                    Text("설치하면 아래 세 명령만 비밀번호 없이 실행할 수 있어요. 이 맥의 다른 프로그램도 같은 명령을 쓸 수 있지만, 할 수 있는 일은 잠들지 않게 하거나 재우는 것뿐이에요.")
+                    Text(L("깨어 있는 동안 외장 모니터 없이 뚜껑을 닫아도 맥이 잠들지 않게 해요. 깨어 있기가 끝나거나 맥이 많이 뜨거워지면 저절로 꺼져요. 처음 한 번 관리자 비밀번호가 필요해요.", "While Keep Awake is on, keeps your Mac awake with the lid closed, even without an external display. It turns off by itself when Keep Awake ends or your Mac gets too hot. You'll need your administrator password once."))
+                    Text(L("설치하면 아래 세 명령만 비밀번호 없이 실행할 수 있어요. 이 맥의 다른 프로그램도 같은 명령을 쓸 수 있지만, 할 수 있는 일은 잠들지 않게 하거나 재우는 것뿐이에요.", "Installing lets only the three commands below run without a password. Other programs on this Mac can use them too, but all they can do is keep your Mac awake or put it to sleep."))
                     Text(allowedCommands)
                         .font(.system(.caption, design: .monospaced))
                         .textSelection(.enabled)
@@ -215,9 +215,9 @@ struct SettingsView: View {
     @ViewBuilder
     private var statusLabel: some View {
         switch lidModeSetup.status {
-        case .unknown: Text("확인 중…").foregroundStyle(.secondary)
-        case .installed: Label("설치됨", systemImage: "checkmark.circle.fill").foregroundStyle(.green)
-        case .notInstalled: Text("설치 안 됨").foregroundStyle(.secondary)
+        case .unknown: Text(L("확인 중…", "Checking…")).foregroundStyle(.secondary)
+        case .installed: Label(L("설치됨", "Installed"), systemImage: "checkmark.circle.fill").foregroundStyle(.green)
+        case .notInstalled: Text(L("설치 안 됨", "Not installed")).foregroundStyle(.secondary)
         }
     }
 
@@ -241,9 +241,9 @@ private struct AgentSection: View {
                         status(agent)
                         switch agentHooks.status(of: agent) {
                         case .connected:
-                            Button("해제") { agentHooks.disconnect(agent) }
+                            Button(L("해제", "Disconnect")) { agentHooks.disconnect(agent) }
                         case .notConnected:
-                            Button("연결") { agentHooks.connect(agent) }
+                            Button(L("연결", "Connect")) { agentHooks.connect(agent) }
                         case .programMissing:
                             EmptyView()
                         }
@@ -256,11 +256,11 @@ private struct AgentSection: View {
                     .foregroundStyle(.red)
             }
         } header: {
-            Text("에이전트 연결")
+            Text(L("에이전트 연결", "Agent connections"))
         } footer: {
             VStack(alignment: .leading, spacing: 6) {
-                Text("연결하면 \"언제까지 · 에이전트\"를 골랐을 때 에이전트가 일하는 동안만 깨어 있어요. 에이전트 설정 파일에 랜턴 hook을 더하고, 다른 hook은 건드리지 않아요. 바꾸기 전 파일은 같은 폴더에 .lantern-backup으로 남겨요.")
-                Text("Codex는 연결한 뒤 Codex를 다시 켜서 /hooks에서 랜턴 hook을 한 번 승인해야 동작해요. Claude Code는 처음 여는 폴더를 신뢰해야 hook이 동작해요.")
+                Text(L("연결하면 \"언제까지 · 에이전트\"를 골랐을 때 에이전트가 일하는 동안만 깨어 있어요. 에이전트 설정 파일에 랜턴 hook을 더하고, 다른 hook은 건드리지 않아요. 바꾸기 전 파일은 같은 폴더에 .lantern-backup으로 남겨요.", "Once connected, choosing Until → Agents keeps your Mac awake only while agents are working. Lantern adds its hook to the agent's settings file and leaves other hooks alone. The original file is saved in the same folder as .lantern-backup."))
+                Text(L("Codex는 연결한 뒤 Codex를 다시 켜서 /hooks에서 랜턴 hook을 한 번 승인해야 동작해요. Claude Code는 처음 여는 폴더를 신뢰해야 hook이 동작해요.", "For Codex, restart it after connecting and approve the Lantern hook once in /hooks. For Claude Code, the hook works only in folders you've trusted."))
                 Text(AgentStatusText.rulesHelp)
             }
             .font(.callout)
@@ -272,17 +272,17 @@ private struct AgentSection: View {
     private func status(_ agent: AgentKind) -> some View {
         switch agentHooks.status(of: agent) {
         case .programMissing:
-            Text("설치 안 됨").foregroundStyle(.secondary)
+            Text(L("설치 안 됨", "Not installed")).foregroundStyle(.secondary)
         case .notConnected:
-            Text("연결 안 됨").foregroundStyle(.secondary)
+            Text(L("연결 안 됨", "Not connected")).foregroundStyle(.secondary)
         case .connected:
             if let last = agentMonitor.lastSignalAt[agent] {
-                Label("연결됨 · 마지막 신호 \(last.formatted(.relative(presentation: .named)))", systemImage: "checkmark.circle.fill")
+                Label(L("연결됨 · 마지막 신호", "Connected · Last signal") + " " + last.formatted(.relative(presentation: .named).locale(Localization.locale)), systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
             } else {
-                Label("연결됨 · 아직 신호 없음", systemImage: "clock")
+                Label(L("연결됨 · 아직 신호 없음", "Connected · No signals yet"), systemImage: "clock")
                     .foregroundStyle(.secondary)
-                    .help("에이전트에게 지시를 한 번 보내면 신호가 와요")
+                    .help(L("에이전트에게 지시를 한 번 보내면 신호가 와요", "A signal arrives after you send the agent a prompt"))
             }
         }
     }
@@ -305,14 +305,14 @@ private struct ShortcutSection: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
             } else if let failed = ShortcutAction.allCases.first(where: shortcuts.failedActions.contains) {
-                Text("\(failed.title) 단축키를 등록하지 못했어요. 다른 조합으로 바꿔 주세요.")
+                Text(L("\(failed.title) 단축키를 등록하지 못했어요. 다른 조합으로 바꿔 주세요.", "Couldn't register the shortcut for \(failed.title). Try a different combination."))
                     .font(.callout)
                     .foregroundStyle(.red)
             }
         } header: {
-            Text("단축키")
+            Text(L("단축키", "Shortcuts"))
         } footer: {
-            Text("어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (Esc로 취소).\n⌃ 또는 ⌥가 들어간 조합만 쓸 수 있어요. ⌘ 조합은 대부분 앱이 이미 쓰고 있어서, 랜턴이 가져가면 모든 앱에서 그 기능이 막히기 때문이에요.")
+            Text(L("어느 앱에서든 쓸 수 있어요. 창 열기·닫기는 메뉴바 아이콘을 누른 것과 같고, 메뉴바 아이콘이 가려져 안 보일 때도 쓸 수 있어요. 바꾸려면 버튼을 누른 뒤 원하는 조합을 누르세요 (Esc로 취소).\n⌃ 또는 ⌥가 들어간 조합만 쓸 수 있어요. ⌘ 조합은 대부분 앱이 이미 쓰고 있어서, 랜턴이 가져가면 모든 앱에서 그 기능이 막히기 때문이에요.", "These work in any app. Opening or closing the window is the same as clicking the menu bar icon, and works even when the icon is hidden. To change a shortcut, click its button and press the new combination (Esc to cancel).\nShortcuts must include ⌃ or ⌥. Most apps already use ⌘ combinations, and taking them over would block those features in every app."))
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
@@ -330,15 +330,15 @@ private struct ShortcutSection: View {
                     recording == action ? stopRecording() : startRecording(action)
                 } label: {
                     // 버튼 바깥이 아니라 버튼 안쪽 폭을 넓혀, 옆 버튼과 사이가 벌어지지 않게 한다
-                    Text(recording == action ? "키를 누르세요…" : shortcuts.shortcut(for: action)?.displayString ?? "없음")
+                    Text(recording == action ? L("키를 누르세요…", "Press a shortcut…") : shortcuts.shortcut(for: action)?.displayString ?? L("없음", "None"))
                         .frame(minWidth: 72)
                 }
                 if recording != action {
                     if shortcuts.shortcut(for: action) != nil {
-                        Button("끄기") { shortcuts.update(action, to: nil) }
+                        Button(L("끄기", "Turn Off")) { shortcuts.update(action, to: nil) }
                     }
                     if shortcuts.shortcut(for: action) != action.defaultShortcut {
-                        Button("기본값") { apply(action.defaultShortcut, to: action) }
+                        Button(L("기본값", "Reset")) { apply(action.defaultShortcut, to: action) }
                     }
                 }
             }
@@ -364,7 +364,7 @@ private struct ShortcutSection: View {
                 apply(candidate, to: action)
                 stopRecording()
             } else {
-                hint = "⌃ 또는 ⌥와 함께 눌러 주세요."
+                hint = L("⌃ 또는 ⌥와 함께 눌러 주세요.", "Include ⌃ or ⌥ in the shortcut.")
             }
             return nil
         }
@@ -373,7 +373,7 @@ private struct ShortcutSection: View {
     /// 다른 동작이 쓰고 있는 조합이면 바꾸지 않고 알려 준다
     private func apply(_ shortcut: KeyShortcut, to action: ShortcutAction) {
         if let other = shortcuts.conflict(shortcut, for: action) {
-            hint = "\(shortcut.displayString)는 이미 \(other.title)에 쓰고 있어요."
+            hint = L("\(shortcut.displayString)는 이미 \(other.title)에 쓰고 있어요.", "\(shortcut.displayString) is already used for \(other.title).")
             return
         }
         hint = nil
@@ -396,20 +396,20 @@ private struct UpdateSection: View {
     var body: some View {
         Section {
             Toggle(isOn: $updates.automaticallyChecks) {
-                Text("업데이트 자동으로 확인")
-                Text("하루 한 번 새 버전이 있는지 확인해요. 설치는 직접 눌러야 해요.")
+                Text(L("업데이트 자동으로 확인", "Automatically check for updates"))
+                Text(L("하루 한 번 새 버전이 있는지 확인해요. 설치는 직접 눌러야 해요.", "Checks for a new version once a day. Nothing is installed until you click Install."))
             }
             HStack {
-                Text("버전 \(updates.currentVersion)")
+                Text(L("버전 \(updates.currentVersion)", "Version \(updates.currentVersion)"))
                 if let version = updates.availableVersion {
-                    Text("· \(version) 나옴")
+                    Text(L("· \(version) 나옴", "· \(version) available"))
                         .foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("업데이트 확인") { updates.checkForUpdates() }
+                Button(L("업데이트 확인", "Check for Updates")) { updates.checkForUpdates() }
             }
         } header: {
-            Text("업데이트")
+            Text(L("업데이트", "Updates"))
         }
     }
 }
@@ -420,39 +420,40 @@ private struct TodoSection: View {
 
     var body: some View {
         Section {
-            Picker("기한 임박 표시", selection: $soonDays) {
+            Picker(L("기한 임박 표시", "Highlight as due soon"), selection: $soonDays) {
                 ForEach(TodoDue.soonDayOptions, id: \.self) { days in
                     Text(TodoDue.soonDaysTitle(days)).tag(days)
                 }
             }
         } header: {
-            Text("할 일")
+            Text(L("할 일", "To-dos"))
         } footer: {
-            Text("기한이 이만큼 남았거나 지난 할 일은 주황색으로 표시하고 목록 맨 위로 올려요.")
+            Text(L("기한이 이만큼 남았거나 지난 할 일은 주황색으로 표시하고 목록 맨 위로 올려요.", "To-dos due within this range, or overdue, turn orange and move to the top of the list."))
                 .font(.callout)
                 .foregroundStyle(.secondary)
         }
     }
 }
 
-/// "일반" 칸: 로그인할 때 열기, 평소 창 한 줄 보기
+/// "일반" 칸: 로그인할 때 열기, 언어, 평소 창 한 줄 보기
 private struct GeneralSection: View {
     let loginItem: LoginItemController
     @Bindable var panelState: PanelState
+    @AppStorage(Localization.preferenceKey) private var language: LanguagePreference = .system
 
     var body: some View {
         Section {
-            Toggle("로그인할 때 열기", isOn: Binding(
+            Toggle(L("로그인할 때 열기", "Open at login"), isOn: Binding(
                 get: { loginItem.status != .disabled },
                 set: { loginItem.setEnabled($0) }
             ))
             if loginItem.status == .requiresApproval {
                 HStack {
-                    Text("시스템 설정에서 랜턴을 허용해야 켜져요.")
+                    Text(L("시스템 설정에서 랜턴을 허용해야 켜져요.", "Allow Lantern in System Settings to turn this on."))
                         .font(.callout)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Button("시스템 설정 열기") { loginItem.openSystemSettings() }
+                    Button(L("시스템 설정 열기", "Open System Settings")) { loginItem.openSystemSettings() }
                 }
             }
             if let error = loginItem.lastError {
@@ -460,12 +461,30 @@ private struct GeneralSection: View {
                     .font(.callout)
                     .foregroundStyle(.red)
             }
+            Picker(L("언어", "Language"), selection: Binding(
+                get: { language },
+                set: { AppLanguageSetting.save($0); language = $0 }
+            )) {
+                Text(L("시스템 설정 따르기", "System Language")).tag(LanguagePreference.system)
+                // 언어 이름은 그 언어로 쓴다
+                Text(verbatim: "한국어").tag(LanguagePreference.korean)
+                Text(verbatim: "English").tag(LanguagePreference.english)
+            }
+            if AppLanguageSetting.needsRelaunch(language) {
+                HStack {
+                    Text(L("랜턴을 다시 켜면 바뀌어요. 깨어 있는 중이면 깨어 있기가 끝나요.", "Restart Lantern to apply. This ends any Keep Awake session."))
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button(L("다시 켜기", "Restart")) { AppLanguageSetting.relaunch() }
+                }
+            }
             Toggle(isOn: $panelState.isCollapsed) {
-                Text("평소 창을 한 줄로 보기")
-                Text("깨어 있기 상태와 할 일 개수만 한 줄로 보여 줘요. 메뉴바 아이콘 메뉴에서도 바꿀 수 있어요.")
+                Text(L("평소 창을 한 줄로 보기", "Show summary window in a single line"))
+                Text(L("깨어 있기 상태와 할 일 개수만 한 줄로 보여 줘요. 메뉴바 아이콘 메뉴에서도 바꿀 수 있어요.", "Shows just your Keep Awake status and to-do count. You can also change this from the menu bar icon."))
             }
         } header: {
-            Text("일반")
+            Text(L("일반", "General"))
         }
     }
 }

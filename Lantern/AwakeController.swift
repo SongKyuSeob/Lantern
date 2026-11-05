@@ -77,10 +77,10 @@ final class AwakeController {
     private func applySystemState() {
         now = Date()
         if machine.isAwake {
-            blocker.activate(reason: "랜턴: 깨어 있기")
+            blocker.activate(reason: L("랜턴: 깨어 있기", "Lantern: Keep Awake"))
             if activity == nil {
                 activity = ProcessInfo.processInfo.beginActivity(
-                    options: .userInitiatedAllowingIdleSystemSleep, reason: "랜턴: 깨어 있기 끝 시각 확인"
+                    options: .userInitiatedAllowingIdleSystemSleep, reason: L("랜턴: 깨어 있기 끝 시각 확인", "Lantern: checking Keep Awake end time")
                 )
             }
             startTimer()

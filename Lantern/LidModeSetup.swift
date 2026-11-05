@@ -28,7 +28,7 @@ final class LidModeSetup {
 
     func install() {
         guard let contents = SudoersRule.contents(for: NSUserName()) else {
-            lastError = "사용자 이름에 쓸 수 없는 글자가 있어 설치할 수 없어요."
+            lastError = L("사용자 이름에 쓸 수 없는 글자가 있어 설치할 수 없어요.", "Can't install because your user name contains unsupported characters.")
             return
         }
         // 루트 권한으로 임시 파일을 만들어 내용을 쓰고, visudo 검사를 통과할 때만 제자리에 넣는다.
@@ -57,12 +57,12 @@ final class LidModeSetup {
     /// 규칙 없이 남아 있는 뚜껑 모드를 관리자 비밀번호로 끈다
     func restoreSleepWithAdministratorPrivileges() {
         let script = "\(SudoersRule.pmsetPath) \(SudoersRule.Command.enableSleep.arguments.joined(separator: " "))"
-        runWithAdministratorPrivileges(script, prompt: "랜턴이 켜져 있는 뚜껑 모드를 끄려고 합니다.")
+        runWithAdministratorPrivileges(script, prompt: L("랜턴이 켜져 있는 뚜껑 모드를 끄려고 합니다.", "Lantern wants to turn off Closed-Lid Mode."))
     }
 
     // MARK: - 내부
 
-    private func runWithAdministratorPrivileges(_ script: String, prompt: String = "랜턴이 뚜껑 모드 권한을 바꾸려고 합니다.") {
+    private func runWithAdministratorPrivileges(_ script: String, prompt: String = L("랜턴이 뚜껑 모드 권한을 바꾸려고 합니다.", "Lantern wants to change the Closed-Lid Mode permission.")) {
         lastError = nil
         let escaped = script
             .replacingOccurrences(of: "\\", with: "\\\\")
@@ -71,7 +71,7 @@ final class LidModeSetup {
         var errorInfo: NSDictionary?
         NSAppleScript(source: source)?.executeAndReturnError(&errorInfo)
         if let errorInfo, errorInfo[NSAppleScript.errorNumber] as? Int != Self.userCanceledError {
-            lastError = errorInfo[NSAppleScript.errorMessage] as? String ?? "알 수 없는 오류"
+            lastError = errorInfo[NSAppleScript.errorMessage] as? String ?? L("알 수 없는 오류", "Unknown error")
         }
         refresh()
     }

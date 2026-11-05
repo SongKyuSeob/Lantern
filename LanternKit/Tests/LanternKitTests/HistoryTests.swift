@@ -118,7 +118,7 @@ struct HistoryMarkdownTests {
     }
 
     @Test("체크리스트와 깨어 있기 줄을 쓴다") func fullDay() {
-        #expect(History.markdown(for: day, calendar: calendar) == """
+        #expect(History.markdown(for: day, calendar: calendar, language: .korean) == """
         ## 2026-10-29 (목)
 
         ### 끝낸 일
@@ -139,7 +139,7 @@ struct HistoryMarkdownTests {
             awake: [],
             calendar: calendar
         ).values.first!
-        #expect(History.markdown(for: day, calendar: calendar).contains("""
+        #expect(History.markdown(for: day, calendar: calendar, language: .korean).contains("""
         - [x] 로그인 화면
           - 토큰은 그대로
           - UI만 나누기
@@ -155,14 +155,44 @@ struct HistoryMarkdownTests {
     }
 
     @Test("필터에 맞는 묶음만 쓴다") func filtered() {
-        let completed = History.markdown(for: day, filter: .completed, calendar: calendar)
+        let completed = History.markdown(for: day, filter: .completed, calendar: calendar, language: .korean)
         #expect(completed.contains("끝낸 일") && !completed.contains("지운 일") && !completed.contains("깨어 있기"))
-        let removed = History.markdown(for: day, filter: .removed, calendar: calendar)
+        let removed = History.markdown(for: day, filter: .removed, calendar: calendar, language: .korean)
         #expect(removed.contains("지운 일") && !removed.contains("끝낸 일"))
+    }
+
+    @Test("영어 Markdown") func english() {
+        #expect(History.markdown(for: day, calendar: calendar, language: .english) == """
+        ## 2026-10-29 (Thu)
+
+        ### Completed
+        - [x] README 정리
+
+        ### Removed
+        - [ ] ~~안 할 일~~
+
+        ### Keep Awake · 2 hr 5 min
+        - 1:05 PM – 3:10 PM (2 hr 5 min) · 2 Hours · Closed-Lid Mode
+
+        """)
+    }
+
+    @Test("기록에 남은 옵션 이름을 화면 언어로", arguments: [
+        ("2시간", AppLanguage.english, "2 Hours"),
+        ("1 Hour", .korean, "1시간"),
+        ("계속", .english, "Always"),
+        ("에이전트가 끝날 때까지", .english, "Until agents finish"),
+        ("오후 4:30까지", .english, "Until 4:30 PM"),
+        ("내일 오전 7:00까지", .english, "Until tomorrow 7:00 AM"),
+        ("Until 12:15 AM", .korean, "오전 12:15까지"),
+        ("이상한 이름", .english, "이상한 이름"),
+    ])
+    func optionLabels(_ input: (String, AppLanguage, String)) {
+        #expect(History.optionLabel(input.0, language: input.1) == input.2)
     }
 
     @Test("시간 표기", arguments: [(0.0, "0분"), (45 * 60.0, "45분"), (3600.0, "1시간"), (3900.0, "1시간 5분")])
     func durations(_ pair: (TimeInterval, String)) {
-        #expect(History.durationText(pair.0) == pair.1)
+        #expect(History.durationText(pair.0, language: .korean) == pair.1)
     }
 }

@@ -62,7 +62,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
         image?.isTemplate = true
         image?.size = NSSize(width: 18, height: 18)
         statusItem.button?.image = image
-        statusItem.button?.toolTip = lidMode.isOn ? "랜턴 · 뚜껑 닫아도 유지" : awake.isAwake ? "랜턴 · 깨어 있는 중" : "랜턴"
+        statusItem.button?.toolTip = lidMode.isOn ? L("랜턴 · 뚜껑 닫아도 유지", "Lantern · Closed-Lid Mode") : awake.isAwake ? L("랜턴 · 깨어 있는 중", "Lantern · Awake") : L("랜턴", "Lantern")
     }
 
     /// 깨어 있기·뚜껑 모드 상태가 바뀔 때마다 아이콘을 다시 그린다
@@ -85,9 +85,9 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
         menu.addItem(disabledItem(statusText()))
         if awake.isAwake {
-            menu.addItem(actionItem("깨어 있기 끄기", #selector(stopAwake)))
+            menu.addItem(actionItem(L("깨어 있기 끄기", "Turn Off Keep Awake"), #selector(stopAwake)))
         } else {
-            menu.addItem(actionItem("깨어 있기 시작 · \(AwakeText.label(for: awake.lastOption))", #selector(startWithLastOption)))
+            menu.addItem(actionItem(L("깨어 있기 시작", "Keep Awake") + " · \(AwakeText.label(for: awake.lastOption))", #selector(startWithLastOption)))
         }
         menu.addItem(durationMenuItem())
         if awake.remaining != nil {
@@ -97,27 +97,27 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             menu.addItem(lidItem)
         }
         if awake.isAwake {
-            menu.addItem(actionItem("화면 끄기", #selector(turnOffDisplay)))
+            menu.addItem(actionItem(L("화면 끄기", "Turn Display Off"), #selector(turnOffDisplay)))
         }
 
         menu.addItem(.separator())
-        menu.addItem(actionItem(panel.isVisible ? "창 숨기기" : "창 보이기", #selector(togglePanelVisibility)))
-        let compactItem = actionItem("한 줄로 보기", #selector(toggleCompact))
+        menu.addItem(actionItem(panel.isVisible ? L("창 숨기기", "Hide Window") : L("창 보이기", "Show Window"), #selector(togglePanelVisibility)))
+        let compactItem = actionItem(L("한 줄로 보기", "Single-Line View"), #selector(toggleCompact))
         compactItem.state = panel.isCompact ? .on : .off
         menu.addItem(compactItem)
-        menu.addItem(actionItem("기록 보기…", #selector(showHistory)))
-        menu.addItem(actionItem("업데이트 확인…", #selector(checkForUpdates)))
-        let settingsItem = actionItem("설정…", #selector(showSettings))
+        menu.addItem(actionItem(L("기록 보기…", "Show History…"), #selector(showHistory)))
+        menu.addItem(actionItem(L("업데이트 확인…", "Check for Updates…"), #selector(checkForUpdates)))
+        let settingsItem = actionItem(L("설정…", "Settings…"), #selector(showSettings))
         settingsItem.keyEquivalent = ","
         menu.addItem(settingsItem)
 
         menu.addItem(.separator())
-        menu.addItem(withTitle: "랜턴 종료", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        menu.addItem(withTitle: L("랜턴 종료", "Quit Lantern"), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
     }
 
     /// "언제까지 ›" 하위 메뉴. 고르면 그 옵션으로 바로 시작한다
     private func durationMenuItem() -> NSMenuItem {
-        let item = NSMenuItem(title: "언제까지", action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: L("언제까지", "Until"), action: nil, keyEquivalent: "")
         let submenu = NSMenu()
         let selected = awake.current?.option ?? awake.lastOption
         for option in Self.menuOptions {
@@ -126,7 +126,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
             optionItem.state = option == selected ? .on : .off
             submenu.addItem(optionItem)
         }
-        let timeItem = actionItem("시각…", #selector(pickTime))
+        let timeItem = actionItem(L("시각…", "Time…"), #selector(pickTime))
         if case .timeOfDay = selected { timeItem.state = .on }
         submenu.addItem(timeItem)
         item.submenu = submenu
@@ -138,10 +138,10 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     private func lidModeMenuItem() -> NSMenuItem? {
         guard PowerStateMonitor.readSnapshot().hasBuiltInDisplay else { return nil }
         if lidMode.setup.status == .notInstalled {
-            return actionItem("뚜껑 닫아도 유지 설정…", #selector(showSettings))
+            return actionItem(L("뚜껑 닫아도 유지 설정…", "Set Up Closed-Lid Mode…"), #selector(showSettings))
         }
         let canEnable = lidMode.setup.status == .installed && awake.isAwake && safety.lidModeBlock == nil
-        let item = NSMenuItem(title: "뚜껑 닫아도 유지", action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: L("뚜껑 닫아도 유지", "Closed-Lid Mode"), action: nil, keyEquivalent: "")
         if lidMode.isOn || canEnable {
             item.action = #selector(toggleLidMode)
             item.target = self
@@ -152,7 +152,7 @@ final class StatusItemController: NSObject, NSMenuDelegate {
 
     /// "연장 ›" 하위 메뉴. 끝 시각에 시간을 더한다
     private func extendMenuItem() -> NSMenuItem {
-        let item = NSMenuItem(title: "연장", action: nil, keyEquivalent: "")
+        let item = NSMenuItem(title: L("연장", "Extend"), action: nil, keyEquivalent: "")
         let submenu = NSMenu()
         for extensionItem in AwakeText.extensions {
             let menuItem = actionItem(extensionItem.label, #selector(extend(_:)))
@@ -164,17 +164,17 @@ final class StatusItemController: NSObject, NSMenuDelegate {
     }
 
     private func statusText() -> String {
-        guard let session = awake.current else { return "깨어 있기 꺼짐" }
+        guard let session = awake.current else { return L("깨어 있기 꺼짐", "Keep Awake off") }
         if lidMode.isOn {
             if let remaining = session.remaining(at: Date()) {
-                return "뚜껑 닫아도 유지 · \(RemainingTimeFormat.string(from: remaining)) 남음"
+                return L("뚜껑 닫아도 유지 · \(RemainingTimeFormat.string(from: remaining)) 남음", "Closed-Lid Mode · \(RemainingTimeFormat.string(from: remaining)) left")
             }
-            return "뚜껑 닫아도 유지 · \(AwakeText.label(for: session.option))"
+            return L("뚜껑 닫아도 유지", "Closed-Lid Mode") + " · \(AwakeText.label(for: session.option))"
         }
         if let remaining = session.remaining(at: Date()) {
-            return "깨어 있는 중 · \(RemainingTimeFormat.string(from: remaining)) 남음"
+            return L("깨어 있는 중 · \(RemainingTimeFormat.string(from: remaining)) 남음", "Awake · \(RemainingTimeFormat.string(from: remaining)) left")
         }
-        return "깨어 있는 중 · \(AwakeText.label(for: session.option))"
+        return L("깨어 있는 중", "Awake") + " · \(AwakeText.label(for: session.option))"
     }
 
     private func disabledItem(_ title: String) -> NSMenuItem {

@@ -15,7 +15,7 @@
   <img src="docs/screenshots/hero.jpg" width="560" alt="Lantern floating in the top-right corner of the desktop">
 </p>
 
-> **Note:** Lantern's interface is currently in Korean only. English is coming in the next version ([#2](https://github.com/SongKyuSeob/Lantern/issues/2)).
+> Lantern is available in English and Korean. It follows your Mac's language, or you can choose one in **Settings → General → Language**.
 
 ---
 
@@ -192,7 +192,7 @@ Right-click the menu bar icon and choose **Settings…**
 
 | Tab | What's there |
 |---|---|
-| General | Open at login, single-line view, due-soon highlighting, updates (automatic checks, Check for Updates), shortcuts |
+| General | Open at login, language, single-line view, due-soon highlighting, updates (automatic checks, Check for Updates), shortcuts |
 | Agents | Connect Claude Code and Codex |
 | Power | Battery threshold, Closed-Lid Mode permission |
 

@@ -32,7 +32,7 @@ final class LidModeController {
     func enable() {
         lastError = nil
         if !runPmset(.disableSleep) {
-            lastError = "켜지 못했어요. 설정에서 권한을 확인해 주세요."
+            lastError = L("켜지 못했어요. 설정에서 권한을 확인해 주세요.", "Couldn't turn it on. Check the permission in Settings.")
             setup.refresh()
         }
         refresh()
@@ -50,7 +50,7 @@ final class LidModeController {
         }
         refresh()
         guard isOn else { return true }
-        lastError = "끄지 못했어요. 설정 → 전원에서 권한을 확인하거나, 터미널에서 sudo pmset -a disablesleep 0 을 실행해 주세요."
+        lastError = L("끄지 못했어요. 설정 → 전원에서 권한을 확인하거나, 터미널에서 sudo pmset -a disablesleep 0 을 실행해 주세요.", "Couldn't turn it off. Check the permission in Settings → Power, or run sudo pmset -a disablesleep 0 in Terminal.")
         if !interactive { onAutomaticDisableFailed?() }
         return false
     }
@@ -58,7 +58,7 @@ final class LidModeController {
     /// 켠 직후 감시 작업을 등록하지 못하면 되돌린다 (앱이 갑자기 꺼졌을 때 뚜껑 모드가 남지 않게)
     func revertBecauseWatchdogFailed() {
         disable()
-        lastError = "감시 작업을 등록하지 못해 켜지 않았어요. 시스템 설정 → 일반 → 로그인 항목 및 확장 프로그램에서 \"랜턴 뚜껑 모드 감시\"가 허용돼 있는지 확인해 주세요."
+        lastError = L("감시 작업을 등록하지 못해 켜지 않았어요. 시스템 설정 → 일반 → 로그인 항목 및 확장 프로그램에서 \"랜턴 뚜껑 모드 감시\"가 허용돼 있는지 확인해 주세요.", "Lantern couldn't register its watchdog, so Closed-Lid Mode stayed off. Make sure \"랜턴 뚜껑 모드 감시\" is allowed in System Settings → General → Login Items & Extensions.")
     }
 
     /// 뚜껑 모드를 끄고 맥을 바로 재운다. 뚜껑 모드가 켜져 있으면 애플 메뉴의 잠자기도 먹지 않는다

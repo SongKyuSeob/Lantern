@@ -49,7 +49,12 @@ struct TodoDueTests {
 
     @Test("남은 날 문구", arguments: [(day(11, 4), "오늘"), (day(11, 5), "내일"), (day(11, 7), "3일 남음"), (day(11, 2), "2일 지남")])
     func remaining(_ input: (Date, String)) {
-        #expect(TodoDue.remainingText(input.0, now: now, calendar: calendar) == input.1)
+        #expect(TodoDue.remainingText(input.0, now: now, calendar: calendar, language: .korean) == input.1)
+    }
+
+    @Test("영어 남은 날 문구", arguments: [(day(11, 4), "Today"), (day(11, 5), "Tomorrow"), (day(11, 7), "3 days left"), (day(11, 3), "1 day overdue"), (day(11, 2), "2 days overdue")])
+    func remainingEnglish(_ input: (Date, String)) {
+        #expect(TodoDue.remainingText(input.0, now: now, calendar: calendar, language: .english) == input.1)
     }
 
     @Test("달력은 늘 6주, 그달 1일은 요일 칸에 맞춘다") func monthGrid() {
@@ -70,7 +75,7 @@ struct TodoDueTests {
             awake: [],
             calendar: calendar
         )
-        let text = History.markdown(for: days.values.first!, calendar: calendar)
+        let text = History.markdown(for: days.values.first!, calendar: calendar, language: .korean)
         #expect(text.contains("- [x] 발표 자료 (기한 2026-11-07)"))
     }
 }

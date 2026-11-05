@@ -26,7 +26,7 @@ struct TodoNoteEditor: View {
                 .lineLimit(2)
             ZStack(alignment: .topLeading) {
                 if draft.isEmpty {
-                    Text("메모를 적어요")
+                    Text(L("메모를 적어요", "Write a note"))
                         .foregroundStyle(.tertiary)
                         .padding(.top, 1)
                         .allowsHitTesting(false)
@@ -42,13 +42,13 @@ struct TodoNoteEditor: View {
             .frame(height: 120)
             .background(RoundedRectangle(cornerRadius: 7).fill(.quaternary.opacity(0.6)))
             HStack(spacing: 8) {
-                Text("⌘↩ 저장")
+                Text(L("⌘↩ 저장", "⌘↩ to save"))
                     .font(.system(size: 11))
                     .foregroundStyle(.tertiary)
                 Spacer()
-                Button("취소", action: onCancel)
+                Button(L("취소", "Cancel"), action: onCancel)
                     .keyboardShortcut(.cancelAction)
-                Button("저장") { onSave(draft) }
+                Button(L("저장", "Save")) { onSave(draft) }
                     .keyboardShortcut(.return, modifiers: .command)
                     .buttonStyle(.borderedProminent)
             }
@@ -73,7 +73,9 @@ struct TodoDueEditor: View {
     @State private var month: Date
 
     private let calendar = Calendar.current
-    private static let weekdays = ["일", "월", "화", "수", "목", "금", "토"]
+    private static var weekdays: [String] {
+        L("일 월 화 수 목 금 토", "Sun Mon Tue Wed Thu Fri Sat").split(separator: " ").map(String.init)
+    }
     private static let cellSize: CGFloat = 32
 
     init(title: String, current: Date?, onSave: @escaping (Date?) -> Void, onCancel: @escaping () -> Void) {
@@ -118,12 +120,12 @@ struct TodoDueEditor: View {
             }
             HStack(spacing: 8) {
                 if current != nil {
-                    Button("기한 없애기") { onSave(nil) }
+                    Button(L("기한 없애기", "Remove Due Date")) { onSave(nil) }
                 }
                 Spacer()
-                Button("취소", action: onCancel)
+                Button(L("취소", "Cancel"), action: onCancel)
                     .keyboardShortcut(.cancelAction)
-                Button("정하기") { onSave(selected) }
+                Button(L("정하기", "Set")) { onSave(selected) }
                     .keyboardShortcut(.defaultAction)
                     .buttonStyle(.borderedProminent)
             }
@@ -136,19 +138,19 @@ struct TodoDueEditor: View {
     /// "2026년 11월   ‹ 오늘 ›"
     private var header: some View {
         HStack(spacing: 4) {
-            Text(month.formatted(.dateTime.year().month(.wide)))
+            Text(month.formatted(.dateTime.year().month(.wide).locale(Localization.locale)))
                 .font(.system(size: 14, weight: .semibold))
             Spacer()
             Button { moveMonth(-1) } label: { Image(systemName: "chevron.left").frame(width: 22, height: 22) }
-                .help("이전 달")
-            Button("오늘") {
+                .help(L("이전 달", "Previous Month"))
+            Button(L("오늘", "Today")) {
                 let today = calendar.startOfDay(for: Date())
                 month = today
                 selected = today
             }
             .font(.system(size: 11.5, weight: .medium))
             Button { moveMonth(1) } label: { Image(systemName: "chevron.right").frame(width: 22, height: 22) }
-                .help("다음 달")
+                .help(L("다음 달", "Next Month"))
         }
         .buttonStyle(.borderless)
     }
@@ -191,10 +193,11 @@ struct TodoDueEditor: View {
         return Array(Self.weekdays[start...] + Self.weekdays[..<start])
     }
 
-    /// "11월 7일 (토)"
+    /// "11월 7일 (토)" / "Sat, Nov 7"
     private func dayTitle(_ date: Date) -> String {
         let parts = calendar.dateComponents([.month, .day, .weekday], from: date)
-        return "\(parts.month ?? 0)월 \(parts.day ?? 0)일 (\(Self.weekdays[((parts.weekday ?? 1) - 1) % 7]))"
+        let weekday = Self.weekdays[((parts.weekday ?? 1) - 1) % 7]
+        return L("\(parts.month ?? 0)월 \(parts.day ?? 0)일 (\(weekday))", "\(weekday), " + date.formatted(.dateTime.month(.abbreviated).day().locale(Localization.locale)))
     }
 
     private func moveMonth(_ value: Int) {

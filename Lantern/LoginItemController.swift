@@ -1,4 +1,5 @@
 import Foundation
+import LanternKit
 import ServiceManagement
 
 /// 로그인할 때 랜턴을 자동으로 여는 설정 (`SMAppService.mainApp`).
@@ -62,7 +63,7 @@ final class LoginItemController {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            lastError = enabled ? "로그인 항목에 넣지 못했어요. \(error.localizedDescription)" : "로그인 항목에서 빼지 못했어요. \(error.localizedDescription)"
+            lastError = (enabled ? L("로그인 항목에 넣지 못했어요.", "Couldn't add Lantern to Login Items.") : L("로그인 항목에서 빼지 못했어요.", "Couldn't remove Lantern from Login Items.")) + " \(error.localizedDescription)"
         }
         refresh()
     }

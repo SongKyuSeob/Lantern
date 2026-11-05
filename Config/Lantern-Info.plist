@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- 화면 언어. 영어를 적어 둬야 Sparkle 창 같은 시스템 화면도 영어로 나온다 (문구는 코드의 L(한국어, 영어)) -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>ko</string>
+		<string>en</string>
+	</array>
 	<!-- 자동 업데이트(Sparkle). 나머지 Info.plist 항목은 빌드 설정(INFOPLIST_KEY_*)에서 만든다 -->
 	<!-- 새 버전 정보는 GitHub 최신 릴리스에 함께 올린 appcast.xml에서 읽는다 -->
 	<key>SUFeedURL</key>

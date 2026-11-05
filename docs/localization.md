@@ -55,7 +55,7 @@
 | 계속 / 1시간 / 2시간 / 시각 / 에이전트 | Always / 1 Hour / 2 Hours / Time / Agents |
 | 끌 때까지 | until you turn it off |
 | 에이전트가 끝날 때까지 | until agents finish |
-| 연장 › / 30분 더 / 1시간 더 | Extend › / +30 Min / +1 Hour |
+| 연장 › / 30분 더 / 1시간 더 / 2시간 더 | Extend › / +30 Minutes / +1 Hour / +2 Hours |
 | 화면 끄기 | Turn Display Off |
 | 깨어 있기 끄기 | Turn Off Keep Awake |
 | 깨어 있기 시작 · 1시간 | Keep Awake · 1 Hour |
@@ -88,7 +88,7 @@
 |---|---|
 | ● 새 버전 0.5.0 | ● Version 0.5.0 available |
 | 0.5.0 업데이트 (알약) | Update to 0.5.0 |
-| 끝나면 0.5.0 설치 | Install 0.5.0 Later |
+| 끝나면 0.5.0 설치 (알약 / 평소 창) | 0.5.0 Pending / Will update to 0.5.0 when done |
 | 지금 설치할까요? | Install now? |
 | 끝난 뒤 설치 / 지금 설치 / 그대로 두기 | Install Later / Install Now / Keep Waiting |
 
@@ -99,6 +99,7 @@
 | 일반 / 에이전트 / 전원 | General / Agents / Power |
 | 로그인할 때 열기 | Open at login |
 | 평소 창을 한 줄로 보기 | Show summary window in a single line |
+| 언어: 시스템 설정 따르기 | Language: System Language |
 | 기한 임박 표시 | Highlight as due soon |
 | 당일 / 1일 전 / 2일 전 / 3일 전 / 1주 전 | On the due date / 1 day before / 2 days before / 3 days before / 1 week before |
 | 업데이트 자동으로 확인 | Automatically check for updates |
@@ -132,8 +133,18 @@
 | 기한이 이만큼 남았거나 지난 할 일은 주황색으로 표시하고 목록 맨 위로 올려요. | To-dos due within this range, or overdue, turn orange and move to the top of the list. |
 | ⌃ 또는 ⌥와 함께 눌러 주세요. | Include ⌃ or ⌥ in the shortcut. |
 
+## 구현 방식 (0.5.0)
+
+- 문구는 쓰는 자리에 두 언어를 함께 둔다: `L("한국어", "English")` (LanternKit `Localization.swift`). 언어가 둘뿐이라 String Catalog보다 단순하고, 번역 열쇠가 어긋나 조용히 빠지는 일이 없다. 테스트처럼 언어를 직접 정해야 하면 `AppLanguage.text(_:_:)`와 함수의 `language:` 인자를 쓴다
+- 화면 언어(`Localization.language`)는 앱을 켤 때 한 번 정한다. 설정 → 일반 → 언어(시스템 설정 따르기 / 한국어 / English, UserDefaults `app.language`). 바꾸면 앱 선호 언어(`AppleLanguages`)도 맞추고 "다시 켜기"로 재시작한다. Sparkle 창 같은 시스템 화면까지 같은 언어로 나오게 하려고 실행 중 전환은 하지 않는다
+- 시스템 설정을 따를 때는 선호 언어 목록에서 한국어와 영어 중 먼저 나오는 쪽, 둘 다 없으면 영어
+- Info.plist `CFBundleLocalizations`에 ko·en을 적어야 Sparkle 창이 영어로 나온다. 영어 앱 이름은 `Lantern/en.lproj/InfoPlist.strings`
+- 기록에 남은 깨어 있기 옵션 이름은 그때 화면 언어로 저장돼 있어서, 보여 줄 때 `History.optionLabel`로 지금 언어로 바꾼다
+- 화면 확인(디버그 빌드): `open -g -n --env LANTERN_DEMO=1 --env LANTERN_RENDER=<폴더> <디버그 앱>`을 실행하면 한국어·영어로 패널·편집 말풍선·기록·설정 화면을 PNG로 저장하고 꺼진다(`<폴더>/ko`, `<폴더>/en`). 창을 화면 밖에 올려 그려서 포커스를 가져가지 않고, 시연 데이터를 쓴다. 유리 효과는 그림에 잡히지 않아 이때만 단색 바탕으로 그린다. 메뉴바 메뉴와 알림은 그림으로 확인할 수 없다
+
 ## 번역할 때 따로 정할 것
 
-- 기록 창의 Markdown 복사 제목("### 끝낸 일" 등)도 앱 언어를 따라 바꾼다 (`History.markdown`, LanternKit).
+- (0.5.0에서 함) 기록 창의 Markdown 복사 제목도 화면 언어를 따른다 (`History.markdown`)
 - 뚜껑 모드 감시 스크립트 이름 "랜턴 뚜껑 모드 감시"는 시스템 설정 "앱 백그라운드 활동"에 그대로 보인다. 영어 맥에서도 보이므로 이름을 바꿀지, 바꾼다면 예전 이름 파일 정리를 어떻게 할지 정해야 한다.
-- 시연 데이터(`DemoData`)의 예시 할 일도 영어판을 둔다 (영어 스크린샷용).
+- (0.5.0에서 함) 시연 데이터(`DemoData`)의 예시 할 일도 영어판을 둔다
+- 뚜껑 모드 감시 스크립트 이름은 일단 그대로 둔다(영어 README에 뜻을 함께 적음)

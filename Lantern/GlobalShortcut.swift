@@ -1,5 +1,6 @@
 import AppKit
 import Carbon.HIToolbox
+import LanternKit
 
 /// 전역 단축키 조합. 키보드 배열과 무관한 키 번호(keyCode)로 저장한다
 struct KeyShortcut: Codable, Equatable {
@@ -99,8 +100,8 @@ enum ShortcutAction: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .toggle: "창 열기·닫기"
-        case .hide: "창 숨기기·보이기"
+        case .toggle: L("창 열기·닫기", "Open or close window")
+        case .hide: L("창 숨기기·보이기", "Hide or show window")
         }
     }
 

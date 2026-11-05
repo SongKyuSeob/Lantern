@@ -39,14 +39,16 @@ public enum TodoDue {
         return parts.year == calendar.component(.year, from: now) ? monthDay : "\(parts.year ?? 0)/" + monthDay
     }
 
-    /// 남은 날: "오늘", "내일", "3일 남음", "2일 지남"
-    public static func remainingText(_ dueDate: Date, now: Date, calendar: Calendar = .current) -> String {
+    /// 남은 날: "오늘", "내일", "3일 남음", "2일 지남" / "Today", "Tomorrow", "3 days left", "2 days overdue"
+    public static func remainingText(
+        _ dueDate: Date, now: Date, calendar: Calendar = .current, language: AppLanguage = Localization.language
+    ) -> String {
         let days = calendar.dateComponents([.day], from: calendar.startOfDay(for: now), to: calendar.startOfDay(for: dueDate)).day ?? 0
         switch days {
-        case 0: return "오늘"
-        case 1: return "내일"
-        case ..<0: return "\(-days)일 지남"
-        default: return "\(days)일 남음"
+        case 0: return language.text("오늘", "Today")
+        case 1: return language.text("내일", "Tomorrow")
+        case ..<0: return language.text("\(-days)일 지남", -days == 1 ? "1 day overdue" : "\(-days) days overdue")
+        default: return language.text("\(days)일 남음", "\(days) days left")
         }
     }
 
@@ -64,12 +66,12 @@ public enum TodoDue {
         return stride(from: 0, to: 42, by: 7).map { Array(cells[$0..<$0 + 7]) }
     }
 
-    /// 설정 선택지 이름: "당일", "1일 전", "1주 전"
-    public static func soonDaysTitle(_ days: Int) -> String {
+    /// 설정 선택지 이름: "당일", "1일 전", "1주 전" / "On the due date", "1 day before", "1 week before"
+    public static func soonDaysTitle(_ days: Int, language: AppLanguage = Localization.language) -> String {
         switch days {
-        case 0: "당일"
-        case 7: "1주 전"
-        default: "\(days)일 전"
+        case 0: language.text("당일", "On the due date")
+        case 7: language.text("1주 전", "1 week before")
+        default: language.text("\(days)일 전", days == 1 ? "1 day before" : "\(days) days before")
         }
     }
 }

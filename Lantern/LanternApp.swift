@@ -14,7 +14,7 @@ struct LanternApp: App {
         }
         .commands {
             CommandGroup(replacing: .appSettings) {
-                Button("설정…") { appDelegate.showSettings() }
+                Button(L("설정…", "Settings…")) { appDelegate.showSettings() }
                     .keyboardShortcut(",")
             }
         }
@@ -48,6 +48,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: StatusItemController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if DEBUG
+        // 화면 확인용: 창을 띄우지 않고 그림만 저장한 뒤 끈다 (마우스·키보드를 쓰지 않는다)
+        if let directory = ProcessInfo.processInfo.environment["LANTERN_RENDER"] {
+            renderSnapshots(to: directory)
+            NSApp.terminate(nil)
+            return
+        }
+        #endif
         lidMode.onChange = { [weak self] isOn in
             guard let self else { return }
             if isOn { lidModeUsedInSession = true }
@@ -115,6 +123,107 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     #if DEBUG
+    /// 디버그 빌드에서만: 한국어·영어로 주요 화면을 PNG로 저장한다. `LANTERN_RENDER=<폴더>`로 켜면 그리고 바로 끈다.
+    /// 창을 화면에 띄우지 않아 포커스를 가져가지 않고, 실제 할 일 대신 시연 데이터를 쓴다
+    private func renderSnapshots(to directory: String) {
+        let defaults = UserDefaults.standard
+        let savedSettingsTab = defaults.string(forKey: "settings.tab")
+        // 그림을 그리느라 깨어 있기를 켜면 "마지막으로 쓴 옵션"이 바뀌므로 끝나면 되돌린다
+        let savedLastOption = defaults.data(forKey: "awake.lastOption")
+        // 그림용 창 상태는 실제 설정에 남지 않게 따로 둔다
+        let scratchDomain = "com.songkyuseob.lantern.render"
+        let scratch = UserDefaults(suiteName: scratchDomain) ?? .standard
+        for language in AppLanguage.allCases {
+            Localization.language = language
+            let folder = URL(fileURLWithPath: directory).appending(path: language.rawValue)
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let store = DemoData.makeStore()
+            let state = PanelState(defaults: scratch)
+
+            func render(_ name: String, width: CGFloat, background: NSColor = .black, @ViewBuilder _ content: () -> some View) {
+                let host = NSHostingView(rootView: content().frame(width: width).background(Color(nsColor: background)).environment(\.colorScheme, .dark))
+                let size = host.fittingSize
+                host.frame = NSRect(origin: .zero, size: size)
+                let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+                window.appearance = NSAppearance(named: .darkAqua)
+                window.backgroundColor = background
+                window.contentView = host
+                // 화면 밖 먼 곳에 올려야 그려진다. 키 창이 되지 않는 창이라 포커스는 가져가지 않는다
+                window.setFrameOrigin(NSPoint(x: -30_000, y: -30_000))
+                window.orderFrontRegardless()
+                RunLoop.current.run(until: Date().addingTimeInterval(0.4))
+                host.layoutSubtreeIfNeeded()
+                host.writeSnapshot(to: folder.appending(path: "\(name).png").path)
+                window.orderOut(nil)
+            }
+            func panel(_ name: String) {
+                render(name, width: 300) {
+                    PanelView(
+                        awake: awake, power: power, state: state, lidMode: lidMode, safety: safety,
+                        agentMonitor: agentMonitor, agentAwake: agentAwake, todoStore: store, updates: updates,
+                        openSettings: {}, openHistory: {}
+                    )
+                }
+            }
+
+            state.isCollapsed = false
+            state.mode = .active
+            state.tab = .todo
+            panel("panel-todo")
+            state.tab = .awake
+            panel("panel-awake-off")
+            state.mode = .passive
+            panel("passive-off")
+            state.isCollapsed = true
+            panel("compact-off")
+            awake.start(.hours(2))
+            state.isCollapsed = false
+            panel("passive-on")
+            state.isCollapsed = true
+            panel("compact-on")
+            state.isCollapsed = false
+            state.mode = .active
+            panel("panel-awake-on")
+            awake.stop()
+            awake.start(.untilAgentsFinish)
+            panel("panel-awake-agents")
+            awake.stop()
+
+            let item = store.openItems().first
+            render("editor-note", width: 280, background: .darkGray) {
+                TodoNoteEditor(title: item?.title ?? "", note: item?.note ?? "", onSave: { _ in }, onCancel: {})
+            }
+            render("editor-due", width: 260, background: .darkGray) {
+                TodoDueEditor(title: item?.title ?? "", current: nil, onSave: { _ in }, onCancel: {})
+            }
+            render("history", width: 740, background: .windowBackgroundColor) {
+                HistoryView().modelContainer(store.container).frame(height: 640)
+            }
+            for tab in SettingsView.Tab.allCases {
+                defaults.set(tab.rawValue, forKey: "settings.tab")
+                render("settings-\(tab.rawValue)", width: 520, background: .windowBackgroundColor) {
+                    SettingsView(
+                        lidMode: lidMode, safety: safety, agentHooks: agentHooks, agentMonitor: agentMonitor,
+                        shortcuts: shortcuts, loginItem: loginItem, updates: updates, panelState: state
+                    )
+                    .frame(height: 620)
+                }
+            }
+            let markdown = store.allItems().compactMap(\.completedAt).max().map { last in
+                History.days(
+                    todos: store.allItems().map { HistoryTodo(title: $0.title, isDone: $0.isDone, completedAt: $0.completedAt, hiddenAt: $0.hiddenAt, note: $0.note, dueDate: $0.dueDate) },
+                    awake: store.awakeRecords().map { HistoryAwake(startedAt: $0.startedAt, endedAt: $0.endedAt, optionLabel: $0.optionLabel, usedLidMode: $0.usedLidMode) }
+                )[Calendar.current.startOfDay(for: last)]
+            }
+            if let day = markdown ?? nil {
+                try? History.markdown(for: day).write(to: folder.appending(path: "markdown.md"), atomically: true, encoding: .utf8)
+            }
+        }
+        if let savedSettingsTab { defaults.set(savedSettingsTab, forKey: "settings.tab") } else { defaults.removeObject(forKey: "settings.tab") }
+        if let savedLastOption { defaults.set(savedLastOption, forKey: "awake.lastOption") } else { defaults.removeObject(forKey: "awake.lastOption") }
+        defaults.removePersistentDomain(forName: scratchDomain)
+    }
+
     private var debugObserver: NSObjectProtocol?
 
     /// 디버그 빌드에서만: `settings:<탭>`(설정 창 열기), `settingsSnapshot:<경로>`(설정 창을 PNG로 저장),
@@ -168,7 +277,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 못 연 파일은 지우지 않고 이름을 바꿔 보관한다 (SwiftData는 -shm, -wal 파일도 함께 쓴다)
         let stamp = Date().formatted(.iso8601.year().month().day().time(includingFractionalSeconds: false))
             .replacingOccurrences(of: ":", with: "")
-        let keptName = "todos-열지 못함-\(stamp).store"
+        let keptName = L("todos-열지 못함-\(stamp).store", "todos-unreadable-\(stamp).store")
         for suffix in ["", "-shm", "-wal"] {
             let source = directory.appending(path: "todos.store\(suffix)")
             guard manager.fileExists(atPath: source.path) else { continue }
@@ -176,10 +285,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if let container = try? TodoStore.makeContainer(url: url) {
             return (TodoStore(container: container),
-                    "할 일 저장 파일을 열 수 없어서 새로 만들었어요. 원래 파일은 Application Support/Lantern 폴더에 \"\(keptName)\"로 보관했어요.")
+                    L("할 일 저장 파일을 열 수 없어서 새로 만들었어요. 원래 파일은 Application Support/Lantern 폴더에 \"\(keptName)\"로 보관했어요.",
+                      "Couldn't open your to-do file, so Lantern created a new one. The original was kept as \"\(keptName)\" in the Application Support/Lantern folder."))
         }
         let memory = TodoStore(container: try! TodoStore.makeContainer(url: nil))
-        return (memory, "할 일 저장 파일을 열 수 없어요. 이번에 적는 할 일은 랜턴을 끄면 사라져요.")
+        return (memory, L("할 일 저장 파일을 열 수 없어요. 이번에 적는 할 일은 랜턴을 끄면 사라져요.", "Couldn't open your to-do file. To-dos you add now will be lost when you quit Lantern."))
     }
 
     func showSettings() {
@@ -188,7 +298,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private static func notify(_ body: String) {
         let content = UNMutableNotificationContent()
-        content.title = "랜턴"
+        content.title = L("랜턴", "Lantern")
         content.body = body
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }
