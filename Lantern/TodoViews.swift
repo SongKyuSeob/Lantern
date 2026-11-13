@@ -33,17 +33,17 @@ struct TodoTab: View {
 
     /// 이보다 많으면 목록을 스크롤한다
     private static let maxVisibleRows = 8
-    static let rowHeight: CGFloat = 26
+    static var rowHeight: CGFloat { 26.scaled }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8.scaled) {
             addField
             if openItems.isEmpty && doneItems.isEmpty {
                 Text(String(localized: "적어 둔 할 일은 평소 창에 위에서 세 개까지 보여요"))
-                    .font(.system(size: 11.5))
+                    .font(.system(size: 11.5.scaled))
                     .foregroundStyle(Theme.ink.opacity(0.4))
-                    .padding(.horizontal, 2)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, 2.scaled)
+                    .padding(.vertical, 4.scaled)
             } else {
                 list
             }
@@ -51,11 +51,11 @@ struct TodoTab: View {
                 Spacer()
                 Button(String(localized: "기록 ›"), action: openHistory)
                     .buttonStyle(.plain)
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 11.scaled, weight: .medium))
                     .foregroundStyle(Theme.ink.opacity(0.5))
                     .help(String(localized: "지금까지 끝낸 일 · 지운 일 · 깨어 있기를 날짜별로 봐요"))
             }
-            .padding(.horizontal, 2)
+            .padding(.horizontal, 2.scaled)
         }
         .onChange(of: isAdding) { syncEditingState() }
         .onChange(of: state.todoDraft) { syncEditingState() }
@@ -67,13 +67,13 @@ struct TodoTab: View {
     }
 
     private var addField: some View {
-        HStack(spacing: 7) {
+        HStack(spacing: 7.scaled) {
             Image(systemName: "plus")
-                .font(.system(size: 10, weight: .semibold))
+                .font(.system(size: 10.scaled, weight: .semibold))
                 .foregroundStyle(Theme.ink.opacity(0.45))
             TextField(String(localized: "할 일 추가"), text: $state.todoDraft)
                 .textFieldStyle(.plain)
-                .font(.system(size: 12.5))
+                .font(.system(size: 12.5.scaled))
                 .focused($isAdding)
                 .onSubmit {
                     MarkedText.commit()
@@ -82,15 +82,15 @@ struct TodoTab: View {
                     isAdding = true
                 }
         }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 6)
-        .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fillTrack))
+        .padding(.horizontal, 9.scaled)
+        .padding(.vertical, 6.scaled)
+        .background(RoundedRectangle(cornerRadius: 7.scaled).fill(Theme.fillTrack))
     }
 
     @ViewBuilder
     private var list: some View {
         let arranged = arrangedItems
-        let rows = VStack(alignment: .leading, spacing: 0) {
+        let rows = VStack(alignment: .leading, spacing: 0.scaled) {
             ForEach(Array(arranged.all.enumerated()), id: \.element.id) { index, item in
                 let isDragged = dragging?.id == item.id
                 let isSoon = index < arranged.soonCount
@@ -102,7 +102,7 @@ struct TodoTab: View {
                     .gesture(reorderGesture(for: item), including: isSoon || expandedID == item.id ? .subviews : .all)
             }
             // 안 끝낸 목록과 완료 묶음 사이 간격
-            Color.clear.frame(height: 6)
+            Color.clear.frame(height: 6.scaled)
             if !doneItems.isEmpty {
                 doneHeader
                 ForEach(doneItems) { item in
@@ -114,7 +114,7 @@ struct TodoTab: View {
         if rowCount > Self.maxVisibleRows {
             ScrollView {
                 // 스크롤 막대가 내용 위에 겹쳐 그려져서, 줄 오른쪽의 기한·×를 가리지 않게 막대 폭만큼 비운다
-                rows.padding(.trailing, 10)
+                rows.padding(.trailing, 10.scaled)
             }
             .frame(height: CGFloat(Self.maxVisibleRows) * Self.rowHeight)
         } else {
@@ -138,15 +138,15 @@ struct TodoTab: View {
     private var doneHeader: some View {
         HStack {
             Text(String(localized: "완료 \(doneItems.count)"))
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 11.scaled, weight: .medium))
                 .foregroundStyle(Theme.ink.opacity(0.4))
             Spacer()
             Button(String(localized: "todo.clearDone", defaultValue: "지우기", comment: "완료 묶음을 치우는 버튼")) { store.clearDone() }
                 .buttonStyle(.plain)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 11.scaled, weight: .medium))
                 .foregroundStyle(Theme.primaryLight)
         }
-        .padding(.horizontal, 2)
+        .padding(.horizontal, 2.scaled)
         .frame(height: Self.rowHeight)
     }
 
@@ -229,29 +229,29 @@ private struct TodoRow: View {
     private var isExpanded: Bool { expandedID == item.id }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .top, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0.scaled) {
+            HStack(alignment: .top, spacing: 8.scaled) {
                 Button {
                     store.setDone(item, !item.isDone)
                 } label: {
                     // 테두리만 있는 동그라미는 선 위만 눌리므로, 둘레까지 넉넉히 누를 수 있게 한다
                     checkmark
-                        .frame(width: 20, height: TodoTab.rowHeight)
+                        .frame(width: 20.scaled, height: TodoTab.rowHeight)
                         .contentShape(Rectangle())
                         // 넓힌 만큼 양옆을 줄여 줄 배치는 그대로 둔다
-                        .padding(.horizontal, -3.5)
+                        .padding(.horizontal, -3.5.scaled)
                 }
                 .buttonStyle(.plain)
                 .help(item.isDone ? String(localized: "되돌리기") : String(localized: "끝내기"))
 
                 // 메모 표시는 제목 바로 뒤에 붙여, 마우스를 올려 ×가 나타나도 자리가 바뀌지 않게 한다
-                HStack(alignment: .top, spacing: 3) {
+                HStack(alignment: .top, spacing: 3.scaled) {
                     title
                     if !item.note.isEmpty {
                         noteToggle
                     }
                 }
-                Spacer(minLength: 4)
+                Spacer(minLength: 4.scaled)
                 if let dueDate = item.dueDate {
                     dueLabel(dueDate)
                 }
@@ -260,9 +260,9 @@ private struct TodoRow: View {
                         store.hide(item)
                     } label: {
                         Image(systemName: "xmark")
-                            .font(.system(size: 9, weight: .semibold))
+                            .font(.system(size: 9.scaled, weight: .semibold))
                             .foregroundStyle(Theme.ink.opacity(0.45))
-                            .frame(width: 16, height: TodoTab.rowHeight)
+                            .frame(width: 16.scaled, height: TodoTab.rowHeight)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -272,8 +272,8 @@ private struct TodoRow: View {
             if isExpanded {
                 noteView
                     // 제목 글자와 줄을 맞춘다 (동그라미 13 + 간격 8)
-                    .padding(.leading, 21)
-                    .padding(.bottom, 7)
+                    .padding(.leading, 21.scaled)
+                    .padding(.bottom, 7.scaled)
             }
         }
         // 말풍선은 패널 바깥(왼쪽)으로 띄운다. 패널이 화면 가장자리에 붙어 있어서 반대쪽은 자리가 없다
@@ -294,14 +294,14 @@ private struct TodoRow: View {
                 dueEditingID = nil
             }
         }
-        .padding(.horizontal, 2)
+        .padding(.horizontal, 2.scaled)
         .contentShape(Rectangle())
         .background {
             if isDragged || isExpanded {
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: 6.scaled)
                     .fill(isDragged ? Theme.background.opacity(0.55) : .clear)
-                    .overlay(RoundedRectangle(cornerRadius: 6).fill(isDragged ? Theme.fillTrack : Theme.ink.opacity(0.04)))
-                    .padding(.horizontal, -4)
+                    .overlay(RoundedRectangle(cornerRadius: 6.scaled).fill(isDragged ? Theme.fillTrack : Theme.ink.opacity(0.04)))
+                    .padding(.horizontal, -4.scaled)
             }
         }
         .onHover { isHovering = $0 }
@@ -327,7 +327,7 @@ private struct TodoRow: View {
         if editingID == item.id {
             TextField("", text: $draft)
                 .textFieldStyle(.plain)
-                .font(.system(size: 12.5))
+                .font(.system(size: 12.5.scaled))
                 .focused($isFocused)
                 .onSubmit(finishEditing)
                 .onAppear {
@@ -341,13 +341,13 @@ private struct TodoRow: View {
         } else {
             // 펼치면 잘린 제목도 끝까지 보여 준다
             Text(item.title)
-                .font(.system(size: 12.5))
+                .font(.system(size: 12.5.scaled))
                 .strikethrough(item.isDone, color: Theme.ink.opacity(0.35))
                 .foregroundStyle(Theme.ink.opacity(item.isDone ? 0.35 : 0.88))
                 .lineLimit(isExpanded ? nil : 1)
                 .truncationMode(.tail)
                 .fixedSize(horizontal: false, vertical: isExpanded)
-                .padding(.vertical, isExpanded ? 5 : 0)
+                .padding(.vertical, isExpanded ? 5.scaled : 0)
                 .frame(minHeight: TodoTab.rowHeight)
                 .onTapGesture(count: 2) { editingID = item.id }
         }
@@ -363,9 +363,9 @@ private struct TodoRow: View {
             }
         } label: {
             Image(systemName: "text.alignleft")
-                .font(.system(size: 9, weight: .medium))
+                .font(.system(size: 9.scaled, weight: .medium))
                 .foregroundStyle(Theme.ink.opacity(isExpanded ? 0.6 : 0.3))
-                .frame(width: 16, height: TodoTab.rowHeight)
+                .frame(width: 16.scaled, height: TodoTab.rowHeight)
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -374,15 +374,15 @@ private struct TodoRow: View {
 
     /// 펼친 메모 (읽기 전용, 글자는 골라 복사할 수 있다). 끝의 "편집"으로 말풍선을 띄운다
     private var noteView: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 4.scaled) {
             Text(item.note)
-                .font(.system(size: 11.5))
+                .font(.system(size: 11.5.scaled))
                 .foregroundStyle(Theme.ink.opacity(0.62))
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
             Button(String(localized: "편집")) { noteEditingID = item.id }
                 .buttonStyle(.plain)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 11.scaled, weight: .medium))
                 .foregroundStyle(Theme.primaryLight)
         }
     }
@@ -392,7 +392,7 @@ private struct TodoRow: View {
         let now = Date()
         let isSoon = !item.isDone && TodoDue.isSoon(dueDate, now: now, days: soonDays)
         return Text(TodoDue.label(dueDate, now: now))
-            .font(.system(size: 10.5, weight: isSoon ? .semibold : .regular))
+            .font(.system(size: 10.5.scaled, weight: isSoon ? .semibold : .regular))
             .monospacedDigit()
             .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flame) : AnyShapeStyle(Theme.ink.opacity(item.isDone ? 0.25 : 0.4)))
             .frame(height: TodoTab.rowHeight)
@@ -403,12 +403,12 @@ private struct TodoRow: View {
     private var checkmark: some View {
         if item.isDone {
             Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 13))
+                .font(.system(size: 13.scaled))
                 .foregroundStyle(Theme.primary.opacity(0.7))
         } else {
             Circle()
                 .strokeBorder(Theme.ink.opacity(0.45), lineWidth: 1.2)
-                .frame(width: 13, height: 13)
+                .frame(width: 13.scaled, height: 13.scaled)
         }
     }
 
@@ -459,23 +459,23 @@ struct PassiveTodoList: View {
     private func list(now: Date) -> some View {
         let arranged = TodoDue.arrange(openItems, now: now, days: soonDays)
         let items = arranged.soon + arranged.rest
-        return VStack(alignment: .leading, spacing: 6) {
-            Rectangle().fill(Theme.divider).frame(height: 1)
+        return VStack(alignment: .leading, spacing: 6.scaled) {
+            Rectangle().fill(Theme.divider).frame(height: 1.scaled)
             ForEach(items.prefix(Self.visibleCount)) { item in
-                HStack(spacing: 7) {
+                HStack(spacing: 7.scaled) {
                     Circle()
                         .strokeBorder(Theme.ink.opacity(0.5), lineWidth: 1.1)
-                        .frame(width: 9, height: 9)
+                        .frame(width: 9.scaled, height: 9.scaled)
                     Text(item.title)
-                        .font(.system(size: 11.5))
+                        .font(.system(size: 11.5.scaled))
                         .foregroundStyle(Theme.ink.opacity(0.85))
                         .lineLimit(1)
                         .truncationMode(.tail)
                     if let dueDate = item.dueDate {
-                        Spacer(minLength: 4)
+                        Spacer(minLength: 4.scaled)
                         let isSoon = TodoDue.isSoon(dueDate, now: now, days: soonDays)
                         Text(TodoDue.label(dueDate, now: now))
-                            .font(.system(size: 10.5, weight: isSoon ? .semibold : .regular))
+                            .font(.system(size: 10.5.scaled, weight: isSoon ? .semibold : .regular))
                             .monospacedDigit()
                             .foregroundStyle(isSoon ? AnyShapeStyle(Theme.flameTextPassive) : AnyShapeStyle(Theme.ink.opacity(0.4)))
                     }
@@ -483,13 +483,13 @@ struct PassiveTodoList: View {
             }
             if openItems.count > Self.visibleCount {
                 // 할 일 줄과 같은 자리에 맞춰, 동그라미 대신 흐린 ⋯를 둔다
-                HStack(spacing: 7) {
+                HStack(spacing: 7.scaled) {
                     Image(systemName: "ellipsis")
-                        .font(.system(size: 8, weight: .bold))
+                        .font(.system(size: 8.scaled, weight: .bold))
                         .foregroundStyle(Theme.ink.opacity(0.4))
-                        .frame(width: 9)
+                        .frame(width: 9.scaled)
                     Text("\(openItems.count - Self.visibleCount) more")
-                        .font(.system(size: 11))
+                        .font(.system(size: 11.scaled))
                         .foregroundStyle(Theme.ink.opacity(0.45))
                 }
             }
@@ -504,7 +504,7 @@ struct CollapsedTodoCount: View {
     var body: some View {
         if !openItems.isEmpty {
             Text(String(localized: "할 일 \(openItems.count)"))
-                .font(.system(size: 11.5, weight: .medium))
+                .font(.system(size: 11.5.scaled, weight: .medium))
                 .foregroundStyle(Theme.ink.opacity(0.6))
                 .monospacedDigit()
         }

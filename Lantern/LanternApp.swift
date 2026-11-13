@@ -164,7 +164,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 window.orderOut(nil)
             }
             func panel(_ name: String) {
-                render(name, width: 300) {
+                render(name, width: 300.scaled) {
                     PanelView(
                         awake: awake, power: power, state: state, lidMode: lidMode, safety: safety,
                         agentMonitor: agentMonitor, agentAwake: agentAwake, todoStore: store, updates: updates,

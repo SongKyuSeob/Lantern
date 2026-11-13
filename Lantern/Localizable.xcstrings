@@ -861,6 +861,22 @@
         }
       }
     },
+    "기본": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기본"
+          }
+        }
+      }
+    },
     "기본값": {
       "localizations": {
         "en": {
@@ -1341,6 +1357,22 @@
         }
       }
     },
+    "낮출수록 뒤가 잘 비쳐요. 눌러서 펼친 창은 그대로 진하게 보여요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower it to see more of what's behind. The expanded window stays fully opaque."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "낮출수록 뒤가 잘 비쳐요. 눌러서 펼친 창은 그대로 진하게 보여요."
+          }
+        }
+      }
+    },
     "내일까지": {
       "localizations": {
         "en": {
@@ -1421,6 +1453,22 @@
         }
       }
     },
+    "더 크게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Larger"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "더 크게"
+          }
+        }
+      }
+    },
     "되돌리기": {
       "localizations": {
         "en": {
@@ -1449,6 +1497,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "디자인 QA 피드백 정리"
+          }
+        }
+      }
+    },
+    "떠 있는 창의 글자와 창 크기를 함께 바꿔요.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes the text and window size of the floating window together."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "떠 있는 창의 글자와 창 크기를 함께 바꿔요."
           }
         }
       }
@@ -2893,6 +2957,22 @@
         }
       }
     },
+    "작게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "작게"
+          }
+        }
+      }
+    },
     "작업 중 %lld": {
       "localizations": {
         "en": {
@@ -3261,6 +3341,22 @@
         }
       }
     },
+    "창 모습": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "창 모습"
+          }
+        }
+      }
+    },
     "창 보이기": {
       "localizations": {
         "en": {
@@ -3389,6 +3485,38 @@
         }
       }
     },
+    "크게": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "크게"
+          }
+        }
+      }
+    },
+    "크기": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Size"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "크기"
+          }
+        }
+      }
+    },
     "크래시 로그 확인": {
       "localizations": {
         "en": {
@@ -3449,6 +3577,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "편집"
+          }
+        }
+      }
+    },
+    "평소 창 불투명도": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Summary window opacity"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "평소 창 불투명도"
           }
         }
       }

@@ -41,7 +41,7 @@ final class FloatingPanelController {
         corner = UserDefaults.standard.string(forKey: Self.cornerKey).flatMap(PanelCorner.init) ?? .topRight
         screenID = (UserDefaults.standard.object(forKey: Self.screenKey) as? Int).map { CGDirectDisplayID($0) }
         panel = FloatingPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 300, height: 120),
+            contentRect: NSRect(x: 0, y: 0, width: 300.scaled, height: 120),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
@@ -69,6 +69,14 @@ final class FloatingPanelController {
         host.view.layer?.backgroundColor = .clear
         panel.contentViewController = host
 
+        opacityObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.state.mode == .passive else { return }
+                self.updateHoverFade()
+            }
+        }
         screenObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main
         ) { [weak self] _ in
@@ -95,7 +103,7 @@ final class FloatingPanelController {
 
     /// 디버그 빌드에서만: 터미널에서 창 동작을 흉내 내 확인한다.
     /// `com.songkyuseob.lantern.debug` 알림에 `toggle`(아이콘 클릭) · `chevron`(⌃/⌄) · `outside`(창 밖 클릭) · `pickTime`
-    /// · `snapshot:<경로>`(창을 PNG로 저장)
+    /// · `snapshot:<경로>`(창을 PNG로 저장) · `size:<small|standard|large|larger>`(크기 단계)
     private func observeDebugCommands() {
         debugObserver = DistributedNotificationCenter.default().addObserver(
             forName: Notification.Name("com.songkyuseob.lantern.debug"), object: nil, queue: .main
@@ -110,6 +118,9 @@ final class FloatingPanelController {
                     self.state.mode = .passive
                 case "outside": self.state.mode = .passive
                 case "pickTime": self.state.isPickingTime.toggle()
+                case let command? where command.hasPrefix("size:"):
+                    // 설정 창에서 크기를 고른 것과 같다 (앱 안에서 바꿔야 `@AppStorage`가 알아챈다)
+                    UserDefaults.standard.set(String(command.dropFirst("size:".count)), forKey: PanelSize.key)
                 case let command? where command.hasPrefix("snapshot:"):
                     self.panel.contentView?.writeSnapshot(to: String(command.dropFirst("snapshot:".count)))
                 default: break
@@ -318,6 +329,8 @@ final class FloatingPanelController {
     /// 마지막으로 정한 불투명도. 애니메이션 도중의 값과 비교하면 흐린 채 멈출 수 있어 목표값을 따로 둔다
     private var targetAlpha: CGFloat = 1
     private var hoverMonitor: Any?
+    /// 설정에서 평소 창 투명도를 바꾸면 바로 반영한다
+    private var opacityObserver: NSObjectProtocol?
     /// 흐려진 동안 커서가 벗어났는지 직접 확인한다. 커서가 순간 이동하면 마지막 이동 알림이 오지 않을 수 있다
     private var hoverCheckTimer: Timer?
 
@@ -342,7 +355,7 @@ final class FloatingPanelController {
 
     private func updateHoverFade() {
         let isOver = panel.isVisible && panel.frame.contains(NSEvent.mouseLocation)
-        setAlpha(isOver ? Self.hoverAlpha : 1)
+        setAlpha(isOver ? Self.hoverAlpha : PanelAppearance.passiveOpacity)
         if isOver { startHoverCheck() } else { stopHoverCheck() }
     }
 

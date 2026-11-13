@@ -46,6 +46,7 @@
 | 평소 창 | summary window | 마우스 클릭이 통과하는 반투명 창 |
 | 활성 창 | expanded window | 아이콘·단축키로 연 창 (README에서만 씀) |
 | 한 줄 보기 | single-line view | 메뉴 항목은 **Single-Line View** |
+| 창 모습 / 평소 창 불투명도 / 크기 | Appearance / Summary window opacity / Size | 크기 단계: Small / Default / Large / Larger |
 
 ### 깨어 있기 탭·메뉴
 

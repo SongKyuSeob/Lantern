@@ -440,6 +440,8 @@ private struct GeneralSection: View {
     let loginItem: LoginItemController
     @Bindable var panelState: PanelState
     @AppStorage(Localization.preferenceKey) private var language: LanguagePreference = .system
+    @AppStorage(PanelAppearance.opacityKey) private var passiveOpacity = 1.0
+    @AppStorage(PanelSize.key) private var panelSize: PanelSize = .standard
 
     var body: some View {
         Section {
@@ -485,6 +487,32 @@ private struct GeneralSection: View {
             }
         } header: {
             Text(String(localized: "일반"))
+        }
+        Section {
+            LabeledContent {
+                HStack(spacing: 8) {
+                    Slider(value: $passiveOpacity, in: PanelAppearance.opacityRange, step: 0.05)
+                        .frame(width: 160)
+                    Text(verbatim: "\(Int((passiveOpacity * 100).rounded()))%")  // 번역 안 함: 숫자
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                        .frame(width: 40, alignment: .trailing)
+                }
+            } label: {
+                Text(String(localized: "평소 창 불투명도"))
+                Text(String(localized: "낮출수록 뒤가 잘 비쳐요. 눌러서 펼친 창은 그대로 진하게 보여요."))
+            }
+            Picker(selection: $panelSize) {
+                ForEach(PanelSize.allCases) { size in
+                    Text(size.title).tag(size)
+                }
+            } label: {
+                Text(String(localized: "크기"))
+                Text(String(localized: "떠 있는 창의 글자와 창 크기를 함께 바꿔요."))
+            }
+            .pickerStyle(.segmented)
+        } header: {
+            Text(String(localized: "창 모습"))
         }
     }
 }

@@ -15,6 +15,11 @@ struct PanelView: View {
     let updates: UpdateController
     let openSettings: () -> Void
     let openHistory: () -> Void
+    /// 크기 단계. 글자·폭·여백은 `.scaled`로 이 값을 곱하므로, 바뀌면 화면을 새로 그린다
+    @AppStorage(PanelSize.key) private var size: PanelSize = .standard
+    /// 내용의 실제 높이. 창 높이는 정수로만 정해져서, 143.5처럼 소수점이면 창이 144 ↔ 143을 끝없이 오가다 죽는다
+    /// (2026-11-14 "크게"에서 발생). 정수로 올림한 높이를 창에 알린다
+    @State private var contentHeight: CGFloat?
 
     var body: some View {
         Group {
@@ -31,8 +36,12 @@ struct PanelView: View {
                 PassiveSummary(awake: awake, power: power, agents: AgentStatusText(monitor: agentMonitor, phase: agentAwake.phase), updates: updates)
             }
         }
-        .frame(width: 300)
+        // 높이를 재는 부분은 그대로 두고 안쪽만 새로 그려야, 바뀐 높이를 놓치지 않는다
+        .id(size)
+        .frame(width: 300.scaled)
         .fixedSize(horizontal: false, vertical: true)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+        .frame(height: contentHeight.map { $0.rounded(.up) }, alignment: .top)
         .modelContainer(todoStore.container)
     }
 }
@@ -52,16 +61,16 @@ private struct ActivePanel: View {
     let openHistory: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 10.scaled) {
             header
             switch state.tab {
             case .awake: AwakeTab(awake: awake, power: power, state: state, lidMode: lidMode, safety: safety, agents: agents, openSettings: openSettings)
             case .todo: TodoTab(store: todoStore, state: state, openHistory: openHistory)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .panelBackground(RoundedRectangle(cornerRadius: 14), passive: false)
+        .padding(.horizontal, 12.scaled)
+        .padding(.vertical, 10.scaled)
+        .panelBackground(RoundedRectangle(cornerRadius: 14.scaled), passive: false)
     }
 
     private var header: some View {
@@ -74,7 +83,7 @@ private struct ActivePanel: View {
             .help(Self.moveHelp)
             // 빈 곳에만 옮기기 설명을 단다. 줄 전체에 달면 업데이트 알약의 설명을 가린다
             Color.clear
-                .frame(maxWidth: .infinity, minHeight: 20)
+                .frame(maxWidth: .infinity, minHeight: 20.scaled)
                 .contentShape(Rectangle())
                 .help(Self.moveHelp)
             if let version = updates.availableVersion {
@@ -107,7 +116,7 @@ private struct AwakeTab: View {
     let openSettings: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 10.scaled) {
             StatusCard(awake: awake, agents: agents)
             durationRow
             if state.isPickingTime {
@@ -122,15 +131,15 @@ private struct AwakeTab: View {
                 Divider()
                 HStack {
                     Button(String(localized: "화면 끄기")) { awake.turnOffDisplay() }
-                        .font(.system(size: 12))
+                        .font(.system(size: 12.scaled))
                         .foregroundStyle(Theme.ink.opacity(0.6))
                     Spacer()
                     Button(String(localized: "깨어 있기 끄기")) { awake.stop() }
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 12.scaled, weight: .semibold))
                         .foregroundStyle(Theme.primaryLight)
                 }
                 .buttonStyle(.plain)
-                .padding(.horizontal, 2)
+                .padding(.horizontal, 2.scaled)
             }
         }
     }
@@ -148,9 +157,9 @@ private struct AwakeTab: View {
             return .option(option)
         }()
         // 다섯 칸이 라벨과 한 줄에 들어가지 않아 라벨을 위로 올린다
-        return VStack(alignment: .leading, spacing: 6) {
+        return VStack(alignment: .leading, spacing: 6.scaled) {
             Text(String(localized: "언제까지"))
-                .font(.system(size: 12))
+                .font(.system(size: 12.scaled))
                 .foregroundStyle(Theme.ink.opacity(0.5))
             SegmentedPicker(
                 items: [
@@ -172,29 +181,29 @@ private struct AwakeTab: View {
                 }
             }
         }
-        .padding(.leading, 2)
+        .padding(.leading, 2.scaled)
     }
 
     private func lidRows(_ lid: (staysAwake: Bool, value: String, detail: String)) -> some View {
         let color = lid.staysAwake ? Theme.good : Theme.bad
-        return VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: 10.scaled) {
             HStack {
                 Text(String(localized: "지금 뚜껑을 닫으면"))
-                    .font(.system(size: 12.5))
+                    .font(.system(size: 12.5.scaled))
                     .foregroundStyle(Theme.ink.opacity(0.85))
                 Spacer()
-                HStack(spacing: 5) {
-                    Circle().fill(lid.staysAwake ? Theme.goodDot : Theme.bad).frame(width: 5, height: 5)
+                HStack(spacing: 5.scaled) {
+                    Circle().fill(lid.staysAwake ? Theme.goodDot : Theme.bad).frame(width: 5.scaled, height: 5.scaled)
                     Text(lid.value)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 12.scaled, weight: .medium))
                         .foregroundStyle(color)
                 }
             }
             Text(lid.detail)
-                .font(.system(size: 11.5))
+                .font(.system(size: 11.5.scaled))
                 .foregroundStyle(Theme.ink.opacity(0.4))
         }
-        .padding(.horizontal, 2)
+        .padding(.horizontal, 2.scaled)
     }
 }
 
@@ -206,14 +215,14 @@ private struct LidModeRow: View {
     let openSettings: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: 8.scaled) {
+            VStack(alignment: .leading, spacing: 2.scaled) {
                 Text(String(localized: "뚜껑 닫아도 유지"))
-                    .font(.system(size: 12.5))
+                    .font(.system(size: 12.5.scaled))
                     .foregroundStyle(Theme.ink.opacity(canToggle ? 0.85 : 0.45))
                 if let note {
                     Text(note.text)
-                        .font(.system(size: 11))
+                        .font(.system(size: 11.scaled))
                         .foregroundStyle(note.isError ? Theme.bad : Theme.ink.opacity(0.4))
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -222,7 +231,7 @@ private struct LidModeRow: View {
             if lidMode.setup.status == .notInstalled {
                 Button(action: openSettings) {
                     Label(String(localized: "설정"), systemImage: "lock.fill")
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.system(size: 11.scaled, weight: .medium))
                         .foregroundStyle(Theme.primaryLight)
                 }
                 .buttonStyle(.plain)
@@ -239,7 +248,7 @@ private struct LidModeRow: View {
                 .disabled(!canToggle)
             }
         }
-        .padding(.horizontal, 2)
+        .padding(.horizontal, 2.scaled)
     }
 
     /// 켜져 있으면 언제든 끌 수 있고, 꺼져 있으면 조건이 맞을 때만 켤 수 있다
@@ -268,39 +277,39 @@ private struct StatusCard: View {
     var body: some View {
         HStack {
             if let session = awake.current, session.option == .untilAgentsFinish {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        FlameDot(size: 6)
+                VStack(alignment: .leading, spacing: 2.scaled) {
+                    HStack(spacing: 6.scaled) {
+                        FlameDot(size: 6.scaled)
                         Text(String(localized: "깨어 있는 중 · 에이전트가 끝날 때까지"))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(size: 11.scaled, weight: .medium))
                             .foregroundStyle(Theme.flameText)
                     }
                     Text(agents.headline)
-                        .font(.system(size: 15, weight: .semibold))
+                        .font(.system(size: 15.scaled, weight: .semibold))
                         .foregroundStyle(Theme.ink)
                     if let detail = agents.detail {
                         Text(detail)
-                            .font(.system(size: 11))
+                            .font(.system(size: 11.scaled))
                             .foregroundStyle(Theme.ink.opacity(0.5))
                     }
                 }
                 .help(AgentStatusText.rulesHelp)
                 Spacer()
             } else if let session = awake.current {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        FlameDot(size: 6)
+                VStack(alignment: .leading, spacing: 2.scaled) {
+                    HStack(spacing: 6.scaled) {
+                        FlameDot(size: 6.scaled)
                         Text(String(localized: "깨어 있는 중") + " · " + (AwakeText.until(session) ?? AwakeText.label(for: session.option)))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(size: 11.scaled, weight: .medium))
                             .foregroundStyle(Theme.flameText)
                     }
                     if let remaining = awake.remaining {
-                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 20, weight: .semibold)).foregroundStyle(Theme.ink))\(Text(String(localized: " 남음")).font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.5)))")
+                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 20.scaled, weight: .semibold)).foregroundStyle(Theme.ink))\(Text(String(localized: " 남음")).font(.system(size: 13.scaled, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.5)))")
                             .tracking(-0.3)
                             .monospacedDigit()
                     } else {
                         Text(String(localized: "끌 때까지 깨어 있음"))
-                            .font(.system(size: 15, weight: .semibold))
+                            .font(.system(size: 15.scaled, weight: .semibold))
                             .foregroundStyle(Theme.ink)
                     }
                 }
@@ -313,7 +322,7 @@ private struct StatusCard: View {
                         }
                     } label: {
                         Text(String(localized: "연장 ›"))
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(size: 12.scaled, weight: .medium))
                             .foregroundStyle(Theme.primaryLight)
                             .contentShape(Rectangle())
                     }
@@ -324,27 +333,27 @@ private struct StatusCard: View {
                     .help(String(localized: "지금 끝 시각에 시간을 더해요"))
                 }
             } else {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 6) {
-                        HollowDot(size: 6)
+                VStack(alignment: .leading, spacing: 4.scaled) {
+                    HStack(spacing: 6.scaled) {
+                        HollowDot(size: 6.scaled)
                         Text(String(localized: "깨어 있기 꺼짐"))
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.system(size: 11.scaled, weight: .medium))
                             .foregroundStyle(Theme.ink.opacity(0.6))
                     }
                     Text(String(localized: "맥이 평소처럼 잠들어요"))
-                        .font(.system(size: 13, weight: .medium))
+                        .font(.system(size: 13.scaled, weight: .medium))
                         .foregroundStyle(Theme.ink.opacity(0.5))
                 }
                 Spacer()
                 Button(String(localized: "\(AwakeText.shortLabel(for: awake.lastOption)) 시작 ›")) { awake.startWithLastOption() }
                     .buttonStyle(.plain)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 12.scaled, weight: .medium))
                     .foregroundStyle(Theme.primaryLight)
             }
         }
-        .padding(.horizontal, 11)
-        .padding(.vertical, 9)
-        .background(RoundedRectangle(cornerRadius: 10).fill(Theme.fillCard))
+        .padding(.horizontal, 11.scaled)
+        .padding(.vertical, 9.scaled)
+        .background(RoundedRectangle(cornerRadius: 10.scaled).fill(Theme.fillCard))
     }
 }
 
@@ -360,7 +369,7 @@ private struct TimePickerRow: View {
     private static let minutes = Array(stride(from: 0, to: 60, by: 5))
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 6.scaled) {
             // macOS 기본 시각 칸은 글자에 비해 칸이 빠듯해서, 시·분을 각각 목록에서 고르는 칸으로 만든다
             ChipMenu(title: AwakeText.hourLabel(hour)) {
                 ForEach(0..<24, id: \.self) { value in
@@ -373,19 +382,19 @@ private struct TimePickerRow: View {
                 }
             }
             Text(preview)
-                .font(.system(size: 11.5))
+                .font(.system(size: 11.5.scaled))
                 .foregroundStyle(Theme.ink.opacity(0.55))
                 .lineLimit(1)
-            Spacer(minLength: 0)
+            Spacer(minLength: 0.scaled)
             Button(String(localized: "시작")) {
                 state.isPickingTime = false
                 awake.start(option)
             }
             .buttonStyle(.plain)
-            .font(.system(size: 12, weight: .semibold))
+            .font(.system(size: 12.scaled, weight: .semibold))
             .foregroundStyle(Theme.primaryLight)
         }
-        .padding(.horizontal, 2)
+        .padding(.horizontal, 2.scaled)
     }
 
     private var option: AwakeOption {
@@ -412,19 +421,19 @@ private struct ChipMenu<Content: View>: View {
 
     var body: some View {
         Menu(content: content) {
-            HStack(spacing: 4) {
+            HStack(spacing: 4.scaled) {
                 Text(title)
-                    .font(.system(size: 12.5, weight: .medium))
+                    .font(.system(size: 12.5.scaled, weight: .medium))
                     .foregroundStyle(Theme.ink)
                     .lineLimit(1)
                     .fixedSize()
                 Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 8, weight: .semibold))
+                    .font(.system(size: 8.scaled, weight: .semibold))
                     .foregroundStyle(Theme.ink.opacity(0.5))
             }
-            .padding(.horizontal, 9)
-            .padding(.vertical, 5)
-            .background(RoundedRectangle(cornerRadius: 6).fill(Theme.ink.opacity(0.08)))
+            .padding(.horizontal, 9.scaled)
+            .padding(.vertical, 5.scaled)
+            .background(RoundedRectangle(cornerRadius: 6.scaled).fill(Theme.ink.opacity(0.08)))
             .contentShape(Rectangle())
         }
         .menuStyle(.button)
@@ -444,61 +453,61 @@ private struct PassiveSummary: View {
     let updates: UpdateController
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8.scaled) {
             if let session = awake.current {
                 HStack {
-                    HStack(spacing: 7) {
-                        FlameDot(size: 7)
+                    HStack(spacing: 7.scaled) {
+                        FlameDot(size: 7.scaled)
                         Text(String(localized: "깨어 있는 중"))
-                            .font(.system(size: 12.5, weight: .semibold))
+                            .font(.system(size: 12.5.scaled, weight: .semibold))
                             .foregroundStyle(Theme.flameTextPassive)
                     }
                     Spacer()
                     if let remaining = awake.remaining {
-                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 14, weight: .semibold)).foregroundStyle(Theme.ink))\(Text(String(localized: " 남음")).font(.system(size: 11, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.6)))")
+                        Text("\(Text(RemainingTimeFormat.string(from: remaining)).font(.system(size: 14.scaled, weight: .semibold)).foregroundStyle(Theme.ink))\(Text(String(localized: " 남음")).font(.system(size: 11.scaled, weight: .medium)).foregroundStyle(Theme.ink.opacity(0.6)))")
                             .monospacedDigit()
                     } else if session.option == .untilAgentsFinish {
                         Text(agents.short)
-                            .font(.system(size: 12, weight: .semibold))
+                            .font(.system(size: 12.scaled, weight: .semibold))
                             .foregroundStyle(Theme.ink)
                     }
                 }
                 // 새 버전 표시는 위쪽 줄 오른편이 남은 시간으로 차 있어서 설명 줄 오른편에 둔다
                 HStack(alignment: .firstTextBaseline) {
                     detailLine(session)
-                    Spacer(minLength: 8)
+                    Spacer(minLength: 8.scaled)
                     updateNote
                 }
             } else {
                 HStack {
-                    HStack(spacing: 7) {
-                        HollowDot(size: 7)
+                    HStack(spacing: 7.scaled) {
+                        HollowDot(size: 7.scaled)
                         Text(String(localized: "깨어 있기 꺼짐"))
-                            .font(.system(size: 12, weight: .medium))
+                            .font(.system(size: 12.scaled, weight: .medium))
                             .foregroundStyle(Theme.ink.opacity(0.7))
                     }
-                    Spacer(minLength: 8)
+                    Spacer(minLength: 8.scaled)
                     updateNote
                 }
             }
             PassiveTodoList()
         }
         .shadow(color: Theme.textShadow, radius: 1.5, y: 1)
-        .padding(.horizontal, 12)
-        .padding(.top, 10)
-        .padding(.bottom, 12)
+        .padding(.horizontal, 12.scaled)
+        .padding(.top, 10.scaled)
+        .padding(.bottom, 12.scaled)
         // "깨어 있기 꺼짐" 한 줄일 때도 글자 길이만큼 줄어들지 않고 창 폭을 가득 채운다
         .frame(maxWidth: .infinity, alignment: .leading)
-        .panelBackground(RoundedRectangle(cornerRadius: 14), passive: true)
+        .panelBackground(RoundedRectangle(cornerRadius: 14.scaled), passive: true)
     }
 
     /// 새 버전이 있으면 "● 새 버전 0.3.0". 평소 창은 클릭이 통과하므로 알리기만 하고, 설치는 펼친 창의 알약에서 한다
     @ViewBuilder private var updateNote: some View {
         if let version = updates.availableVersion {
-            HStack(spacing: 5) {
-                Circle().fill(Theme.primary).frame(width: 5, height: 5)
+            HStack(spacing: 5.scaled) {
+                Circle().fill(Theme.primary).frame(width: 5.scaled, height: 5.scaled)
                 Text(updates.installsAfterAwake ? String(localized: "끝나면 \(version) 설치") : String(localized: "새 버전 \(version)"))
-                    .font(.system(size: 11, weight: .medium))
+                    .font(.system(size: 11.scaled, weight: .medium))
                     .foregroundStyle(Theme.ink.opacity(0.6))
                     .lineLimit(1)
                     .fixedSize()
@@ -520,7 +529,7 @@ private struct PassiveSummary: View {
         } else {
             line = base
         }
-        return line.font(.system(size: 11))
+        return line.font(.system(size: 11.scaled))
     }
 }
 
@@ -535,17 +544,17 @@ private struct CollapsedBar: View {
     var body: some View {
         HStack {
             if awake.isAwake {
-                HStack(spacing: 7) {
-                    FlameDot(size: 7)
+                HStack(spacing: 7.scaled) {
+                    FlameDot(size: 7.scaled)
                     Text("\(Text(String(localized: "깨어 있는 중")).foregroundStyle(Theme.flameTextPassive))\(Text(" · \(shortStatus)").foregroundStyle(Theme.ink))")
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 12.scaled, weight: .semibold))
                         .monospacedDigit()
                 }
             } else {
-                HStack(spacing: 7) {
-                    HollowDot(size: 7)
+                HStack(spacing: 7.scaled) {
+                    HollowDot(size: 7.scaled)
                     Text(String(localized: "깨어 있기 꺼짐"))
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 12.scaled, weight: .medium))
                         .foregroundStyle(Theme.ink.opacity(0.7))
                 }
             }
@@ -553,13 +562,13 @@ private struct CollapsedBar: View {
             CollapsedTodoCount()
             // 새 버전이 있으면 작은 파란 점만 둔다. 펼치면 헤더 알약에서 설치한다
             if updates.availableVersion != nil {
-                Circle().fill(Theme.primary).frame(width: 6, height: 6)
+                Circle().fill(Theme.primary).frame(width: 6.scaled, height: 6.scaled)
             }
         }
         .shadow(color: Theme.textShadow, radius: 1.5, y: 1)
-        .padding(.leading, 12)
-        .padding(.trailing, 12)
-        .padding(.vertical, 7)
+        .padding(.leading, 12.scaled)
+        .padding(.trailing, 12.scaled)
+        .padding(.vertical, 7.scaled)
         // 글자 길이만큼 줄어들지 않고 창 폭을 가득 채운다 (Figma 접힘 시안)
         .frame(maxWidth: .infinity, alignment: .leading)
         .panelBackground(Capsule(), passive: true)
@@ -584,26 +593,26 @@ private struct SegmentedPicker<Value: Hashable>: View {
     let onSelect: (Value) -> Void
 
     var body: some View {
-        HStack(spacing: style == .tab ? 2 : 1) {
+        HStack(spacing: (style == .tab ? 2 : 1).scaled) {
             ForEach(items, id: \.0) { value, title in
                 let isSelected = value == selection
                 Button { onSelect(value) } label: {
                     Text(title)
-                        .font(.system(size: 11.5, weight: isSelected ? .semibold : .medium))
+                        .font(.system(size: 11.5.scaled, weight: isSelected ? .semibold : .medium))
                         .lineLimit(1)
                         .fixedSize()
                         .foregroundStyle(foreground(isSelected))
-                        .padding(.horizontal, style == .tab ? 9 : 6)
-                        .padding(.vertical, 3)
+                        .padding(.horizontal, (style == .tab ? 9 : 6).scaled)
+                        .padding(.vertical, 3.scaled)
                         .frame(maxWidth: style == .segment ? .infinity : nil)
-                        .background(RoundedRectangle(cornerRadius: 5).fill(background(isSelected)))
+                        .background(RoundedRectangle(cornerRadius: 5.scaled).fill(background(isSelected)))
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(2)
-        .background(RoundedRectangle(cornerRadius: 7).fill(Theme.fillTrack))
+        .padding(2.scaled)
+        .background(RoundedRectangle(cornerRadius: 7.scaled).fill(Theme.fillTrack))
     }
 
     private func foreground(_ isSelected: Bool) -> Color {
@@ -630,16 +639,16 @@ private struct UpdatePill: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 5) {
-                Circle().fill(Theme.primary).frame(width: 5, height: 5)
+            HStack(spacing: 5.scaled) {
+                Circle().fill(Theme.primary).frame(width: 5.scaled, height: 5.scaled)
                 Text(waitsForAwake ? String(localized: "update.pill.pending", defaultValue: "끝나면 \(version) 설치", comment: "펼친 창 업데이트 알약: 깨어 있기가 끝나길 기다리는 중") : String(localized: "\(version) 업데이트"))
-                    .font(.system(size: 11, weight: .semibold))
+                    .font(.system(size: 11.scaled, weight: .semibold))
                     .foregroundStyle(Theme.primaryLight)
                     .lineLimit(1)
                     .fixedSize()
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 3)
+            .padding(.horizontal, 8.scaled)
+            .padding(.vertical, 3.scaled)
             .background(Capsule().fill(Theme.primary.opacity(0.18)))
             .contentShape(Capsule())
         }
@@ -671,7 +680,7 @@ private struct HollowDot: View {
 
 private struct Divider: View {
     var body: some View {
-        Rectangle().fill(Theme.divider).frame(height: 1)
+        Rectangle().fill(Theme.divider).frame(height: 1.scaled)
     }
 }
 
