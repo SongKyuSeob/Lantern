@@ -76,6 +76,7 @@ struct TodoTab: View {
                 .font(.system(size: 12.5))
                 .focused($isAdding)
                 .onSubmit {
+                    MarkedText.commit()
                     store.add(state.todoDraft)
                     state.todoDraft = ""
                     isAdding = true
@@ -420,6 +421,7 @@ private struct TodoRow: View {
 
     private func finishEditing() {
         guard editingID == item.id else { return }
+        MarkedText.commit()
         editingID = nil
         store.rename(item, to: draft)
     }

@@ -48,7 +48,11 @@ struct TodoNoteEditor: View {
                 Spacer()
                 Button(String(localized: "취소"), action: onCancel)
                     .keyboardShortcut(.cancelAction)
-                Button(String(localized: "저장")) { onSave(draft) }
+                Button(String(localized: "저장")) {
+                    // ⌘↩·버튼은 조합 중인 글자를 확정하지 않는다
+                    MarkedText.commit()
+                    onSave(draft)
+                }
                     .keyboardShortcut(.return, modifiers: .command)
                     .buttonStyle(.borderedProminent)
             }
